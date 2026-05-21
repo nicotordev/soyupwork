@@ -3,10 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+     "dev": "concurrently -k -n NEXT,TUNNEL -c blue,cyan \"bun run next:dev\" \"bun run tunnel\"",
+
+    "next:dev": "next dev",
+
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+
+    "lint": "eslint .",
+
+    "tunnel": "cloudflared tunnel run soyupwork-local"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1051.0",
@@ -31,6 +37,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "concurrently": "^9.2.1",
     "date-fns": "^4.2.1",
     "dompurify": "^3.4.5",
     "dotenv": "^17.4.2",
