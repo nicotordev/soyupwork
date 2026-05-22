@@ -26,6 +26,13 @@ enum LessonType {
   DOWNLOAD
 }
 
+enum LessonVideoStatus {
+  PENDING
+  READY
+  ERRORED
+  DELETED
+}
+
 enum EnrollmentStatus {
   ACTIVE
   COMPLETED
@@ -59,7 +66,8 @@ model User {
   imageUrl  String?
   role      UserRole @default(STUDENT)
 
-  stripeCustomerId String? @unique
+  stripeCustomerId String?   @unique
+  deletedAt        DateTime? @db.Timestamp(6)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -70,15 +78,17 @@ model User {
   subscriptions  Subscription[]
   quizAttempts   QuizAttempt[]
   certificates   Certificate[]
+
+  @@index([deletedAt])
 }
 
 model Course {
-  id          String       @id @default(uuid()) @db.Uuid
-  slug        String       @unique
-  title       String
-  description String?
+  id           String       @id @default(uuid()) @db.Uuid
+  slug         String       @unique
+  title        String
+  description  String?
   thumbnailUrl String?
-  status      CourseStatus @default(DRAFT)
+  status       CourseStatus @default(DRAFT)
 
   priceCents Int
   currency   String @default("usd")
@@ -122,22 +132,23 @@ model Lesson {
   description String?
   type        LessonType @default(VIDEO)
 
-  videoProvider String?
-  videoAssetId  String?
+  videoProvider   String?
+  videoAssetId    String?
   videoPlaybackId String?
-  videoUrl      String?
+  videoUrl        String?
+  videoStatus     LessonVideoStatus?
 
-  content       String?
-  durationSec   Int?
-  isPreview     Boolean @default(false)
-  position      Int
+  content     String?
+  durationSec Int?
+  isPreview   Boolean @default(false)
+  position    Int
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  module         CourseModule     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  progress       LessonProgress[]
-  quiz           Quiz?
+  module   CourseModule     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress LessonProgress[]
+  quiz     Quiz?
 
   @@unique([moduleId, slug])
   @@unique([moduleId, position])
@@ -150,7 +161,7 @@ model Enrollment {
   courseId String @db.Uuid
 
   status      EnrollmentStatus @default(ACTIVE)
-  completedAt DateTime? @db.Timestamp(6)
+  completedAt DateTime?        @db.Timestamp(6)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -193,7 +204,7 @@ model Product {
   name        String
   description String?
   priceCents  Int
-  currency    String @default("usd")
+  currency    String  @default("usd")
   active      Boolean @default(true)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
@@ -214,9 +225,9 @@ model Order {
   stripeCheckoutSessionId String? @unique
   stripePaymentIntentId   String? @unique
 
-  status     OrderStatus @default(PENDING)
+  status      OrderStatus @default(PENDING)
   amountCents Int
-  currency   String @default("usd")
+  currency    String      @default("usd")
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -257,9 +268,9 @@ model Quiz {
   id       String @id @default(uuid()) @db.Uuid
   lessonId String @unique @db.Uuid
 
-  title       String
-  description String?
-  passingScore Int @default(70)
+  title        String
+  description  String?
+  passingScore Int     @default(70)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -326,7 +337,7 @@ model Certificate {
   userId   String @db.Uuid
   courseId String @db.Uuid
 
-  code String @unique
+  code     String   @unique
   issuedAt DateTime @default(now()) @db.Timestamp(6)
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
