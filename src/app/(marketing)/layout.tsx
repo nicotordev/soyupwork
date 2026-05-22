@@ -1,4 +1,4 @@
-import MarketingNav from "@/components/marketing-nav";
+import { MarketingNavServer } from "@/components/marketing-nav/marketing-nav-server";
 
 export default function MarketingLayout({
   children,
@@ -6,8 +6,8 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
-      <MarketingNav />
+    <div className="flex min-h-screen flex-col">
+      <MarketingNavServer />
       <main className="flex-1">{children}</main>
     </div>
   );
