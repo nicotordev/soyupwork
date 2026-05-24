@@ -21,7 +21,7 @@ function SignedInActions({ layout }: { layout: "row" | "column" }) {
       <Button
         asChild
         variant="outline"
-        className="w-full border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_0px_var(--foreground)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] transition-all font-mono text-xs font-bold uppercase tracking-wider"
+        className="w-full"
       >
         <Link href="/dashboard">Panel</Link>
       </Button>
@@ -42,13 +42,11 @@ function SignedOutActions({ layout }: { layout: "row" | "column" }) {
       <Button
         variant="outline"
         asChild
-        className="w-full border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_0px_var(--foreground)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] transition-all font-mono text-xs font-bold uppercase tracking-wider"
       >
         <Link href="/sign-in">Iniciar sesión</Link>
       </Button>
       <Button
         asChild
-        className="w-full border-2 border-foreground bg-primary text-primary-foreground shadow-[2px_2px_0px_0px_var(--foreground)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] transition-all font-mono text-xs font-bold uppercase tracking-wider"
       >
         <Link href="/sign-up">Registrarse</Link>
       </Button>
