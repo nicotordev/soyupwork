@@ -1,36 +1,39 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { IconSearch, IconX, IconSchool } from "@tabler/icons-react";
+import type { CatalogTopicChip } from "@/lib/catalog/categories";
+import { IconSchool, IconSearch, IconX } from "@tabler/icons-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface CatalogHeaderProps {
   initialSearchQuery: string;
+  topicChips: CatalogTopicChip[];
 }
 
-export function CatalogHeader({ initialSearchQuery }: CatalogHeaderProps) {
+export function CatalogHeader({
+  initialSearchQuery,
+  topicChips,
+}: CatalogHeaderProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
 
   const [localQuery, setLocalQuery] = useState(initialSearchQuery);
 
-  // Sync state if initial prop changes (e.g. from clear filters)
   useEffect(() => {
     setLocalQuery(initialSearchQuery);
   }, [initialSearchQuery]);
 
-  // Debounced sync of search input to URL query parameters
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
-      
+
       if (localQuery.trim()) {
         params.set("q", localQuery.trim());
       } else {
         params.delete("q");
       }
-      
+
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     }, 350);
 
@@ -44,33 +47,11 @@ export function CatalogHeader({ initialSearchQuery }: CatalogHeaderProps) {
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const handleTopicChipClick = (topic: string) => {
+  const handleTopicChipClick = (chip: CatalogTopicChip) => {
     setLocalQuery("");
     const params = new URLSearchParams();
-
-    const categoryMap: { [key: string]: string } = {
-      "Upwork": "Ventas B2B en Upwork",
-      "Propuestas": "Propuestas que convierten",
-      "Pricing": "Nichos y pricing",
-      "Inglés": "Inglés para entrevistas",
-      "IA": "Connects y operación freelance",
-      "Automatización": "Connects y operación freelance",
-      "Fiscalidad": "Connects y operación freelance",
-    };
-
-    const matchedCategory = categoryMap[topic];
-    if (matchedCategory) {
-      params.append("category", matchedCategory);
-      if (topic === "IA" || topic === "Automatización" || topic === "Fiscalidad") {
-        setLocalQuery(topic);
-        params.set("q", topic);
-      }
-    } else {
-      setLocalQuery(topic);
-      params.set("q", topic);
-    }
-
-    router.replace(`${pathname}?${params.toString()}`);
+    params.append("category", chip.categorySlug);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
   return (
@@ -83,17 +64,19 @@ export function CatalogHeader({ initialSearchQuery }: CatalogHeaderProps) {
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight font-sans leading-none text-balance">
             Explora cursos para vender <br className="hidden md:inline" />
-            <span className="bg-primary/20 border-b-4 border-primary px-1">mejor tus servicios</span>
+            <span className="bg-primary/20 border-b-4 border-primary px-1">
+              mejor tus servicios
+            </span>
           </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
-            Aprende Upwork, propuestas, pricing, entrevistas, automatización e IA con rutas prácticas estructuradas exclusivamente para freelancers de LATAM.
+            Aprende Upwork, propuestas, pricing, entrevistas, automatización e
+            IA con rutas prácticas estructuradas exclusivamente para freelancers
+            de LATAM.
           </p>
         </div>
       </div>
 
-      {/* Search Bar & Quick Topics */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pt-2">
-        {/* Search Box */}
         <div className="lg:col-span-2 relative">
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <IconSearch className="size-4 text-muted-foreground" />
@@ -116,19 +99,23 @@ export function CatalogHeader({ initialSearchQuery }: CatalogHeaderProps) {
           )}
         </div>
 
-        {/* Quick topics chips */}
-        <div className="flex flex-wrap items-center gap-1.5 justify-center lg:justify-start">
-          <span className="text-xs font-mono font-bold uppercase text-muted-foreground mr-1">Rutas:</span>
-          {["Upwork", "Propuestas", "Pricing", "Inglés", "IA", "Automatización", "Fiscalidad"].map((topic) => (
-            <button
-              key={topic}
-              onClick={() => handleTopicChipClick(topic)}
-              className="font-mono text-[10px] font-bold bg-secondary hover:bg-primary hover:text-primary-foreground border-2 border-foreground px-2 py-0.5 rounded cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-px shadow-[1px_1px_0px_0px_var(--foreground)] hover:shadow-[2px_2px_0px_0px_var(--foreground)]"
-            >
-              {topic}
-            </button>
-          ))}
-        </div>
+        {topicChips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 justify-center lg:justify-start">
+            <span className="text-xs font-mono font-bold uppercase text-muted-foreground mr-1">
+              Rutas:
+            </span>
+            {topicChips.map((chip) => (
+              <button
+                key={chip.categorySlug}
+                type="button"
+                onClick={() => handleTopicChipClick(chip)}
+                className="font-mono text-[10px] font-bold bg-secondary hover:bg-primary hover:text-primary-foreground border-2 border-foreground px-2 py-0.5 rounded cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-px shadow-[1px_1px_0px_0px_var(--foreground)] hover:shadow-[2px_2px_0px_0px_var(--foreground)]"
+              >
+                {chip.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </header>
   );

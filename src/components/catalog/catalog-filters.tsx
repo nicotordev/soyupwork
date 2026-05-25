@@ -42,7 +42,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 interface CatalogFiltersProps {
   filterOptions: CatalogFilterOptions;
   activeFiltersCount: number;
-  selectedCategories: string[];
+  selectedCategorySlugs: string[];
   selectedLevels: string[];
   selectedDurations: string[];
   selectedAccess: string;
@@ -55,7 +55,7 @@ interface CatalogFiltersProps {
 interface CatalogFilterPanelProps {
   filterOptions: CatalogFilterOptions;
   activeFiltersCount: number;
-  selectedCategories: string[];
+  selectedCategorySlugs: string[];
   selectedLevels: string[];
   selectedDurations: string[];
   selectedAccess: string;
@@ -70,7 +70,7 @@ interface CatalogFilterPanelProps {
 function CatalogFilterPanel({
   filterOptions,
   activeFiltersCount,
-  selectedCategories,
+  selectedCategorySlugs,
   selectedLevels,
   selectedDurations,
   selectedAccess,
@@ -115,8 +115,8 @@ function CatalogFilterPanel({
         </div>
       </div>
 
-      <FieldGroup className="gap-0">
-        <FieldSet className="gap-2 border-0 p-0">
+      <FieldGroup className="gap-2">
+        <FieldSet className="gap-1 mt-4">
           <FieldLegend className={catalogFilterSectionTitleClass}>
             Categorías
           </FieldLegend>
@@ -131,9 +131,9 @@ function CatalogFilterPanel({
                 >
                   <Checkbox
                     id={inputId}
-                    checked={selectedCategories.includes(category.name)}
+                    checked={selectedCategorySlugs.includes(category.slug)}
                     onCheckedChange={() =>
-                      onToggleCheckbox("category", category.name)
+                      onToggleCheckbox("category", category.slug)
                     }
                     className={catalogFilterCheckboxClass}
                   />
@@ -151,7 +151,7 @@ function CatalogFilterPanel({
 
         <Separator className={catalogFilterSeparatorClass} />
 
-        <FieldSet className="gap-2 border-0 p-0 pt-4">
+        <FieldSet className="mt-4">
           <FieldLegend className={catalogFilterSectionTitleClass}>
             Nivel
           </FieldLegend>
@@ -186,7 +186,7 @@ function CatalogFilterPanel({
 
         <Separator className={catalogFilterSeparatorClass} />
 
-        <FieldSet className="gap-2 border-0 p-0 pt-4">
+        <FieldSet className="mt-4">
           <FieldLegend className={catalogFilterSectionTitleClass}>
             Duración
           </FieldLegend>
@@ -221,7 +221,7 @@ function CatalogFilterPanel({
 
         <Separator className={catalogFilterSeparatorClass} />
 
-        <FieldSet className="gap-2 border-0 p-0 pt-4">
+        <FieldSet className="mt-4">
           <FieldLegend className={catalogFilterSectionTitleClass}>
             Tipo de Acceso
           </FieldLegend>
@@ -257,7 +257,7 @@ function CatalogFilterPanel({
 
         <Separator className={catalogFilterSeparatorClass} />
 
-        <FieldSet className="gap-2 border-0 p-0 pt-4">
+        <FieldSet className="mt-4">
           <FieldLegend className={catalogFilterSectionTitleClass}>
             Certificado
           </FieldLegend>
@@ -298,7 +298,7 @@ function CatalogFilterPanel({
 export function CatalogFilters({
   filterOptions,
   activeFiltersCount,
-  selectedCategories,
+  selectedCategorySlugs,
   selectedLevels,
   selectedDurations,
   selectedAccess,
@@ -352,7 +352,7 @@ export function CatalogFilters({
   const panelProps: CatalogFilterPanelProps = {
     filterOptions,
     activeFiltersCount,
-    selectedCategories,
+    selectedCategorySlugs,
     selectedLevels,
     selectedDurations,
     selectedAccess,

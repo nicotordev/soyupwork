@@ -15,7 +15,6 @@ export { SectionLabel } from "@/components/marketing-nav/section-label";
 export {
   catalogDescription,
   catalogDescriptionShort,
-  catalogSections,
   navSections,
 } from "@/data/nav-data";
 export type {

@@ -1,5 +1,5 @@
-import type { Course } from "@/data/courses";
 import { CourseLevel } from "@/generated/prisma/client";
+import type { Course } from "@/types/catalog-course";
 
 export const COURSE_LEVEL_LABELS: Record<CourseLevel, Course["level"]> = {
   [CourseLevel.BEGINNER]: "Principiante",

@@ -1,6 +1,6 @@
+import type { Course } from "@/types/catalog-course";
+import { IconAward, IconBook, IconClock } from "@tabler/icons-react";
 import Link from "next/link";
-import { IconClock, IconBook, IconAward } from "@tabler/icons-react";
-import type { Course } from "@/data/courses";
 
 interface CourseCardProps {
   course: Course;
@@ -66,7 +66,9 @@ export function CourseCard({ course }: CourseCardProps) {
             <div className="flex items-center gap-1 justify-end">
               <IconAward
                 className={`size-3 shrink-0 ${
-                  course.hasCertificate ? "text-primary" : "text-muted-foreground/35"
+                  course.hasCertificate
+                    ? "text-primary"
+                    : "text-muted-foreground/35"
                 }`}
               />
               <span className="truncate">{course.level}</span>

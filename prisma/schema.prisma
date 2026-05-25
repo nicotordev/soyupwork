@@ -94,6 +94,7 @@ model CourseCategory {
   id       String @id @default(uuid()) @db.Uuid
   slug     String @unique
   name     String
+  icon     String?
   position Int    @default(0)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)

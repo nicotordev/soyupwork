@@ -12,7 +12,7 @@ export default function NotFound() {
   return (
     <div className="flex-1 w-full bg-background">
       <div className="flex min-h-screen flex-col">
-        <MarketingNavServer />
+        <MarketingNavServer isSignedIn={false} catalogSections={[]} />
         <main className="flex-1">
           {" "}
           <AppEmptyState

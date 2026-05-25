@@ -4,19 +4,25 @@ import { CatalogFilters } from "@/components/catalog/catalog-filters";
 import { CatalogGrid } from "@/components/catalog/catalog-grid";
 import { CatalogHeader } from "@/components/catalog/catalog-header";
 import { CourseCard } from "@/components/catalog/course-card";
-import type { Course } from "@/data/courses";
-import type { CatalogFilterOptions } from "@/types/catalog-filters";
+import type { CatalogTopicChip } from "@/lib/catalog/categories";
+import type { Course } from "@/types/catalog-course";
+import type {
+  CatalogFilterCategory,
+  CatalogFilterOptions,
+} from "@/types/catalog-filters";
 import { IconArrowRight } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 
 interface CatalogShellProps {
   filterOptions: CatalogFilterOptions;
+  topicChips: CatalogTopicChip[];
+  promoCategory: CatalogFilterCategory | null;
   courses: Course[];
   featuredCourses: Course[];
   activeFiltersCount: number;
   searchQuery: string;
-  selectedCategories: string[];
+  selectedCategorySlugs: string[];
   selectedLevels: string[];
   selectedDurations: string[];
   selectedAccess: string;
@@ -26,11 +32,13 @@ interface CatalogShellProps {
 
 export function CatalogShell({
   filterOptions,
+  topicChips,
+  promoCategory,
   courses,
   featuredCourses,
   activeFiltersCount,
   searchQuery,
-  selectedCategories,
+  selectedCategorySlugs,
   selectedLevels,
   selectedDurations,
   selectedAccess,
@@ -44,7 +52,7 @@ export function CatalogShell({
   const showFeaturedList =
     featuredCourses.length > 0 &&
     !searchQuery &&
-    selectedCategories.length === 0 &&
+    selectedCategorySlugs.length === 0 &&
     selectedLevels.length === 0 &&
     selectedDurations.length === 0 &&
     selectedAccess === "all" &&
@@ -53,7 +61,7 @@ export function CatalogShell({
   return (
     <div className="bg-background text-foreground min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
       {/* 1. Header component (handles local state & url push for search input) */}
-      <CatalogHeader initialSearchQuery={searchQuery} />
+      <CatalogHeader initialSearchQuery={searchQuery} topicChips={topicChips} />
 
       {/* 2. Horizontal Featured Rows */}
       {showFeaturedList && (
@@ -86,7 +94,7 @@ export function CatalogShell({
           <CatalogFilters
             filterOptions={filterOptions}
             activeFiltersCount={activeFiltersCount}
-            selectedCategories={selectedCategories}
+            selectedCategorySlugs={selectedCategorySlugs}
             selectedLevels={selectedLevels}
             selectedDurations={selectedDurations}
             selectedAccess={selectedAccess}
@@ -101,6 +109,7 @@ export function CatalogShell({
             courses={courses}
             activeFiltersCount={activeFiltersCount}
             sortBy={sortBy}
+            promoCategory={promoCategory}
             setIsMobileFiltersOpen={setIsMobileFiltersOpen}
           />
         </div>

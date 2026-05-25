@@ -12,13 +12,15 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { navSections } from "@/data/nav-data";
+import type { CatalogSection } from "@/types/marketing-nav.types";
 import { IconMenu2 } from "@tabler/icons-react";
 
 type MobileNavProps = {
   isSignedIn: boolean;
+  catalogSections: CatalogSection[];
 };
 
-export function MobileNav({ isSignedIn }: MobileNavProps) {
+export function MobileNav({ isSignedIn, catalogSections }: MobileNavProps) {
   return (
     <Sheet>
       <SheetTrigger asChild className="lg:hidden">
@@ -36,14 +38,18 @@ export function MobileNav({ isSignedIn }: MobileNavProps) {
         className="w-full sm:max-w-sm border-l-2 border-foreground bg-background shadow-[-4px_0px_0px_0px_var(--foreground)] p-6"
       >
         <SheetHeader className="p-0 pb-4 border-b-2 border-foreground">
-          <SheetTitle className="font-heading text-lg font-bold tracking-tight">SoyUpwork</SheetTitle>
+          <SheetTitle className="font-heading text-lg font-bold tracking-tight">
+            SoyUpwork
+          </SheetTitle>
         </SheetHeader>
         <nav className="mt-6 flex flex-col gap-6">
           {navSections.map((section) => (
             <div key={section.label} className="space-y-3">
-              <p className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">{section.label}</p>
+              <p className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                {section.label}
+              </p>
               {section.label === "Catálogo" ? (
-                <CatalogMobileSection />
+                <CatalogMobileSection catalogSections={catalogSections} />
               ) : (
                 <NavLinkList items={section.items} />
               )}

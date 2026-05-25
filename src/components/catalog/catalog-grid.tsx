@@ -1,18 +1,20 @@
 "use client";
 
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { CourseCard } from "@/components/catalog/course-card";
+import type { Course } from "@/types/catalog-course";
+import type { CatalogFilterCategory } from "@/types/catalog-filters";
 import {
   IconAdjustmentsHorizontal,
-  IconRotate,
   IconExternalLink,
+  IconRotate,
 } from "@tabler/icons-react";
-import { CourseCard } from "@/components/catalog/course-card";
-import type { Course } from "@/data/courses";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface CatalogGridProps {
   courses: Course[];
   activeFiltersCount: number;
   sortBy: string;
+  promoCategory: CatalogFilterCategory | null;
   setIsMobileFiltersOpen: (open: boolean) => void;
 }
 
@@ -20,6 +22,7 @@ export function CatalogGrid({
   courses,
   activeFiltersCount,
   sortBy,
+  promoCategory,
   setIsMobileFiltersOpen,
 }: CatalogGridProps) {
   const searchParams = useSearchParams();
@@ -38,8 +41,9 @@ export function CatalogGrid({
   };
 
   const handlePromoClick = () => {
+    if (!promoCategory) return;
     const params = new URLSearchParams();
-    params.append("category", "Ventas B2B en Upwork");
+    params.append("category", promoCategory.slug);
     router.replace(`${pathname}?${params.toString()}`);
   };
 
@@ -63,13 +67,16 @@ export function CatalogGrid({
           </button>
 
           <span className="text-xs font-mono text-muted-foreground">
-            Mostrando <strong className="text-foreground">{courses.length}</strong> cursos
+            Mostrando{" "}
+            <strong className="text-foreground">{courses.length}</strong> cursos
           </span>
         </div>
 
         {/* Sort Selector */}
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-muted-foreground hidden sm:inline">Ordenar:</span>
+          <span className="text-xs font-mono text-muted-foreground hidden sm:inline">
+            Ordenar:
+          </span>
           <select
             value={sortBy}
             onChange={handleSortChange}
@@ -92,7 +99,7 @@ export function CatalogGrid({
 
             return (
               <div key={course.slug} className="contents">
-                {showBannerInline && (
+                {showBannerInline && promoCategory && (
                   <div className="col-span-1 sm:col-span-2 lg:col-span-3 border-2 border-foreground bg-primary/10 rounded-lg p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-[4px_4px_0px_0px_var(--foreground)] relative overflow-hidden my-2">
                     {/* Banner Background Cyber Element */}
                     <div className="absolute right-0 bottom-0 translate-x-12 translate-y-12 size-36 rounded-full border-4 border-foreground bg-primary/20 pointer-events-none hidden md:block" />
@@ -105,7 +112,10 @@ export function CatalogGrid({
                         Convierte habilidades en ofertas vendibles
                       </h3>
                       <p className="text-xs text-muted-foreground max-w-xl">
-                        Aprende a empaquetar servicios freelance, escribir propuestas cortas de alto impacto y calcular si vale la pena invertir Connects antes de postular a cualquier oferta de Upwork.
+                        Aprende a empaquetar servicios freelance, escribir
+                        propuestas cortas de alto impacto y calcular si vale la
+                        pena invertir Connects antes de postular a cualquier
+                        oferta de Upwork.
                       </p>
                     </div>
 
@@ -114,7 +124,8 @@ export function CatalogGrid({
                         onClick={handlePromoClick}
                         className="w-full md:w-auto inline-flex items-center justify-center gap-1 font-mono text-xs font-bold uppercase border-2 border-foreground bg-primary text-primary-foreground px-4 py-2 hover:bg-primary/95 transition-all shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer rounded"
                       >
-                        Ver ruta de Upwork <IconExternalLink className="size-3.5" />
+                        Ver {promoCategory.name}{" "}
+                        <IconExternalLink className="size-3.5" />
                       </button>
                     </div>
                   </div>
@@ -132,9 +143,12 @@ export function CatalogGrid({
             <IconRotate className="size-6 text-muted-foreground" />
           </div>
           <div className="space-y-2 max-w-md mx-auto">
-            <h3 className="text-lg font-bold font-sans">No se encontraron cursos</h3>
+            <h3 className="text-lg font-bold font-sans">
+              No se encontraron cursos
+            </h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Ningún curso coincide con los criterios de filtrado seleccionados. Intenta quitar algunos filtros o cambiar la búsqueda.
+              Ningún curso coincide con los criterios de filtrado seleccionados.
+              Intenta quitar algunos filtros o cambiar la búsqueda.
             </p>
           </div>
           <button
@@ -149,7 +163,10 @@ export function CatalogGrid({
       {/* Pagination / Load more Simulation */}
       {courses.length > 0 && (
         <div className="pt-6 border-t-2 border-dashed border-foreground/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 font-mono text-xs text-muted-foreground">
-          <span>Página 1 de 1 (Mostrando {courses.length} de {courses.length} cursos)</span>
+          <span>
+            Página 1 de 1 (Mostrando {courses.length} de {courses.length}{" "}
+            cursos)
+          </span>
           <button
             disabled
             className="w-full sm:w-auto text-center px-4 py-2 border-2 border-foreground bg-muted text-muted-foreground/50 rounded cursor-not-allowed opacity-60 font-bold uppercase tracking-wider"

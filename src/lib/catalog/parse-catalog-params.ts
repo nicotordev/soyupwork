@@ -1,10 +1,8 @@
-import { SUBJECT_TO_CATEGORY_SLUG } from "@/lib/catalog/category-map";
 import { parseLevelFilters } from "@/lib/catalog/course-level";
 
 export interface ParsedCatalogParams {
   q: string;
   categorySlugs: string[];
-  categoryNames: string[];
   levels: string[];
   levelEnums: ReturnType<typeof parseLevelFilters>;
   selectedDurations: string[];
@@ -19,16 +17,16 @@ export function parseCatalogSearchParams(
   const q = typeof resolvedParams.q === "string" ? resolvedParams.q : "";
 
   const categorySlugs: string[] = [];
-  const categoryNames: string[] = [];
 
   if (resolvedParams.category) {
     const raw = Array.isArray(resolvedParams.category)
       ? resolvedParams.category
       : [resolvedParams.category];
-    categoryNames.push(...raw);
-  } else if (typeof resolvedParams.subject === "string") {
-    const slug = SUBJECT_TO_CATEGORY_SLUG[resolvedParams.subject];
-    if (slug) categorySlugs.push(slug);
+    categorySlugs.push(...raw);
+  }
+
+  if (typeof resolvedParams.subject === "string") {
+    categorySlugs.push(resolvedParams.subject);
   }
 
   const levels = resolvedParams.level
@@ -70,8 +68,7 @@ export function parseCatalogSearchParams(
 
   return {
     q,
-    categorySlugs,
-    categoryNames,
+    categorySlugs: [...new Set(categorySlugs)],
     levels,
     levelEnums: parseLevelFilters(levels),
     selectedDurations,
@@ -85,7 +82,6 @@ export function countActiveCatalogFilters(params: ParsedCatalogParams): number {
   return (
     (params.q ? 1 : 0) +
     params.categorySlugs.length +
-    params.categoryNames.length +
     params.levels.length +
     params.selectedDurations.length +
     (params.selectedAccess !== "all" ? 1 : 0) +

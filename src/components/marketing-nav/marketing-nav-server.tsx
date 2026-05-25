@@ -1,8 +1,16 @@
 import { MarketingNav } from "@/components/marketing-nav/marketing-nav";
+import { getCatalogNavSections } from "@/lib/catalog/categories";
 import { getClerkSession } from "@/lib/clerk/session";
+import { CatalogSection } from "@/types/marketing-nav.types";
 
-/** Nav con sesión en el servidor: los botones de auth van en el HTML del primer paint. */
-export async function MarketingNavServer() {
-  const { isSignedIn } = await getClerkSession();
-  return <MarketingNav isSignedIn={isSignedIn} />;
+
+interface MarketingNavServerProps {
+  isSignedIn: boolean;
+  catalogSections: CatalogSection[];
+}
+
+export async function MarketingNavServer({ isSignedIn, catalogSections }: MarketingNavServerProps) {
+  return (
+    <MarketingNav isSignedIn={isSignedIn} catalogSections={catalogSections} />
+  );
 }

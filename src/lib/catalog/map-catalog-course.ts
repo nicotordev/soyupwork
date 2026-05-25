@@ -1,4 +1,3 @@
-import type { Course } from "@/data/courses";
 import type {
   CourseCategory,
   CourseModule,
@@ -10,6 +9,7 @@ import type {
   User,
 } from "@/generated/prisma/client";
 import { courseLevelLabel } from "@/lib/catalog/course-level";
+import type { Course } from "@/types/catalog-course";
 
 type DbCourseWithRelations = DbCourse & {
   category: Pick<CourseCategory, "name" | "slug"> | null;

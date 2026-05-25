@@ -110,11 +110,3 @@ ALTER TABLE "Course" ADD CONSTRAINT "Course_categoryId_fkey" FOREIGN KEY ("categ
 
 -- AddForeignKey
 ALTER TABLE "Course" ADD CONSTRAINT "Course_instructorId_fkey" FOREIGN KEY ("instructorId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- Seed taxonomy (stable slugs for URLs and filters)
-INSERT INTO "CourseCategory" ("id", "slug", "name", "position", "updatedAt") VALUES
-  (gen_random_uuid(), 'ventas-b2b', 'Ventas B2B en Upwork', 1, CURRENT_TIMESTAMP),
-  (gen_random_uuid(), 'propuestas', 'Propuestas que convierten', 2, CURRENT_TIMESTAMP),
-  (gen_random_uuid(), 'nichos-pricing', 'Nichos y pricing', 3, CURRENT_TIMESTAMP),
-  (gen_random_uuid(), 'ingles', 'Inglés para entrevistas', 4, CURRENT_TIMESTAMP),
-  (gen_random_uuid(), 'operacion', 'Connects y operación freelance', 5, CURRENT_TIMESTAMP);

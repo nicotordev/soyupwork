@@ -1,4 +1,5 @@
 import { CourseStatus } from "@/generated/prisma/client";
+import { getCatalogCategories } from "@/lib/catalog/categories";
 import { courseLevelLabel } from "@/lib/catalog/course-level";
 import {
   courseHoursMatchesBucket,
@@ -24,10 +25,7 @@ function sumCourseDurationHours(
 
 export async function getCatalogFilterOptions(): Promise<CatalogFilterOptions> {
   const [categories, levelGroups, publishedCourses] = await Promise.all([
-    prisma.courseCategory.findMany({
-      orderBy: { position: "asc" },
-      select: { name: true, slug: true },
-    }),
+    getCatalogCategories(),
     prisma.course.groupBy({
       by: ["level"],
       where: { status: CourseStatus.PUBLISHED },

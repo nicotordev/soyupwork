@@ -4,14 +4,19 @@ import { DesktopNav } from "@/components/marketing-nav/desktop-nav";
 import { MobileNav } from "@/components/marketing-nav/mobile-nav";
 import { NavAuthButtons } from "@/components/marketing-nav/nav-auth-buttons";
 import { cn } from "@/lib/utils";
+import type { CatalogSection } from "@/types/marketing-nav.types";
 import Link from "next/link";
 
 type MarketingNavProps = {
   /** Resuelto en servidor con auth() para que los botones salgan en el HTML inicial. */
   isSignedIn: boolean;
+  catalogSections: CatalogSection[];
 };
 
-export function MarketingNav({ isSignedIn }: MarketingNavProps) {
+export function MarketingNav({
+  isSignedIn,
+  catalogSections,
+}: MarketingNavProps) {
   return (
     <header
       className={cn(
@@ -27,12 +32,12 @@ export function MarketingNav({ isSignedIn }: MarketingNavProps) {
         </Link>
 
         <div className="flex flex-1 justify-center">
-          <DesktopNav />
+          <DesktopNav catalogSections={catalogSections} />
         </div>
 
         <NavAuthButtons className="hidden lg:flex" isSignedIn={isSignedIn} />
 
-        <MobileNav isSignedIn={isSignedIn} />
+        <MobileNav isSignedIn={isSignedIn} catalogSections={catalogSections} />
       </div>
     </header>
   );

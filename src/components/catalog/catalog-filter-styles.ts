@@ -13,7 +13,7 @@ export const catalogFilterTitleClass =
   "font-bold font-mono text-sm uppercase flex items-center gap-2";
 
 export const catalogFilterSectionTitleClass = cn(
-  "mb-0 w-full font-bold font-mono text-xs uppercase text-muted-foreground",
+  "mb-0 w-full font-bold font-mono text-xs uppercase text-muted-foreground mb-2",
 );
 
 export const catalogFilterFieldGroupClass = "gap-1.5";

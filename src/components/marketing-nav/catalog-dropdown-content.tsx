@@ -3,8 +3,8 @@
 import { CatalogViewAllButton } from "@/components/marketing-nav/catalog-view-all-button";
 import { SectionLabel } from "@/components/marketing-nav/section-label";
 import { NavigationMenuLink } from "@/components/ui/navigation-menu";
-import { catalogDescription, catalogSections } from "@/data/nav-data";
-import type { NavItem } from "@/types/marketing-nav.types";
+import { catalogDescription } from "@/data/nav-data";
+import type { CatalogSection, NavItem } from "@/types/marketing-nav.types";
 import { IconSchool } from "@tabler/icons-react";
 import Link from "next/link";
 
@@ -21,7 +21,13 @@ function CatalogNavLink({ item }: { item: NavItem }) {
   );
 }
 
-export function CatalogDropdownContent() {
+type CatalogDropdownContentProps = {
+  catalogSections: CatalogSection[];
+};
+
+export function CatalogDropdownContent({
+  catalogSections,
+}: CatalogDropdownContentProps) {
   return (
     <div className="w-[36rem] p-5">
       <div className="mb-5 max-w-md space-y-3.5">

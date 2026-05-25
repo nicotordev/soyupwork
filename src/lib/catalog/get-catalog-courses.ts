@@ -1,12 +1,12 @@
-import type { Course } from "@/data/courses";
 import { CourseStatus, type Prisma } from "@/generated/prisma/client";
 import {
-  courseHoursMatchesBucket,
   DURATION_BUCKETS,
+  courseHoursMatchesBucket,
 } from "@/lib/catalog/duration-buckets";
 import { mapDbCourseToCatalogCourse } from "@/lib/catalog/map-catalog-course";
 import type { ParsedCatalogParams } from "@/lib/catalog/parse-catalog-params";
 import prisma from "@/lib/prisma";
+import type { Course } from "@/types/catalog-course";
 
 const courseInclude = {
   category: { select: { name: true, slug: true } },
@@ -54,15 +54,8 @@ function buildWhere(params: ParsedCatalogParams): Prisma.CourseWhereInput {
     ];
   }
 
-  const categoryFilter: Prisma.CourseCategoryWhereInput[] = [];
   if (params.categorySlugs.length > 0) {
-    categoryFilter.push({ slug: { in: params.categorySlugs } });
-  }
-  if (params.categoryNames.length > 0) {
-    categoryFilter.push({ name: { in: params.categoryNames } });
-  }
-  if (categoryFilter.length > 0) {
-    where.category = { OR: categoryFilter };
+    where.category = { slug: { in: params.categorySlugs } };
   }
 
   if (params.levelEnums.length > 0) {

@@ -1,5 +1,9 @@
 import { CatalogShell } from "@/components/catalog/catalog-shell";
-import { categoryNamesForFilterUi } from "@/lib/catalog/category-map";
+import {
+  buildCatalogTopicChips,
+  getCatalogCategories,
+  normalizeCategorySlugs,
+} from "@/lib/catalog/categories";
 import { getCatalogCourses } from "@/lib/catalog/get-catalog-courses";
 import { getCatalogFilterOptions } from "@/lib/catalog/get-catalog-filter-options";
 import {
@@ -30,23 +34,32 @@ interface PageProps {
 
 export default async function CatalogPage({ searchParams }: PageProps) {
   const resolvedParams = await searchParams;
-  const parsed = parseCatalogSearchParams(resolvedParams);
-  const [{ courses, featuredCourses }, filterOptions] = await Promise.all([
-    getCatalogCourses(parsed),
+  const rawParsed = parseCatalogSearchParams(resolvedParams);
+
+  const [categories, filterOptions] = await Promise.all([
+    getCatalogCategories(),
     getCatalogFilterOptions(),
   ]);
+
+  const parsed = {
+    ...rawParsed,
+    categorySlugs: normalizeCategorySlugs(rawParsed.categorySlugs, categories),
+  };
+
+  const { courses, featuredCourses } = await getCatalogCourses(parsed);
+  const topicChips = buildCatalogTopicChips(categories);
+  const promoCategory = categories[0] ?? null;
 
   return (
     <CatalogShell
       filterOptions={filterOptions}
+      topicChips={topicChips}
+      promoCategory={promoCategory}
       courses={courses}
       featuredCourses={featuredCourses}
       activeFiltersCount={countActiveCatalogFilters(parsed)}
       searchQuery={parsed.q}
-      selectedCategories={categoryNamesForFilterUi(
-        parsed.categoryNames,
-        parsed.categorySlugs,
-      )}
+      selectedCategorySlugs={parsed.categorySlugs}
       selectedLevels={parsed.levels}
       selectedDurations={parsed.selectedDurations}
       selectedAccess={parsed.selectedAccess}
