@@ -34,7 +34,26 @@ export type AdminCoursesStats = {
 };
 
 export type AdminCourseCategoryOption = {
+  id: string;
   slug: string;
+  name: string;
+};
+
+export type AdminCourseForEdit = {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  status: CourseStatus;
+  level: CourseLevel;
+  priceCents: number;
+  categoryId: string | null;
+  isFeatured: boolean;
+  offersCertificate: boolean;
+};
+
+export type AdminCourseCategorySelectOption = {
+  id: string;
   name: string;
 };
 
@@ -61,3 +80,29 @@ export type AdminCoursesPageData = {
   filters: ParsedAdminCoursesParams;
   pagination: AdminCoursesPagination;
 };
+
+export type GenerateCourseSyllabusResult =
+  | {
+      ok: true;
+      syllabus: {
+        description: string;
+        modules: { title: string; lessons: string[] }[];
+      };
+    }
+  | { ok: false; error: string };
+
+export type CreateAiDraftCourseResult =
+  | { ok: true; course: { id: string; slug: string; title: string } }
+  | { ok: false; error: string };
+
+export type GetAdminCourseForEditResult =
+  | {
+      ok: true;
+      course: AdminCourseForEdit;
+      categories: AdminCourseCategorySelectOption[];
+    }
+  | { ok: false; error: string };
+
+export type UpdateCourseResult =
+  | { ok: true; course: { id: string; slug: string; title: string } }
+  | { ok: false; error: string };

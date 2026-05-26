@@ -1,7 +1,12 @@
 "use client";
 
+import {
+  createAiDraftCourse,
+  generateCourseSyllabus,
+} from "@/app/actions/courses.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { CourseLevel } from "@/generated/prisma/client";
 import useCategories from "@/hooks/use-categories";
 import {
   adminBrutalButtonClass,
@@ -22,7 +27,9 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 type CourseCreationDialogProps = {
   isOpen: boolean;
@@ -31,12 +38,34 @@ type CourseCreationDialogProps = {
 
 type Step = 1 | 2 | 3 | 4;
 
+type SyllabusModule = {
+  id: string;
+  title: string;
+  lessons: string[];
+};
+
+function mapModulesToSyllabus(
+  modules: { title: string; lessons: string[] }[],
+): SyllabusModule[] {
+  return modules.map((mod, index) => ({
+    id: `mod-${index + 1}-${crypto.randomUUID()}`,
+    title: mod.title,
+    lessons: [...mod.lessons],
+  }));
+}
+
+const EMPTY_SYLLABUS: SyllabusModule[] = [];
+
 export function CourseCreationDialog({
   isOpen,
   onClose,
 }: CourseCreationDialogProps) {
+  const router = useRouter();
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState(
+    "Generando temario con Inteligencia Artificial...",
+  );
 
   const {
     categories,
@@ -44,68 +73,131 @@ export function CourseCreationDialog({
     isError: isErrorCategories,
   } = useCategories();
 
-  // Form State
   const [title, setTitle] = useState("");
-  // Default to first category if available, otherwise fallback to arbitrary default
-  const [category, setCategory] = useState<string>("");
-  const [level, setLevel] = useState("BEGINNER");
+  const [categoryId, setCategoryId] = useState("");
+  const [level, setLevel] = useState<CourseLevel>("BEGINNER");
   const [price, setPrice] = useState("99");
   const [prompt, setPrompt] = useState("");
+  const [description, setDescription] = useState("");
+  const [syllabus, setSyllabus] = useState<SyllabusModule[]>(EMPTY_SYLLABUS);
 
-  // Update category once categories are loaded
-  // This will update the selected category to the first option once categories arrive
-  // But it will not override user's selection after the user already changed it
   useEffect(() => {
     if (
       Array.isArray(categories) &&
       categories.length > 0 &&
-      !category &&
+      !categoryId &&
       !isLoadingCategories
     ) {
-      setCategory(String(categories[0]?.name ?? ""));
+      setCategoryId(categories[0]?.id ?? "");
     }
-  }, [categories, isLoadingCategories]);
+  }, [categories, categoryId, isLoadingCategories]);
 
-  // Generated Syllabus State
-  const [syllabus, setSyllabus] = useState<
-    { id: string; title: string; lessons: string[] }[]
-  >([
-    {
-      id: "mod-1",
-      title: "Módulo 1: Fundamentos del Freelancing",
-      lessons: [
-        "Introducción a Upwork",
-        "Configurando un Perfil Estelar",
-        "Búsqueda Eficiente de Proyectos",
-      ],
-    },
-    {
-      id: "mod-2",
-      title: "Módulo 2: Propuestas Irresistibles",
-      lessons: [
-        "Anatomía de una Propuesta Ganadora",
-        "Técnicas de Pricing",
-        "Manejo del Primer Mensaje",
-      ],
-    },
-  ]);
+  const selectedCategoryName =
+    categories.find((cat) => cat.id === categoryId)?.name ?? "";
+
+  const resetForm = () => {
+    setTitle("");
+    setCategoryId("");
+    setLevel("BEGINNER");
+    setPrice("99");
+    setPrompt("");
+    setDescription("");
+    setSyllabus(EMPTY_SYLLABUS);
+    setStep(1);
+    setLoading(false);
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
+  const handleGenerateSyllabus = async () => {
+    if (!title.trim()) {
+      toast.error("Ingresa un título para el curso.");
+      return;
+    }
+
+    if (!categoryId || !selectedCategoryName) {
+      toast.error("Selecciona una categoría.");
+      return;
+    }
+
+    setLoadingMessage(
+      "Generando temario y optimizando módulos con Inteligencia Artificial...",
+    );
+    setLoading(true);
+
+    const result = await generateCourseSyllabus({
+      title: title.trim(),
+      categoryName: selectedCategoryName,
+      creativePrompt: prompt.trim() || undefined,
+    });
+
+    setLoading(false);
+
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+
+    setDescription(result.syllabus.description);
+    setSyllabus(mapModulesToSyllabus(result.syllabus.modules));
+    setStep(2);
+  };
+
+  const handleCreateCourse = async () => {
+    const priceValue = Number.parseFloat(price);
+    if (!Number.isFinite(priceValue) || priceValue < 0) {
+      toast.error("Ingresa un precio válido.");
+      return;
+    }
+
+    if (!description.trim()) {
+      toast.error("Falta la descripción del curso. Regenera el temario.");
+      return;
+    }
+
+    if (syllabus.length === 0) {
+      toast.error("El temario debe tener al menos un módulo.");
+      return;
+    }
+
+    setLoadingMessage("Creando curso en borrador...");
+    setLoading(true);
+
+    const result = await createAiDraftCourse({
+      title: title.trim(),
+      categoryId,
+      level,
+      priceCents: Math.round(priceValue * 100),
+      description: description.trim(),
+      offersCertificate: true,
+      modules: syllabus.map((mod) => ({
+        title: mod.title,
+        lessons: mod.lessons.filter((lesson) => lesson.trim().length > 0),
+      })),
+    });
+
+    setLoading(false);
+
+    if (!result.ok) {
+      toast.error(result.error);
+      return;
+    }
+
+    toast.success(`Curso "${result.course.title}" creado en borrador`);
+    router.refresh();
+    setStep(4);
+  };
 
   const handleNext = () => {
     if (step === 1) {
-      // Simulate AI generation loading
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        setStep(2);
-      }, 1500);
+      void handleGenerateSyllabus();
     } else if (step === 2) {
       setStep(3);
     } else if (step === 3) {
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        setStep(4);
-      }, 1200);
+      void handleCreateCourse();
     }
   };
 
@@ -115,16 +207,9 @@ export function CourseCreationDialog({
     }
   };
 
-  const handleReset = () => {
-    setTitle("");
-    setPrompt("");
-    setStep(1);
-    onClose();
-  };
-
   const addLesson = (moduleIndex: number) => {
     const updated = [...syllabus];
-    updated[moduleIndex].lessons.push("Nueva Lección Autogenerada");
+    updated[moduleIndex].lessons.push("Nueva lección");
     setSyllabus(updated);
   };
 
@@ -148,7 +233,6 @@ export function CourseCreationDialog({
             "w-full max-w-2xl bg-background border-2 border-foreground shadow-[8px_8px_0px_0px_var(--foreground)] overflow-hidden",
           )}
         >
-          {/* Header */}
           <div className={adminPanelHeaderClass}>
             <div className="flex items-center gap-2">
               <span className="flex size-7 items-center justify-center rounded border border-foreground bg-secondary">
@@ -159,14 +243,14 @@ export function CourseCreationDialog({
               </h3>
             </div>
             <button
-              onClick={handleReset}
+              type="button"
+              onClick={handleClose}
               className="text-muted-foreground hover:text-foreground font-mono text-xs font-bold uppercase"
             >
               [Cerrar]
             </button>
           </div>
 
-          {/* Stepper Progress */}
           <div className="px-6 py-3 border-b-2 border-foreground bg-muted/35 flex justify-between items-center font-mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
             <span className={cn(step >= 1 && "text-foreground font-extrabold")}>
               1. Concepto
@@ -185,7 +269,6 @@ export function CourseCreationDialog({
             </span>
           </div>
 
-          {/* Content */}
           <div className="p-6 max-h-[60vh] overflow-y-auto">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-16 space-y-4">
@@ -194,8 +277,7 @@ export function CourseCreationDialog({
                   stroke={2.5}
                 />
                 <p className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground animate-pulse text-center">
-                  Generando temario y optimizando módulos con Inteligencia
-                  Artificial...
+                  {loadingMessage}
                 </p>
               </div>
             ) : (
@@ -233,8 +315,8 @@ export function CourseCreationDialog({
                           </div>
                         ) : (
                           <select
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value)}
+                            value={categoryId}
+                            onChange={(e) => setCategoryId(e.target.value)}
                             className={cn(
                               adminInputClass,
                               "w-full h-8 px-2 text-xs font-mono font-bold uppercase bg-background rounded-md border-2 border-foreground",
@@ -242,12 +324,11 @@ export function CourseCreationDialog({
                           >
                             {(categories ?? []).length ? (
                               categories.map((cat) => (
-                                <option key={cat.id} value={cat.name}>
+                                <option key={cat.id} value={cat.id}>
                                   {cat.name}
                                 </option>
                               ))
                             ) : (
-                              // Fallback for no categories
                               <option value="" disabled>
                                 Sin categorías
                               </option>
@@ -277,10 +358,9 @@ export function CourseCreationDialog({
                         ¿Cómo funciona la autogeneración?
                       </p>
                       <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        Nuestro modelo estructurará automáticamente el curso en
-                        módulos lógicos, definirá lecciones sugeridas y
-                        preparará objetivos de estudio basados en las últimas
-                        tendencias de Upwork.
+                        OpenAI estructurará el curso en módulos lógicos,
+                        definirá lecciones sugeridas y redactará la descripción
+                        del curso según tu título y prompt.
                       </p>
                     </div>
                   </motion.div>
@@ -300,6 +380,12 @@ export function CourseCreationDialog({
                         Optimizado
                       </span>
                     </div>
+
+                    {description ? (
+                      <p className="text-xs text-muted-foreground leading-relaxed border border-foreground/35 rounded p-3 bg-muted/10">
+                        {description}
+                      </p>
+                    ) : null}
 
                     <div className="space-y-4">
                       {syllabus.map((mod, modIdx) => (
@@ -363,7 +449,9 @@ export function CourseCreationDialog({
                         </label>
                         <select
                           value={level}
-                          onChange={(e) => setLevel(e.target.value)}
+                          onChange={(e) =>
+                            setLevel(e.target.value as CourseLevel)
+                          }
                           className={cn(
                             adminInputClass,
                             "w-full h-8 px-2 text-xs font-mono font-bold uppercase bg-background rounded-md border-2 border-foreground",
@@ -381,6 +469,8 @@ export function CourseCreationDialog({
                         </label>
                         <Input
                           type="number"
+                          min={0}
+                          step="0.01"
                           value={price}
                           onChange={(e) => setPrice(e.target.value)}
                           className={adminInputClass}
@@ -400,9 +490,8 @@ export function CourseCreationDialog({
                           Emisión de Certificado
                         </p>
                         <p className="text-[11px] text-muted-foreground">
-                          Habilita la emisión automática de diplomas digitales
-                          con firma verificada al completarse el 100% de las
-                          lecciones.
+                          Se habilitará la emisión automática de diplomas
+                          digitales al completar el 100% de las lecciones.
                         </p>
                       </div>
                     </div>
@@ -424,16 +513,14 @@ export function CourseCreationDialog({
                       </h4>
                       <p className="max-w-md mx-auto text-xs text-muted-foreground">
                         El temario interactivo estructurado de{" "}
-                        <strong className="text-foreground">
-                          {title || "Dominando Upwork"}
-                        </strong>{" "}
-                        ha sido agregado al listado en estado{" "}
+                        <strong className="text-foreground">{title}</strong> ha
+                        sido agregado al listado en estado{" "}
                         <strong className="text-foreground">Borrador</strong>.
                       </p>
                     </div>
                     <Button
                       type="button"
-                      onClick={handleReset}
+                      onClick={handleClose}
                       className={cn(
                         adminBrutalButtonClass,
                         "mt-2 bg-secondary text-foreground",
@@ -447,13 +534,12 @@ export function CourseCreationDialog({
             )}
           </div>
 
-          {/* Footer Controls */}
           {step < 4 && !loading && (
             <div className="px-6 py-4 border-t-2 border-foreground bg-muted/20 flex justify-between items-center">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={step === 1 ? handleReset : handleBack}
+                onClick={step === 1 ? handleClose : handleBack}
                 className={adminBrutalButtonClass}
               >
                 <IconArrowLeft className="size-3.5" />
@@ -463,6 +549,11 @@ export function CourseCreationDialog({
               <Button
                 size="sm"
                 onClick={handleNext}
+                disabled={
+                  (step === 1 && !title.trim()) ||
+                  (step === 1 && !categoryId) ||
+                  (step === 2 && syllabus.length === 0)
+                }
                 className={cn(
                   adminBrutalButtonClass,
                   "bg-primary text-primary-foreground",
