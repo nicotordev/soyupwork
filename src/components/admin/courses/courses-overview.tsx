@@ -1,5 +1,6 @@
 import { CoursesEmptyState } from "@/components/admin/courses/courses-empty-state";
 import { CoursesPageHeader } from "@/components/admin/courses/courses-page-header";
+import { CoursesPagination } from "@/components/admin/courses/courses-pagination";
 import { CoursesStatsGrid } from "@/components/admin/courses/courses-stats-grid";
 import { CoursesTable } from "@/components/admin/courses/courses-table";
 import { CoursesToolbar } from "@/components/admin/courses/courses-toolbar";
@@ -24,12 +25,15 @@ export function CoursesOverview({ data }: CoursesOverviewProps) {
       <CoursesToolbar
         filters={data.filters}
         categories={data.categories}
-        resultCount={data.courses.length}
+        pagination={data.pagination}
       />
-      {data.courses.length === 0 ? (
+      {data.pagination.totalCount === 0 ? (
         <CoursesEmptyState hasFilters={hasActiveFilters} />
       ) : (
-        <CoursesTable courses={data.courses} />
+        <>
+          <CoursesTable courses={data.courses} />
+          <CoursesPagination pagination={data.pagination} />
+        </>
       )}
     </div>
   );

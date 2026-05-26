@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import type {
   AdminCourseCategoryOption,
+  AdminCoursesPagination,
   ParsedAdminCoursesParams,
 } from "@/types/admin-course.types";
 import { IconSearch, IconX } from "@tabler/icons-react";
@@ -32,7 +33,7 @@ import {
 type CoursesToolbarProps = {
   filters: ParsedAdminCoursesParams;
   categories: AdminCourseCategoryOption[];
-  resultCount: number;
+  pagination: AdminCoursesPagination;
 };
 
 const selectTriggerClass = cn(
@@ -43,7 +44,7 @@ const selectTriggerClass = cn(
 export function CoursesToolbar({
   filters,
   categories,
-  resultCount,
+  pagination,
 }: CoursesToolbarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -65,6 +66,7 @@ export function CoursesToolbar({
       } else {
         params.delete("q");
       }
+      params.delete("page");
 
       const nextQuery = params.toString();
       if (nextQuery === searchParams.toString()) return;
@@ -87,9 +89,12 @@ export function CoursesToolbar({
     } else {
       params.set(key, value);
     }
+    params.delete("page");
     startTransition(() => {
       const next = params.toString();
-      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+      router.replace(next ? `${pathname}?${next}` : pathname, {
+        scroll: false,
+      });
     });
   };
 
@@ -204,9 +209,12 @@ export function CoursesToolbar({
       </div>
 
       <p className="mt-3 font-mono text-[10px] font-bold uppercase text-muted-foreground">
-        {resultCount === 1
+        {pagination.totalCount === 1
           ? "1 curso encontrado"
-          : `${resultCount} cursos encontrados`}
+          : `${pagination.totalCount} cursos encontrados`}
+        {pagination.totalPages > 1
+          ? ` · página ${pagination.page} de ${pagination.totalPages}`
+          : null}
       </p>
     </section>
   );

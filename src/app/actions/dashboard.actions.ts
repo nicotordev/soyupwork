@@ -1,7 +1,9 @@
+"use server";
+
 import type { DashboardOverviewData } from "@/types/dashboard.types";
 
 /** Demo data until Prisma-backed admin APIs are wired. */
-export function getDashboardOverviewData(): DashboardOverviewData {
+export async function getDashboardOverviewData(): Promise<DashboardOverviewData> {
   const now = Date.now();
 
   return {

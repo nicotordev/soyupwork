@@ -1,6 +1,6 @@
+import { getAdminCoursesPageData } from "@/app/actions/courses.actions";
 import { AdminDashboardContainer } from "@/components/admin/admin-dashboard-container";
 import { CoursesOverview } from "@/components/admin/courses/courses-overview";
-import { getAdminCoursesPageData } from "@/lib/admin/get-admin-courses";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -43,6 +43,15 @@ export type ParsedAdminCoursesParams = {
   status: CourseStatus | AdminCoursesFilterAll;
   level: CourseLevel | AdminCoursesFilterAll;
   categorySlug: string | AdminCoursesFilterAll;
+  page: number;
+  pageSize: number;
+};
+
+export type AdminCoursesPagination = {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
 };
 
 export type AdminCoursesPageData = {
@@ -50,4 +59,5 @@ export type AdminCoursesPageData = {
   stats: AdminCoursesStats;
   categories: AdminCourseCategoryOption[];
   filters: ParsedAdminCoursesParams;
+  pagination: AdminCoursesPagination;
 };

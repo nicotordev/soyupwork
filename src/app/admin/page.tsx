@@ -1,6 +1,6 @@
+import { getDashboardOverviewData } from "@/app/actions/dashboard.actions";
 import { AdminDashboardContainer } from "@/components/admin/admin-dashboard-container";
 import { DashboardOverview } from "@/components/admin/dashboard/dashboard-overview";
-import { getDashboardOverviewData } from "@/lib/admin/get-dashboard-data";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -15,8 +15,11 @@ type PageProps = {
 
 export default async function AdminPage({ searchParams }: PageProps) {
   const resolvedSearchParams = await searchParams;
-  const range = typeof resolvedSearchParams.range === "string" ? resolvedSearchParams.range : "30d";
-  const data = getDashboardOverviewData();
+  const range =
+    typeof resolvedSearchParams.range === "string"
+      ? resolvedSearchParams.range
+      : "30d";
+  const data = await getDashboardOverviewData();
 
   return (
     <AdminDashboardContainer>
@@ -24,4 +27,3 @@ export default async function AdminPage({ searchParams }: PageProps) {
     </AdminDashboardContainer>
   );
 }
-

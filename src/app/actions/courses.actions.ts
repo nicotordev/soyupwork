@@ -1,3 +1,5 @@
+"use server";
+
 import { ADMIN_COURSES_FILTER_ALL } from "@/constants/courses.constants";
 import {
   CourseStatus,
@@ -56,11 +58,10 @@ export async function getAdminCoursesStats(): Promise<AdminCoursesStats> {
 async function getAdminCourseCategories(): Promise<
   AdminCourseCategoryOption[]
 > {
-  const categories = await prisma.courseCategory.findMany({
+  return prisma.courseCategory.findMany({
     orderBy: { position: "asc" },
     select: { slug: true, name: true },
   });
-  return categories;
 }
 
 export async function getAdminCoursesPageData(
@@ -69,10 +70,17 @@ export async function getAdminCoursesPageData(
   const filters = parseAdminCoursesParams(searchParams);
   const where = buildWhere(filters);
 
+  const totalCount = await prisma.course.count({ where });
+  const totalPages = Math.max(1, Math.ceil(totalCount / filters.pageSize));
+  const page = Math.min(Math.max(1, filters.page), totalPages);
+  const skip = (page - 1) * filters.pageSize;
+
   const [courses, stats, categories] = await Promise.all([
     prisma.course.findMany({
       where,
       orderBy: [{ updatedAt: "desc" }],
+      skip,
+      take: filters.pageSize,
       include: adminCourseInclude,
     }),
     getAdminCoursesStats(),
@@ -83,6 +91,12 @@ export async function getAdminCoursesPageData(
     courses: courses.map(mapDbCourseToAdminCourseRow),
     stats,
     categories,
-    filters,
+    filters: { ...filters, page },
+    pagination: {
+      page,
+      pageSize: filters.pageSize,
+      totalCount,
+      totalPages,
+    },
   };
 }
