@@ -1,32 +1,31 @@
+import { CategoriesEmptyState } from "@/components/admin/categories/categories-empty-state";
+import { CategoriesPageHeader } from "@/components/admin/categories/categories-page-header";
+import { CategoriesPagination } from "@/components/admin/categories/categories-pagination";
+import { CategoriesStatsGrid } from "@/components/admin/categories/categories-stats-grid";
 import { CategoriesTable } from "@/components/admin/categories/categories-table";
-import { CategoryCreateForm } from "@/components/admin/categories/category-create-form";
-import { AdminDashboardPageHeader } from "@/components/common/admin-dashboard-page-header";
-import { Button } from "@/components/ui/button";
-import { ADMIN_CATEGORIES_PAGE } from "@/constants/categories.constants";
+import { CategoriesToolbar } from "@/components/admin/categories/categories-toolbar";
 import type { AdminCategoriesPageData } from "@/types/admin-category.types";
-import { IconCategory } from "@tabler/icons-react";
-import Link from "next/link";
 
 type CategoriesOverviewProps = {
   data: AdminCategoriesPageData;
 };
 
 export function CategoriesOverview({ data }: CategoriesOverviewProps) {
+  const hasActiveFilters = data.filters.q.length > 0;
+
   return (
-    <div className="space-y-8">
-      <AdminDashboardPageHeader
-        eyebrow={ADMIN_CATEGORIES_PAGE.eyebrow}
-        icon={<IconCategory className="size-4 text-primary" stroke={2.5} />}
-        title={ADMIN_CATEGORIES_PAGE.title}
-        description={ADMIN_CATEGORIES_PAGE.description}
-        actions={
-          <Button asChild variant="outline">
-            <Link href="/admin/courses">Volver a cursos</Link>
-          </Button>
-        }
-      />
-      <CategoryCreateForm />
-      <CategoriesTable categories={data.categories} />
+    <div className="space-y-0">
+      <CategoriesPageHeader />
+      <CategoriesStatsGrid stats={data.stats} />
+      <CategoriesToolbar filters={data.filters} pagination={data.pagination} />
+      {data.pagination.totalCount === 0 ? (
+        <CategoriesEmptyState hasFilters={hasActiveFilters} />
+      ) : (
+        <>
+          <CategoriesTable categories={data.categories} />
+          <CategoriesPagination pagination={data.pagination} />
+        </>
+      )}
     </div>
   );
 }

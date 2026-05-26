@@ -1,3 +1,4 @@
+import { CATEGORY_ICON_NAMES } from "@/constants/category-icons.constants";
 import { z } from "zod";
 
 export const categorySlugField = z
@@ -13,7 +14,7 @@ export const categorySlugField = z
 export const createCategorySchema = z.object({
   name: z.string().trim().min(1, "El nombre es obligatorio.").max(80),
   slug: categorySlugField,
-  icon: z.string().trim().max(80),
+  icon: z.union([z.literal(""), z.enum(CATEGORY_ICON_NAMES)]),
   position: z.number().int().min(0).nullable(),
 });
 

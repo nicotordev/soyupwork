@@ -1,5 +1,6 @@
 "use server";
 
+import { parseAdminCategoriesParams } from "@/lib/admin/categories";
 import { requireAdmin } from "@/lib/auth/admin";
 import prisma from "@/lib/db/prisma";
 import { serializeError } from "@/lib/logger/serialize-error";
@@ -9,9 +10,11 @@ import type { CreateCategoryInput } from "@/schemas/category";
 import { createCategorySchema } from "@/schemas/category";
 import type {
   AdminCategoriesPageData,
+  AdminCategoriesStats,
   AdminCategoryRow,
   CreateCategoryResult,
   DeleteCategoryResult,
+  ParsedAdminCategoriesParams,
 } from "@/types/admin-category.types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -92,6 +95,35 @@ export async function getPaginatedCategories(page: number, pageSize: number) {
   }
 }
 
+function buildWhere(filters: ParsedAdminCategoriesParams) {
+  const q = filters.q.trim();
+  if (!q) return {};
+
+  return {
+    OR: [
+      { name: { contains: q, mode: "insensitive" as const } },
+      { slug: { contains: q, mode: "insensitive" as const } },
+    ],
+  };
+}
+
+export async function getAdminCategoriesStats(): Promise<AdminCategoriesStats> {
+  const [total, withCourses, assignedCourses] = await Promise.all([
+    prisma.courseCategory.count(),
+    prisma.courseCategory.count({
+      where: { courses: { some: {} } },
+    }),
+    prisma.course.count({ where: { categoryId: { not: null } } }),
+  ]);
+
+  return {
+    total,
+    withCourses,
+    empty: total - withCourses,
+    assignedCourses,
+  };
+}
+
 export async function getAdminCategoriesPageData(
   searchParams: Record<string, string | string[] | undefined>,
 ): Promise<AdminCategoriesPageData> {
@@ -101,51 +133,69 @@ export async function getAdminCategoriesPageData(
     redirect("/sign-in");
   }
 
-  const page = Math.max(
-    1,
-    Number(
-      Array.isArray(searchParams.page)
-        ? searchParams.page[0]
-        : searchParams.page,
-    ) || 1,
-  );
-  const pageSize = Math.min(
-    50,
-    Math.max(
-      1,
-      Number(
-        Array.isArray(searchParams.pageSize)
-          ? searchParams.pageSize[0]
-          : searchParams.pageSize,
-      ) || 20,
-    ),
+  const filters = parseAdminCategoriesParams(searchParams);
+  const where = buildWhere(filters);
+
+  log.debug(
+    {
+      page: filters.page,
+      pageSize: filters.pageSize,
+      hasQuery: filters.q.length > 0,
+    },
+    "Fetching admin categories page",
   );
 
-  const [categories, totalCount] = await Promise.all([
-    prisma.courseCategory.findMany({
-      orderBy: [{ position: "asc" }, { name: "asc" }],
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        icon: true,
-        position: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: { select: { courses: true } },
+  try {
+    const totalCount = await prisma.courseCategory.count({ where });
+    const totalPages = Math.max(1, Math.ceil(totalCount / filters.pageSize));
+    const page = Math.min(Math.max(1, filters.page), totalPages);
+    const skip = (page - 1) * filters.pageSize;
+
+    const [categories, stats] = await Promise.all([
+      prisma.courseCategory.findMany({
+        where,
+        orderBy: [{ position: "asc" }, { name: "asc" }],
+        skip,
+        take: filters.pageSize,
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          icon: true,
+          position: true,
+          createdAt: true,
+          updatedAt: true,
+          _count: { select: { courses: true } },
+        },
+      }),
+      getAdminCategoriesStats(),
+    ]);
+
+    log.info(
+      {
+        page,
+        pageSize: filters.pageSize,
+        returned: categories.length,
+        totalCount,
       },
-    }),
-    prisma.courseCategory.count(),
-  ]);
+      "Admin categories page loaded",
+    );
 
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-
-  return {
-    categories: categories.map(mapCategoryRow),
-    pagination: { page, pageSize, totalCount, totalPages },
-  };
+    return {
+      categories: categories.map(mapCategoryRow),
+      stats,
+      filters: { ...filters, page },
+      pagination: {
+        page,
+        pageSize: filters.pageSize,
+        totalCount,
+        totalPages,
+      },
+    };
+  } catch (error) {
+    log.error(serializeError(error), "Failed to fetch admin categories page");
+    throw error;
+  }
 }
 
 export async function createCategory(

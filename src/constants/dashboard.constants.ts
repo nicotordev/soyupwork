@@ -4,6 +4,7 @@ import {
   IconReceipt,
   IconSchool,
   IconSettings,
+  IconList,
   IconUsers,
   IconUsersGroup,
 } from "@tabler/icons-react";
@@ -29,6 +30,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     href: "/admin/courses",
     icon: IconSchool,
     description: "Gestión de cursos y lecciones",
+  },
+  {
+    label: "Categorías",
+    href: "/admin/categories",
+    icon: IconList,
+    description: "Gestión de categorías",
   },
   {
     label: "Usuarios",
