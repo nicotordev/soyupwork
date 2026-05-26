@@ -1,7 +1,7 @@
-import { MarketingNavServer } from "@/components/marketing-nav/marketing-nav-server";
 import { MarketingFooter } from "@/components/marketing-footer";
-import { getClerkSession } from "@/lib/clerk/session";
+import { MarketingNavServer } from "@/components/marketing-nav/marketing-nav-server";
 import { getCatalogNavSections } from "@/lib/catalog/categories";
+import { getClerkSession } from "@/lib/clerk/session";
 
 export default async function MarketingLayout({
   children,
@@ -15,7 +15,10 @@ export default async function MarketingLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <MarketingNavServer isSignedIn={isSignedIn} catalogSections={catalogSections} />
+      <MarketingNavServer
+        isSignedIn={isSignedIn}
+        catalogSections={catalogSections}
+      />
       <main className="flex-1">{children}</main>
       <MarketingFooter />
     </div>

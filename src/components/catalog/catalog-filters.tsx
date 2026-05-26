@@ -376,7 +376,6 @@ export function CatalogFilters({
         <SheetContent
           side="left"
           showCloseButton={false}
-          overlayClassName={catalogFilterSheetOverlayClass}
           className={catalogFilterSheetContentClass}
         >
           <CatalogFilterPanel
