@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { adminInputClass } from "@/lib/admin/dashboard-styles";
+import { adminInputClass } from "@/lib/admin/styles";
 import type { NotificationsSettingsFormValues } from "@/types/platform-settings.types";
 import { IconBell, IconChartBar, IconShieldLock } from "@tabler/icons-react";
 import { useState, useTransition } from "react";

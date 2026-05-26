@@ -1,6 +1,6 @@
 import { AdminDashboardContainer } from "@/components/admin/admin-dashboard-container";
 import { ADMIN_PLACEHOLDER_ROUTES } from "@/constants/dashboard.constants";
-import { adminEyebrowClass } from "@/lib/admin/dashboard-styles";
+import { adminEyebrowClass } from "@/lib/admin/styles";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import {

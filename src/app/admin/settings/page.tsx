@@ -1,6 +1,6 @@
 import { AdminDashboardContainer } from "@/components/admin/admin-dashboard-container";
 import { SettingsOverview } from "@/components/admin/settings/settings-overview";
-import { getAdminSettingsIntegrations } from "@/lib/admin/settings-integrations";
+import { getAdminSettingsIntegrations } from "@/lib/admin/integrations";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

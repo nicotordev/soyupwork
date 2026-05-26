@@ -1,3 +1,10 @@
+export class WebhookVerificationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "WebhookVerificationError";
+  }
+}
+
 export function anonymizedEmail(userId: string): string {
   return `deleted+${userId}@anonymized.soyup.work`;
 }

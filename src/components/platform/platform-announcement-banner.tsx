@@ -1,4 +1,4 @@
-import { getPlatformSettings } from "@/lib/platform-settings/get-platform-settings";
+import { getPlatformSettings } from "@/lib/platform/settings/store";
 import { IconBell } from "@tabler/icons-react";
 
 export async function PlatformAnnouncementBanner() {

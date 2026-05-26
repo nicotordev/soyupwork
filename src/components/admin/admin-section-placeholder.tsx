@@ -3,7 +3,7 @@ import { ADMIN_NAV_ITEMS } from "@/constants/dashboard.constants";
 import {
   adminEyebrowClass,
   adminPanelClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { IconTools } from "@tabler/icons-react";
 import Link from "next/link";
 

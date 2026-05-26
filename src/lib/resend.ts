@@ -1,4 +1,4 @@
-import { getResolvedEmailFrom } from "@/lib/platform-settings/resolve-settings";
+import { getResolvedEmailFrom } from "@/lib/platform/settings/resolve";
 import { Resend } from "resend";
 
 function getResend(): Resend {

@@ -5,7 +5,7 @@ import { SettingsFormActions } from "@/components/admin/settings/settings-form-a
 import { SettingsPanel } from "@/components/admin/settings/settings-panel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { adminInputClass } from "@/lib/admin/dashboard-styles";
+import { adminInputClass } from "@/lib/admin/styles";
 import type { StorageSettingsFormValues } from "@/types/platform-settings.types";
 import { IconCloud, IconUpload } from "@tabler/icons-react";
 import { useState, useTransition } from "react";

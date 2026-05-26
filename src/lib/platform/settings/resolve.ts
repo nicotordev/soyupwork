@@ -1,5 +1,5 @@
 import type { PlatformSettings } from "@/generated/prisma/client";
-import { getPlatformSettings } from "@/lib/platform-settings/get-platform-settings";
+import { getPlatformSettings } from "@/lib/platform/settings/store";
 
 export async function getResolvedEmailFrom(): Promise<string | undefined> {
   const settings = await getPlatformSettings();

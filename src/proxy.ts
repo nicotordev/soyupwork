@@ -1,4 +1,4 @@
-import { shouldCheckPlatformGate } from "@/lib/platform-settings/platform-gate-paths";
+import { shouldCheckPlatformGate } from "@/lib/platform/gate";
 import type { PlatformGateAction } from "@/types/platform-settings.types";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";

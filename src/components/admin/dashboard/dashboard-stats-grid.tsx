@@ -1,7 +1,7 @@
 import {
   adminPanelTitleClass,
   adminStatCardClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import type { DashboardStat } from "@/types/dashboard.types";
 import {

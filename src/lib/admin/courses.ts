@@ -5,8 +5,76 @@ import {
   ADMIN_COURSES_MAX_PAGE_SIZE,
   ADMIN_COURSES_PAGE_SIZE_OPTIONS,
 } from "@/constants/courses.constants";
-import { CourseLevel, CourseStatus } from "@/generated/prisma/client";
-import type { ParsedAdminCoursesParams } from "@/types/admin-course.types";
+import {
+  CourseLevel,
+  CourseStatus,
+  type Prisma,
+} from "@/generated/prisma/client";
+import { formatAdminCoursePrice } from "@/lib/admin/formatters";
+import { courseLevelLabel } from "@/lib/catalog/course-level";
+import type {
+  AdminCourseRow,
+  ParsedAdminCoursesParams,
+} from "@/types/admin-course.types";
+
+export const adminCourseInclude = {
+  category: { select: { name: true, slug: true } },
+  instructor: { select: { firstName: true, lastName: true } },
+  modules: {
+    orderBy: { position: "asc" as const },
+    select: {
+      id: true,
+      lessons: { select: { id: true } },
+    },
+  },
+  _count: { select: { enrollments: true } },
+} satisfies Prisma.CourseInclude;
+
+export type DbAdminCourse = Prisma.CourseGetPayload<{
+  include: typeof adminCourseInclude;
+}>;
+
+function instructorDisplayName(
+  instructor: DbAdminCourse["instructor"],
+): string {
+  if (!instructor) return "Sin asignar";
+  const name = [instructor.firstName, instructor.lastName]
+    .filter(Boolean)
+    .join(" ");
+  return name || "Sin asignar";
+}
+
+export function mapDbCourseToAdminCourseRow(
+  dbCourse: DbAdminCourse,
+): AdminCourseRow {
+  const lessonCount = dbCourse.modules.reduce(
+    (total, module) => total + module.lessons.length,
+    0,
+  );
+
+  return {
+    id: dbCourse.id,
+    slug: dbCourse.slug,
+    title: dbCourse.title,
+    description: dbCourse.description ?? "",
+    thumbnailUrl: dbCourse.thumbnailUrl,
+    status: dbCourse.status,
+    level: dbCourse.level,
+    levelLabel: courseLevelLabel(dbCourse.level),
+    categoryName: dbCourse.category?.name ?? null,
+    categorySlug: dbCourse.category?.slug ?? null,
+    priceLabel: formatAdminCoursePrice(dbCourse.priceCents, dbCourse.currency),
+    priceCents: dbCourse.priceCents,
+    isFree: dbCourse.priceCents === 0,
+    isFeatured: dbCourse.isFeatured,
+    offersCertificate: dbCourse.offersCertificate,
+    enrollmentCount: dbCourse._count.enrollments,
+    moduleCount: dbCourse.modules.length,
+    lessonCount,
+    instructorName: instructorDisplayName(dbCourse.instructor),
+    updatedAt: dbCourse.updatedAt.toISOString(),
+  };
+}
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) return value[0];

@@ -1,9 +1,22 @@
 import { getPaginatedCategories } from "@/app/actions/categories.actions";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-type UseCategoriesResult = ReturnType<typeof useQuery> & {
+type CategoryListItem = {
+  id: string;
+  slug: string;
+  name: string;
+  icon: string | null;
+  position: number;
+};
+
+type UseCategoriesResult = {
+  categories: CategoryListItem[];
+  isLoading: boolean;
+  isError: boolean;
+  isFetching: boolean;
+  refetch: ReturnType<typeof useQuery>["refetch"];
   pagination: {
     page: number;
     pageSize: number;
@@ -22,7 +35,6 @@ export default function useCategories(): UseCategoriesResult {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Parse from URL only on mount, then keep state local (sync on URL param changes)
   const getInitial = (key: string, fallback: string) =>
     parseInt(searchParams.get(key) ?? fallback, 10);
 
@@ -31,10 +43,8 @@ export default function useCategories(): UseCategoriesResult {
     getInitial("pageSize", "10"),
   );
 
-  // Store last valid page and pageSize to avoid triggering two effects on each
   const lastSearchParams = useRef({ page, pageSize });
 
-  // Update local state if searchParams change externally (e.g. pushState elsewhere)
   useEffect(() => {
     const newPage = getInitial("page", "1");
     const newPageSize = getInitial("pageSize", "10");
@@ -45,7 +55,6 @@ export default function useCategories(): UseCategoriesResult {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // Optionally update URL when local page/pageSize changes
   const setUrlParam = useCallback(
     (key: string, value: number) => {
       const params = new URLSearchParams(Array.from(searchParams.entries()));
@@ -55,7 +64,6 @@ export default function useCategories(): UseCategoriesResult {
     [router, searchParams],
   );
 
-  // Safe setters to update state and URL in sync
   const setPage = useCallback(
     (p: number) => {
       setPageState(p);
@@ -68,7 +76,7 @@ export default function useCategories(): UseCategoriesResult {
     (size: number) => {
       setPageSizeState(size);
       setUrlParam("pageSize", size);
-      setPageState(1); // reset page to 1 on pageSize change to avoid empty pages
+      setPageState(1);
       setUrlParam("page", 1);
     },
     [setUrlParam],
@@ -85,7 +93,6 @@ export default function useCategories(): UseCategoriesResult {
   const totalPages =
     pageSize > 0 ? Math.max(1, Math.ceil(totalCount / pageSize)) : 1;
 
-  // Pagination helpers
   const canNextPage = page < totalPages;
   const canPrevPage = page > 1;
 
@@ -98,7 +105,11 @@ export default function useCategories(): UseCategoriesResult {
   }, [canPrevPage, setPage, page]);
 
   return {
-    ...categoriesQuery,
+    categories: categoriesQuery.data?.categories ?? [],
+    isLoading: categoriesQuery.isLoading,
+    isError: categoriesQuery.isError,
+    isFetching: categoriesQuery.isFetching,
+    refetch: categoriesQuery.refetch,
     pagination: {
       page,
       pageSize,

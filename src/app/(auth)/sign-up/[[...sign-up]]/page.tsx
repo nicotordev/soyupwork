@@ -1,6 +1,6 @@
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { clerkSignUpAppearance } from "@/lib/clerk/appearance";
-import { getPlatformSettings } from "@/lib/platform-settings/get-platform-settings";
+import { getPlatformSettings } from "@/lib/platform/settings/store";
 import { SignUp } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";

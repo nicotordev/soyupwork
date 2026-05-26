@@ -4,7 +4,7 @@ import {
   adminEyebrowClass,
   adminPanelClass,
   adminStatCardClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { IconLayoutDashboard, IconLoader } from "@tabler/icons-react";
 

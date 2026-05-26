@@ -10,7 +10,7 @@ import { DashboardQuickActions } from "@/components/admin/dashboard/dashboard-qu
 import { DashboardRevenueChart } from "@/components/admin/dashboard/dashboard-revenue-chart";
 import { DashboardStatsGrid } from "@/components/admin/dashboard/dashboard-stats-grid";
 import type { DashboardOverviewData, DashboardStat, DashboardRevenuePoint } from "@/types/dashboard.types";
-import { adminBrutalButtonClass } from "@/lib/admin/dashboard-styles";
+import { adminBrutalButtonClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { IconCircleDot } from "@tabler/icons-react";
 

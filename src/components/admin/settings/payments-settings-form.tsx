@@ -6,7 +6,7 @@ import { SettingsPanel } from "@/components/admin/settings/settings-panel";
 import { SettingsToggleRow } from "@/components/admin/settings/settings-toggle-row";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { adminInputClass } from "@/lib/admin/dashboard-styles";
+import { adminInputClass } from "@/lib/admin/styles";
 import type { PaymentsSettingsFormValues } from "@/types/platform-settings.types";
 import { IconBrandStripe, IconReceipt } from "@tabler/icons-react";
 import { useState, useTransition } from "react";

@@ -1,4 +1,4 @@
-import { adminEyebrowClass } from "@/lib/admin/dashboard-styles";
+import { adminEyebrowClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 

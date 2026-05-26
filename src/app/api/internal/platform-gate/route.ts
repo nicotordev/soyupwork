@@ -1,5 +1,5 @@
 import apiResponse from "@/lib/api/api-response";
-import { resolvePlatformGateAction } from "@/lib/platform-settings/platform-gate";
+import { resolvePlatformGateAction } from "@/lib/platform/gate";
 import type { PlatformGateAction } from "@/types/platform-settings.types";
 
 export async function GET(request: Request) {

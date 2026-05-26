@@ -1,4 +1,4 @@
-import { isAdminByClerkId } from "@/lib/admin/require-admin";
+import { isAdminByClerkId } from "@/lib/auth/admin";
 import apiResponse from "@/lib/api/api-response";
 
 export async function GET(request: Request) {

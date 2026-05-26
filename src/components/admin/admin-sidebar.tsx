@@ -8,7 +8,7 @@ import {
 import {
   adminBrutalButtonClass,
   adminSidebarBrandClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { IconArrowLeft, IconExternalLink } from "@tabler/icons-react";
 import Link from "next/link";

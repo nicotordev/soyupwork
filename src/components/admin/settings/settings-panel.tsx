@@ -4,7 +4,7 @@ import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import type { ReactNode } from "react";
 
 type SettingsPanelProps = {

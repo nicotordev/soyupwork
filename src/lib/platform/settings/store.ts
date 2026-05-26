@@ -1,5 +1,8 @@
 import type { PlatformSettings } from "@/generated/prisma/client";
-import { PLATFORM_SETTINGS_ID } from "@/lib/platform-settings/constants";
+import prisma from "@/lib/db/prisma";
+import { cache } from "react";
+
+export const PLATFORM_SETTINGS_ID = "default" as const;
 
 export const DEFAULT_PLATFORM_SETTINGS = {
   id: PLATFORM_SETTINGS_ID,
@@ -43,3 +46,13 @@ export const DEFAULT_PLATFORM_SETTINGS = {
   logLevel: "info",
   analyticsRetentionDays: 365,
 } satisfies Omit<PlatformSettings, "createdAt" | "updatedAt">;
+
+export const getPlatformSettings = cache(
+  async (): Promise<PlatformSettings> => {
+    return prisma.platformSettings.upsert({
+      where: { id: PLATFORM_SETTINGS_ID },
+      create: DEFAULT_PLATFORM_SETTINGS,
+      update: {},
+    });
+  },
+);

@@ -6,12 +6,12 @@ import {
   type CourseLevel,
   type Prisma,
 } from "@/generated/prisma/client";
-import { adminCourseInclude } from "@/lib/admin/admin-course-include";
-import { mapDbCourseToAdminCourseRow } from "@/lib/admin/map-admin-course";
-import { parseAdminCoursesParams } from "@/lib/admin/parse-admin-courses-params";
+import { adminCourseInclude } from "@/lib/admin/courses";
+import { mapDbCourseToAdminCourseRow } from "@/lib/admin/courses";
+import { parseAdminCoursesParams } from "@/lib/admin/courses";
 import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import type {
   AdminCourseCategoryOption,
   AdminCoursesPageData,

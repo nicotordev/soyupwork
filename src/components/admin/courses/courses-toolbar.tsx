@@ -9,7 +9,7 @@ import {
   adminBrutalButtonClass,
   adminInputClass,
   adminPanelClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import type {
   AdminCourseCategoryOption,

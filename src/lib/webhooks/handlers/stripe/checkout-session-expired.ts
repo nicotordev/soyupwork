@@ -1,5 +1,5 @@
 import { OrderStatus } from "@/generated/prisma/client";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { findOrderByCheckoutSession } from "@/lib/webhooks/handlers/stripe/find-order";
 import { canTransitionOrderFromPending } from "@/lib/webhooks/idempotency";
 import type Stripe from "stripe";

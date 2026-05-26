@@ -1,28 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  IconPlus,
-  IconArrowRight,
-  IconArrowLeft,
-  IconSparkles,
-  IconSchool,
-  IconCheck,
-  IconTrash,
-  IconLoader,
-} from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useCategories from "@/hooks/use-categories";
 import {
   adminBrutalButtonClass,
   adminInputClass,
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
-import useCategories from "@/hooks/use-categories";
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconCheck,
+  IconLoader,
+  IconPlus,
+  IconSchool,
+  IconSparkles,
+  IconTrash,
+} from "@tabler/icons-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 type CourseCreationDialogProps = {
   isOpen: boolean;
@@ -39,21 +39,9 @@ export function CourseCreationDialog({
   const [loading, setLoading] = useState(false);
 
   const {
-    data: categories,
+    categories,
     isLoading: isLoadingCategories,
     isError: isErrorCategories,
-    pagination: {
-      page,
-      pageSize,
-      totalCount,
-      totalPages,
-      setPage,
-      setPageSize,
-      nextPage,
-      prevPage,
-      canNextPage,
-      canPrevPage,
-    },
   } = useCategories();
 
   // Form State
@@ -252,12 +240,9 @@ export function CourseCreationDialog({
                               "w-full h-8 px-2 text-xs font-mono font-bold uppercase bg-background rounded-md border-2 border-foreground",
                             )}
                           >
-                            {(categories || []).length ? (
-                              categories.map((cat: any) => (
-                                <option
-                                  key={cat.id || cat.name}
-                                  value={cat.name}
-                                >
+                            {(categories ?? []).length ? (
+                              categories.map((cat) => (
+                                <option key={cat.id} value={cat.name}>
                                   {cat.name}
                                 </option>
                               ))

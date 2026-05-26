@@ -4,7 +4,7 @@ import { ADMIN_BASE_PATH } from "@/constants/dashboard.constants";
 import {
   adminBrutalButtonClass,
   adminInputClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { UserButton } from "@clerk/nextjs";
 import { IconBell, IconSearch } from "@tabler/icons-react";
@@ -27,6 +27,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 function getBreadcrumbLabel(pathname: string): string {
   const segments: Record<string, string> = {
     courses: "Cursos",
+    categories: "Categorías",
     users: "Usuarios",
     sales: "Ventas",
     cohorts: "Cohortes",

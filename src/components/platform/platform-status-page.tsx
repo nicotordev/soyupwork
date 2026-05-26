@@ -1,4 +1,4 @@
-import { adminPanelClass } from "@/lib/admin/dashboard-styles";
+import { adminPanelClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 

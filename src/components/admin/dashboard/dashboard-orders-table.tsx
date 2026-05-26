@@ -6,11 +6,11 @@ import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import {
   formatDashboardCurrency,
   formatDashboardRelativeTime,
-} from "@/lib/admin/format-dashboard";
+} from "@/lib/admin/formatters";
 import type { DashboardOrder } from "@/types/dashboard.types";
 import { IconReceipt } from "@tabler/icons-react";
 import Link from "next/link";

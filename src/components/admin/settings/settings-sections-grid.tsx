@@ -3,7 +3,7 @@ import { ADMIN_SETTINGS_SECTIONS } from "@/constants/settings.constants";
 import {
   adminPanelClass,
   adminPanelTitleClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { IconArrowRight, IconTools } from "@tabler/icons-react";
 import Link from "next/link";

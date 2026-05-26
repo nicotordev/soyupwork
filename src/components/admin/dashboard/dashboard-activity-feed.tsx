@@ -3,8 +3,8 @@ import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
-} from "@/lib/admin/dashboard-styles";
-import { formatDashboardRelativeTime } from "@/lib/admin/format-dashboard";
+} from "@/lib/admin/styles";
+import { formatDashboardRelativeTime } from "@/lib/admin/formatters";
 import type { DashboardActivity } from "@/types/dashboard.types";
 import {
   IconBook,

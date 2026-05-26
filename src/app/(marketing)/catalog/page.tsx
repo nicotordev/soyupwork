@@ -9,7 +9,7 @@ import { getCatalogFilterOptions } from "@/lib/catalog/get-catalog-filter-option
 import {
   countActiveCatalogFilters,
   parseCatalogSearchParams,
-} from "@/lib/catalog/parse-catalog-params";
+} from "@/lib/catalog/filters";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

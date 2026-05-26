@@ -1,5 +1,5 @@
 import { UserRole } from "@/generated/prisma/client";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { auth } from "@clerk/nextjs/server";
 
 export class AdminAuthError extends Error {

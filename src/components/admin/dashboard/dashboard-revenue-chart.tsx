@@ -5,8 +5,8 @@ import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
-} from "@/lib/admin/dashboard-styles";
-import { formatDashboardCompactCurrency } from "@/lib/admin/format-dashboard";
+} from "@/lib/admin/styles";
+import { formatDashboardCompactCurrency } from "@/lib/admin/formatters";
 import type { DashboardRevenuePoint } from "@/types/dashboard.types";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 

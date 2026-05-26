@@ -1,8 +1,8 @@
 "use server";
 
-import { requireAdmin } from "@/lib/admin/require-admin";
+import { AdminAuthError, requireAdmin } from "@/lib/auth/admin";
+import prisma from "@/lib/db/prisma";
 import { getServerLogger } from "@/lib/logger/server";
-import { getPlatformSettings } from "@/lib/platform-settings/get-platform-settings";
 import {
   mapAuthFormValuesToUpdate,
   mapEmailFormValuesToUpdate,
@@ -18,7 +18,7 @@ import {
   mapPlatformSettingsToVideoFormValues,
   mapStorageFormValuesToUpdate,
   mapVideoFormValuesToUpdate,
-} from "@/lib/platform-settings/map-settings";
+} from "@/lib/platform/settings/map";
 import {
   authSettingsSchema,
   emailSettingsSchema,
@@ -27,12 +27,11 @@ import {
   paymentsSettingsSchema,
   storageSettingsSchema,
   videoSettingsSchema,
-} from "@/lib/platform-settings/settings-schemas";
+} from "@/lib/platform/settings/schemas";
 import {
-  SETTINGS_REVALIDATE_PATHS,
-  updatePlatformSettingsSection,
-} from "@/lib/platform-settings/update-settings-section";
-import prisma from "@/lib/prisma";
+  PLATFORM_SETTINGS_ID,
+  getPlatformSettings,
+} from "@/lib/platform/settings/store";
 import type {
   AuthSettingsFormValues,
   EmailSettingsFormValues,
@@ -44,15 +43,76 @@ import type {
   UpdateSettingsResult,
   VideoSettingsFormValues,
 } from "@/types/platform-settings.types";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
 const log = getServerLogger("settings.actions");
 
+const SETTINGS_REVALIDATE_PATHS = [
+  "/admin/settings",
+  "/admin/settings/general",
+  "/admin/settings/auth",
+  "/admin/settings/payments",
+  "/admin/settings/email",
+  "/admin/settings/storage",
+  "/admin/settings/video",
+  "/admin/settings/notifications",
+  "/,layout",
+] as const;
+
 const joinWaitlistSchema = z.object({
   email: z.email("Correo inválido."),
   name: z.string().trim().max(80).optional(),
 });
+
+async function updatePlatformSettingsSection<T>(
+  values: T,
+  schema: z.ZodType<T>,
+  toUpdate: (parsed: T) => Record<string, unknown>,
+  revalidatePaths: readonly string[],
+  logContext: Record<string, unknown>,
+): Promise<UpdateSettingsResult> {
+  try {
+    await requireAdmin();
+
+    const parsed = schema.safeParse(values);
+    if (!parsed.success) {
+      const firstIssue = parsed.error.issues[0];
+      return {
+        ok: false,
+        error: firstIssue?.message ?? "Datos inválidos.",
+      };
+    }
+
+    await prisma.platformSettings.update({
+      where: { id: PLATFORM_SETTINGS_ID },
+      data: toUpdate(parsed.data),
+    });
+
+    for (const path of revalidatePaths) {
+      if (path.endsWith(",layout")) {
+        revalidatePath(path.replace(",layout", ""), "layout");
+      } else {
+        revalidatePath(path);
+      }
+    }
+
+    log.info(logContext, "Platform settings section updated");
+
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof AdminAuthError) {
+      return { ok: false, error: error.message };
+    }
+
+    log.error(
+      { error, ...logContext },
+      "Failed to update platform settings section",
+    );
+    return { ok: false, error: "No se pudo guardar la configuración." };
+  }
+}
 
 async function requireAdminSettings<T>(
   loader: (settings: Awaited<ReturnType<typeof getPlatformSettings>>) => T,
@@ -102,7 +162,7 @@ export async function updateGeneralSettings(
     values,
     generalSettingsSchema,
     mapGeneralFormValuesToUpdate,
-    [...SETTINGS_REVALIDATE_PATHS],
+    SETTINGS_REVALIDATE_PATHS,
     { section: "general" },
   );
 }
@@ -114,7 +174,7 @@ export async function updateAuthSettings(
     values,
     authSettingsSchema,
     mapAuthFormValuesToUpdate,
-    [...SETTINGS_REVALIDATE_PATHS],
+    SETTINGS_REVALIDATE_PATHS,
     { section: "auth" },
   );
 }
@@ -126,7 +186,7 @@ export async function updatePaymentsSettings(
     values,
     paymentsSettingsSchema,
     mapPaymentsFormValuesToUpdate,
-    [...SETTINGS_REVALIDATE_PATHS],
+    SETTINGS_REVALIDATE_PATHS,
     { section: "payments" },
   );
 }
@@ -138,7 +198,7 @@ export async function updateEmailSettings(
     values,
     emailSettingsSchema,
     mapEmailFormValuesToUpdate,
-    [...SETTINGS_REVALIDATE_PATHS],
+    SETTINGS_REVALIDATE_PATHS,
     { section: "email" },
   );
 }
@@ -150,7 +210,7 @@ export async function updateStorageSettings(
     values,
     storageSettingsSchema,
     mapStorageFormValuesToUpdate,
-    [...SETTINGS_REVALIDATE_PATHS],
+    SETTINGS_REVALIDATE_PATHS,
     { section: "storage" },
   );
 }
@@ -162,7 +222,7 @@ export async function updateVideoSettings(
     values,
     videoSettingsSchema,
     mapVideoFormValuesToUpdate,
-    [...SETTINGS_REVALIDATE_PATHS],
+    SETTINGS_REVALIDATE_PATHS,
     { section: "video" },
   );
 }
@@ -174,7 +234,7 @@ export async function updateNotificationsSettings(
     values,
     notificationsSettingsSchema,
     mapNotificationsFormValuesToUpdate,
-    [...SETTINGS_REVALIDATE_PATHS],
+    SETTINGS_REVALIDATE_PATHS,
     { section: "notifications" },
   );
 }

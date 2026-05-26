@@ -1,6 +1,6 @@
 import { UserRole } from "@/generated/prisma/client";
-import prisma from "@/lib/prisma";
-import { anonymizedEmail, getPrimaryEmail } from "@/lib/webhooks/utils";
+import prisma from "@/lib/db/prisma";
+import { anonymizedEmail, getPrimaryEmail } from "@/lib/webhooks/shared";
 
 type ClerkEmailAddress = {
   email_address: string;

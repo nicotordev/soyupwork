@@ -1,5 +1,5 @@
 import { EnrollmentStatus, OrderStatus } from "@/generated/prisma/client";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import {
   findOrderByPaymentIntent,
   paymentIntentIdFromCharge,

@@ -7,7 +7,7 @@ import type {
   paymentsSettingsSchema,
   storageSettingsSchema,
   videoSettingsSchema,
-} from "@/lib/platform-settings/settings-schemas";
+} from "@/lib/platform/settings/schemas";
 import type { z } from "zod";
 
 export type PlatformSettingsPublic = Pick<

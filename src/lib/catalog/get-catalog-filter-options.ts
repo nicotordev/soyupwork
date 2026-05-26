@@ -4,8 +4,8 @@ import { courseLevelLabel } from "@/lib/catalog/course-level";
 import {
   courseHoursMatchesBucket,
   DURATION_BUCKETS,
-} from "@/lib/catalog/duration-buckets";
-import prisma from "@/lib/prisma";
+} from "@/lib/catalog/filters";
+import prisma from "@/lib/db/prisma";
 import type { CatalogFilterOptions } from "@/types/catalog-filters";
 
 function sumCourseDurationHours(

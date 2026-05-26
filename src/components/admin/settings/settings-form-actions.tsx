@@ -1,6 +1,6 @@
 "use client";
 
-import { adminBrutalButtonClass } from "@/lib/admin/dashboard-styles";
+import { adminBrutalButtonClass } from "@/lib/admin/styles";
 import { IconDeviceFloppy, IconLoader } from "@tabler/icons-react";
 
 import { Button } from "@/components/ui/button";

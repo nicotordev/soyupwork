@@ -3,7 +3,7 @@ import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import type { DashboardQuickAction } from "@/types/dashboard.types";
 import { IconArrowRight, IconBolt } from "@tabler/icons-react";

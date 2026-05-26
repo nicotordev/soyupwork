@@ -1,4 +1,4 @@
-import { WebhookVerificationError } from "@/lib/webhooks/errors";
+import { WebhookVerificationError } from "@/lib/webhooks/shared";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export { WebhookVerificationError };

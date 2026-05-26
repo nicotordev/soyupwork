@@ -1,6 +1,6 @@
 import { EnrollmentStatus, OrderStatus } from "@/generated/prisma/client";
 import { sendPurchaseConfirmationEmail } from "@/lib/email/send-purchase-confirmation";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { findOrderByCheckoutSession } from "@/lib/webhooks/handlers/stripe/find-order";
 import { isOrderAlreadyPaid } from "@/lib/webhooks/idempotency";
 import type Stripe from "stripe";

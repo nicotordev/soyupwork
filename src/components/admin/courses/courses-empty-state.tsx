@@ -5,7 +5,7 @@ import { useState } from "react";
 import {
   adminBrutalButtonClass,
   adminPanelClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import { IconSchool } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { CourseCreationDialog } from "@/components/admin/courses/course-creation-dialog";

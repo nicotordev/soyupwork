@@ -1,5 +1,5 @@
 import 'server-only';
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import type { CatalogFilterCategory } from "@/types/catalog-filters";
 
 export interface CatalogTopicChip {

@@ -1,7 +1,7 @@
 import {
   adminPanelTitleClass,
   adminStatCardClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import type { AdminCoursesStats } from "@/types/admin-course.types";
 import {
   IconArchive,

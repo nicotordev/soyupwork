@@ -2,10 +2,10 @@ import { CourseStatus, type Prisma } from "@/generated/prisma/client";
 import {
   DURATION_BUCKETS,
   courseHoursMatchesBucket,
-} from "@/lib/catalog/duration-buckets";
+} from "@/lib/catalog/filters";
 import { mapDbCourseToCatalogCourse } from "@/lib/catalog/map-catalog-course";
-import type { ParsedCatalogParams } from "@/lib/catalog/parse-catalog-params";
-import prisma from "@/lib/prisma";
+import type { ParsedCatalogParams } from "@/lib/catalog/filters";
+import prisma from "@/lib/db/prisma";
 import type { Course } from "@/types/catalog-course";
 
 const courseInclude = {

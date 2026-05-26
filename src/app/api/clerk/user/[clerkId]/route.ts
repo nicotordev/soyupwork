@@ -1,5 +1,5 @@
 import apiResponse from "@/lib/api/api-response";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import type { NextRequest } from "next/server";
 
 export async function GET(

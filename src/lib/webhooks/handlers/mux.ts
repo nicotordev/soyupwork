@@ -1,6 +1,6 @@
 import { LessonVideoStatus } from "@/generated/prisma/client";
-import prisma from "@/lib/prisma";
-import { muxPlaybackUrl } from "@/lib/webhooks/utils";
+import prisma from "@/lib/db/prisma";
+import { muxPlaybackUrl } from "@/lib/webhooks/shared";
 
 type MuxWebhookEvent = {
   type: string;

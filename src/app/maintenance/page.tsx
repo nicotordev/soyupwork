@@ -1,5 +1,5 @@
 import { PlatformStatusPage } from "@/components/platform/platform-status-page";
-import { getPlatformSettings } from "@/lib/platform-settings/get-platform-settings";
+import { getPlatformSettings } from "@/lib/platform/settings/store";
 import { IconTool } from "@tabler/icons-react";
 import type { Metadata } from "next";
 import Link from "next/link";

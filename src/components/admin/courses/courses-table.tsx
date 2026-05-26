@@ -6,9 +6,9 @@ import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
-} from "@/lib/admin/dashboard-styles";
-import { formatAdminCourseContentSummary } from "@/lib/admin/format-course";
-import { formatDashboardRelativeTime } from "@/lib/admin/format-dashboard";
+} from "@/lib/admin/styles";
+import { formatAdminCourseContentSummary } from "@/lib/admin/formatters";
+import { formatDashboardRelativeTime } from "@/lib/admin/formatters";
 import type { AdminCourseRow } from "@/types/admin-course.types";
 import {
   IconCertificate,

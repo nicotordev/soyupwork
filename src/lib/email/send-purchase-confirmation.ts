@@ -1,6 +1,6 @@
 import { PurchaseConfirmationEmail } from "@/emails/purchase-confirmation";
-import { getPlatformSettings } from "@/lib/platform-settings/get-platform-settings";
-import { shouldSendPurchaseConfirmation } from "@/lib/platform-settings/resolve-settings";
+import { getPlatformSettings } from "@/lib/platform/settings/store";
+import { shouldSendPurchaseConfirmation } from "@/lib/platform/settings/resolve";
 import { sendEmail } from "@/lib/resend";
 import { render } from "@react-email/components";
 

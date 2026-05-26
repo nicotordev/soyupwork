@@ -1,4 +1,4 @@
-import { adminGridBackgroundClass } from "@/lib/admin/dashboard-styles";
+import { adminGridBackgroundClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 
 type AdminDashboardContainerProps = {

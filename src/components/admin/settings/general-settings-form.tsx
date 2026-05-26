@@ -12,7 +12,7 @@ import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
-} from "@/lib/admin/dashboard-styles";
+} from "@/lib/admin/styles";
 import type { GeneralSettingsFormValues } from "@/types/platform-settings.types";
 import {
   IconBell,

@@ -1,5 +1,5 @@
 import stripe from "@/lib/stripe";
-import { WebhookVerificationError } from "@/lib/webhooks/errors";
+import { WebhookVerificationError } from "@/lib/webhooks/shared";
 import type Stripe from "stripe";
 
 export { WebhookVerificationError };

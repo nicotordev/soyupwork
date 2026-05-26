@@ -1,5 +1,5 @@
 import { DASHBOARD_PAGE } from "@/constants/dashboard.constants";
-import { adminEyebrowClass } from "@/lib/admin/dashboard-styles";
+import { adminEyebrowClass } from "@/lib/admin/styles";
 import { IconLayoutDashboard } from "@tabler/icons-react";
 
 export function DashboardPageHeader() {

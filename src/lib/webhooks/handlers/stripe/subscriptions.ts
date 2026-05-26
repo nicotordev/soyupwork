@@ -2,7 +2,7 @@ import {
   EnrollmentStatus,
   SubscriptionStatus,
 } from "@/generated/prisma/client";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import {
   mapStripeSubscriptionStatus,
   subscriptionGrantsAccess,
