@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   IconPlus,
@@ -22,6 +22,7 @@ import {
   adminPanelTitleClass,
 } from "@/lib/admin/dashboard-styles";
 import { cn } from "@/lib/utils";
+import useCategories from "@/hooks/use-categories";
 
 type CourseCreationDialogProps = {
   isOpen: boolean;
@@ -30,28 +31,74 @@ type CourseCreationDialogProps = {
 
 type Step = 1 | 2 | 3 | 4;
 
-export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogProps) {
+export function CourseCreationDialog({
+  isOpen,
+  onClose,
+}: CourseCreationDialogProps) {
   const [step, setStep] = useState<Step>(1);
   const [loading, setLoading] = useState(false);
-  
+
+  const {
+    data: categories,
+    isLoading: isLoadingCategories,
+    isError: isErrorCategories,
+    pagination: {
+      page,
+      pageSize,
+      totalCount,
+      totalPages,
+      setPage,
+      setPageSize,
+      nextPage,
+      prevPage,
+      canNextPage,
+      canPrevPage,
+    },
+  } = useCategories();
+
   // Form State
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("Ventas B2B");
+  // Default to first category if available, otherwise fallback to arbitrary default
+  const [category, setCategory] = useState<string>("");
   const [level, setLevel] = useState("BEGINNER");
   const [price, setPrice] = useState("99");
   const [prompt, setPrompt] = useState("");
-  
+
+  // Update category once categories are loaded
+  // This will update the selected category to the first option once categories arrive
+  // But it will not override user's selection after the user already changed it
+  useEffect(() => {
+    if (
+      Array.isArray(categories) &&
+      categories.length > 0 &&
+      !category &&
+      !isLoadingCategories
+    ) {
+      setCategory(String(categories[0]?.name ?? ""));
+    }
+  }, [categories, isLoadingCategories]);
+
   // Generated Syllabus State
-  const [syllabus, setSyllabus] = useState<{ id: string; title: string; lessons: string[] }[]>([
+  const [syllabus, setSyllabus] = useState<
+    { id: string; title: string; lessons: string[] }[]
+  >([
     {
       id: "mod-1",
       title: "Módulo 1: Fundamentos del Freelancing",
-      lessons: ["Introducción a Upwork", "Configurando un Perfil Estelar", "Búsqueda Eficiente de Proyectos"],
+      lessons: [
+        "Introducción a Upwork",
+        "Configurando un Perfil Estelar",
+        "Búsqueda Eficiente de Proyectos",
+      ],
     },
     {
       id: "mod-2",
       title: "Módulo 2: Propuestas Irresistibles",
-      lessons: ["Anatomía de una Propuesta Ganadora", "Técnicas de Pricing", "Manejo del Primer Mensaje"],
+      lessons: [
+        "Anatomía de una Propuesta Ganadora",
+        "Técnicas de Pricing",
+        "Manejo del Primer Mensaje",
+      ],
     },
   ]);
 
@@ -133,22 +180,34 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
 
           {/* Stepper Progress */}
           <div className="px-6 py-3 border-b-2 border-foreground bg-muted/35 flex justify-between items-center font-mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            <span className={cn(step >= 1 && "text-foreground font-extrabold")}>1. Concepto</span>
+            <span className={cn(step >= 1 && "text-foreground font-extrabold")}>
+              1. Concepto
+            </span>
             <IconArrowRight className="size-3" />
-            <span className={cn(step >= 2 && "text-foreground font-extrabold")}>2. Temario AI</span>
+            <span className={cn(step >= 2 && "text-foreground font-extrabold")}>
+              2. Temario AI
+            </span>
             <IconArrowRight className="size-3" />
-            <span className={cn(step >= 3 && "text-foreground font-extrabold")}>3. Detalles</span>
+            <span className={cn(step >= 3 && "text-foreground font-extrabold")}>
+              3. Detalles
+            </span>
             <IconArrowRight className="size-3" />
-            <span className={cn(step >= 4 && "text-foreground font-extrabold")}>4. ¡Listo!</span>
+            <span className={cn(step >= 4 && "text-foreground font-extrabold")}>
+              4. ¡Listo!
+            </span>
           </div>
 
           {/* Content */}
           <div className="p-6 max-h-[60vh] overflow-y-auto">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-16 space-y-4">
-                <IconLoader className="size-10 animate-spin text-primary" stroke={2.5} />
+                <IconLoader
+                  className="size-10 animate-spin text-primary"
+                  stroke={2.5}
+                />
                 <p className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground animate-pulse text-center">
-                  Generando temario y optimizando módulos con Inteligencia Artificial...
+                  Generando temario y optimizando módulos con Inteligencia
+                  Artificial...
                 </p>
               </div>
             ) : (
@@ -160,7 +219,9 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
                     className="space-y-4"
                   >
                     <div className="space-y-1.5">
-                      <label className="font-mono text-xs font-bold uppercase">Título del Curso</label>
+                      <label className="font-mono text-xs font-bold uppercase">
+                        Título del Curso
+                      </label>
                       <Input
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
@@ -171,20 +232,48 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
 
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-1.5">
-                        <label className="font-mono text-xs font-bold uppercase">Categoría</label>
-                        <select
-                          value={category}
-                          onChange={(e) => setCategory(e.target.value)}
-                          className={cn(adminInputClass, "w-full h-8 px-2 text-xs font-mono font-bold uppercase bg-background rounded-md border-2 border-foreground")}
-                        >
-                          <option>Ventas B2B</option>
-                          <option>Freelance Básico</option>
-                          <option>Propuestas de Valor</option>
-                          <option>Marca Personal</option>
-                        </select>
+                        <label className="font-mono text-xs font-bold uppercase">
+                          Categoría
+                        </label>
+                        {isLoadingCategories ? (
+                          <div className="text-xs text-muted-foreground px-2 py-1 rounded bg-muted animate-pulse">
+                            Cargando categorías...
+                          </div>
+                        ) : isErrorCategories ? (
+                          <div className="text-xs text-destructive px-2 py-1 rounded bg-muted">
+                            Error al cargar categorías
+                          </div>
+                        ) : (
+                          <select
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className={cn(
+                              adminInputClass,
+                              "w-full h-8 px-2 text-xs font-mono font-bold uppercase bg-background rounded-md border-2 border-foreground",
+                            )}
+                          >
+                            {(categories || []).length ? (
+                              categories.map((cat: any) => (
+                                <option
+                                  key={cat.id || cat.name}
+                                  value={cat.name}
+                                >
+                                  {cat.name}
+                                </option>
+                              ))
+                            ) : (
+                              // Fallback for no categories
+                              <option value="" disabled>
+                                Sin categorías
+                              </option>
+                            )}
+                          </select>
+                        )}
                       </div>
                       <div className="space-y-1.5">
-                        <label className="font-mono text-xs font-bold uppercase">Prompt Creativo de IA</label>
+                        <label className="font-mono text-xs font-bold uppercase">
+                          Prompt Creativo de IA
+                        </label>
                         <Input
                           value={prompt}
                           onChange={(e) => setPrompt(e.target.value)}
@@ -196,11 +285,17 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
 
                     <div className="rounded border-2 border-foreground bg-primary/10 p-4 space-y-2">
                       <p className="text-xs text-foreground font-semibold flex items-center gap-1.5">
-                        <IconSparkles className="size-4 shrink-0 text-primary" stroke={2.5} />
+                        <IconSparkles
+                          className="size-4 shrink-0 text-primary"
+                          stroke={2.5}
+                        />
                         ¿Cómo funciona la autogeneración?
                       </p>
                       <p className="text-[11px] text-muted-foreground leading-relaxed">
-                        Nuestro modelo estructurará automáticamente el curso en módulos lógicos, definirá lecciones sugeridas y preparará objetivos de estudio basados en las últimas tendencias de Upwork.
+                        Nuestro modelo estructurará automáticamente el curso en
+                        módulos lógicos, definirá lecciones sugeridas y
+                        preparará objetivos de estudio basados en las últimas
+                        tendencias de Upwork.
                       </p>
                     </div>
                   </motion.div>
@@ -213,7 +308,9 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
                     className="space-y-4"
                   >
                     <div className="flex items-center justify-between border-b-2 border-foreground pb-2">
-                      <h4 className="font-heading text-sm font-extrabold">Temario Estructurado por IA</h4>
+                      <h4 className="font-heading text-sm font-extrabold">
+                        Temario Estructurado por IA
+                      </h4>
                       <span className="font-mono text-[9px] font-bold uppercase text-primary bg-primary/10 px-2 py-0.5 rounded">
                         Optimizado
                       </span>
@@ -221,24 +318,37 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
 
                     <div className="space-y-4">
                       {syllabus.map((mod, modIdx) => (
-                        <div key={mod.id} className="border-2 border-foreground rounded p-3 bg-muted/10 space-y-2">
+                        <div
+                          key={mod.id}
+                          className="border-2 border-foreground rounded p-3 bg-muted/10 space-y-2"
+                        >
                           <div className="flex items-center justify-between">
-                            <span className="font-mono text-xs font-bold uppercase">{mod.title}</span>
+                            <span className="font-mono text-xs font-bold uppercase">
+                              {mod.title}
+                            </span>
                             <Button
                               variant="outline"
                               size="xs"
                               onClick={() => addLesson(modIdx)}
-                              className={cn(adminBrutalButtonClass, "text-[9px] font-mono font-bold uppercase")}
+                              className={cn(
+                                adminBrutalButtonClass,
+                                "text-[9px] font-mono font-bold uppercase",
+                              )}
                             >
                               <IconPlus className="size-2.5" />
                               Clase
                             </Button>
                           </div>
-                          
+
                           <ul className="space-y-1.5">
                             {mod.lessons.map((lesson, lesIdx) => (
-                              <li key={lesIdx} className="flex items-center justify-between gap-2 bg-background border border-foreground/35 px-2.5 py-1 rounded text-xs">
-                                <span className="font-mono text-muted-foreground">{lesIdx + 1}. {lesson}</span>
+                              <li
+                                key={lesIdx}
+                                className="flex items-center justify-between gap-2 bg-background border border-foreground/35 px-2.5 py-1 rounded text-xs"
+                              >
+                                <span className="font-mono text-muted-foreground">
+                                  {lesIdx + 1}. {lesson}
+                                </span>
                                 <button
                                   type="button"
                                   onClick={() => deleteLesson(modIdx, lesIdx)}
@@ -263,11 +373,16 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
                   >
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-1.5">
-                        <label className="font-mono text-xs font-bold uppercase">Nivel Sugerido</label>
+                        <label className="font-mono text-xs font-bold uppercase">
+                          Nivel Sugerido
+                        </label>
                         <select
                           value={level}
                           onChange={(e) => setLevel(e.target.value)}
-                          className={cn(adminInputClass, "w-full h-8 px-2 text-xs font-mono font-bold uppercase bg-background rounded-md border-2 border-foreground")}
+                          className={cn(
+                            adminInputClass,
+                            "w-full h-8 px-2 text-xs font-mono font-bold uppercase bg-background rounded-md border-2 border-foreground",
+                          )}
                         >
                           <option value="BEGINNER">Principiante</option>
                           <option value="INTERMEDIATE">Intermedio</option>
@@ -276,7 +391,9 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="font-mono text-xs font-bold uppercase">Precio (USD)</label>
+                        <label className="font-mono text-xs font-bold uppercase">
+                          Precio (USD)
+                        </label>
                         <Input
                           type="number"
                           value={price}
@@ -288,12 +405,19 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
 
                     <div className="border-2 border-foreground rounded p-4 bg-secondary/15 flex items-start gap-3">
                       <span className="flex size-9 shrink-0 items-center justify-center rounded border-2 border-foreground bg-background shadow-[2px_2px_0px_0px_var(--foreground)]">
-                        <IconSchool className="size-5 text-primary" stroke={2.5} />
+                        <IconSchool
+                          className="size-5 text-primary"
+                          stroke={2.5}
+                        />
                       </span>
                       <div className="space-y-1">
-                        <p className="text-xs font-bold font-mono uppercase">Emisión de Certificado</p>
+                        <p className="text-xs font-bold font-mono uppercase">
+                          Emisión de Certificado
+                        </p>
                         <p className="text-[11px] text-muted-foreground">
-                          Habilita la emisión automática de diplomas digitales con firma verificada al completarse el 100% de las lecciones.
+                          Habilita la emisión automática de diplomas digitales
+                          con firma verificada al completarse el 100% de las
+                          lecciones.
                         </p>
                       </div>
                     </div>
@@ -310,15 +434,25 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
                       <IconCheck className="size-8" stroke={3} />
                     </div>
                     <div className="space-y-2">
-                      <h4 className="font-heading text-xl font-extrabold tracking-tight">¡Curso Creado Exitosamente!</h4>
+                      <h4 className="font-heading text-xl font-extrabold tracking-tight">
+                        ¡Curso Creado Exitosamente!
+                      </h4>
                       <p className="max-w-md mx-auto text-xs text-muted-foreground">
-                        El temario interactivo estructurado de <strong className="text-foreground">{title || "Dominando Upwork"}</strong> ha sido agregado al listado en estado <strong className="text-foreground">Borrador</strong>.
+                        El temario interactivo estructurado de{" "}
+                        <strong className="text-foreground">
+                          {title || "Dominando Upwork"}
+                        </strong>{" "}
+                        ha sido agregado al listado en estado{" "}
+                        <strong className="text-foreground">Borrador</strong>.
                       </p>
                     </div>
                     <Button
                       type="button"
                       onClick={handleReset}
-                      className={cn(adminBrutalButtonClass, "mt-2 bg-secondary text-foreground")}
+                      className={cn(
+                        adminBrutalButtonClass,
+                        "mt-2 bg-secondary text-foreground",
+                      )}
                     >
                       Volver a la Lista
                     </Button>
@@ -344,9 +478,16 @@ export function CourseCreationDialog({ isOpen, onClose }: CourseCreationDialogPr
               <Button
                 size="sm"
                 onClick={handleNext}
-                className={cn(adminBrutalButtonClass, "bg-primary text-primary-foreground")}
+                className={cn(
+                  adminBrutalButtonClass,
+                  "bg-primary text-primary-foreground",
+                )}
               >
-                {step === 1 ? "Diseñar con IA" : step === 3 ? "Crear Curso" : "Siguiente"}
+                {step === 1
+                  ? "Diseñar con IA"
+                  : step === 3
+                    ? "Crear Curso"
+                    : "Siguiente"}
                 <IconArrowRight className="size-3.5" />
               </Button>
             </div>
