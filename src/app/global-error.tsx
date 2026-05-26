@@ -4,6 +4,8 @@ import { AppErrorState } from "@/components/app-state/app-error-state";
 import "./globals.css";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { MarketingNavServer } from "@/components/marketing-nav";
+import { useClerk } from "@clerk/nextjs";
+import useCatalogSections from "@/hooks/use-catalog-sections";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -11,10 +13,17 @@ interface GlobalErrorProps {
 }
 
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
+  const { isSignedIn } = useClerk();
+  const catalogSectionsQuery = useCatalogSections();
+  const catalogSections = catalogSectionsQuery.data ?? [];
+
   return (
     <div className="flex-1 w-full bg-background">
       <div className="flex min-h-screen flex-col">
-        <MarketingNavServer isSignedIn={false} catalogSections={[]} />
+        <MarketingNavServer
+          isSignedIn={isSignedIn}
+          catalogSections={catalogSections}
+        />
         <main className="flex-1">
           {" "}
           <AppErrorState

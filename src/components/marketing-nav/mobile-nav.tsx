@@ -11,6 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { navSections } from "@/data/nav-data";
 import type { CatalogSection } from "@/types/marketing-nav.types";
 import { IconMenu2 } from "@tabler/icons-react";
@@ -18,9 +19,10 @@ import { IconMenu2 } from "@tabler/icons-react";
 type MobileNavProps = {
   isSignedIn: boolean;
   catalogSections: CatalogSection[];
+  isLoadingCatalogSections?: boolean;
 };
 
-export function MobileNav({ isSignedIn, catalogSections }: MobileNavProps) {
+export function MobileNav({ isSignedIn, catalogSections, isLoadingCatalogSections }: MobileNavProps) {
   return (
     <Sheet>
       <SheetTrigger asChild className="lg:hidden">
@@ -49,7 +51,20 @@ export function MobileNav({ isSignedIn, catalogSections }: MobileNavProps) {
                 {section.label}
               </p>
               {section.label === "Catálogo" ? (
-                <CatalogMobileSection catalogSections={catalogSections} />
+                isLoadingCatalogSections ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <ul className="space-y-1">
+                      {[...Array(5)].map((_, i) => (
+                        <li key={i}>
+                          <Skeleton className="h-8 w-44" />
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <CatalogMobileSection catalogSections={catalogSections} />
+                )
               ) : (
                 <NavLinkList items={section.items} />
               )}

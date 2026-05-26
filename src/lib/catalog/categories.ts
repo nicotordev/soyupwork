@@ -1,6 +1,6 @@
+import 'server-only';
 import prisma from "@/lib/prisma";
 import type { CatalogFilterCategory } from "@/types/catalog-filters";
-import type { CatalogSection } from "@/types/marketing-nav.types";
 
 export interface CatalogTopicChip {
   label: string;
@@ -38,39 +38,4 @@ export function buildCatalogTopicChips(
     label: category.name,
     categorySlug: category.slug,
   }));
-}
-
-export async function getCatalogNavSections(): Promise<CatalogSection[]> {
-  const categories = await getCatalogCategories();
-
-  return [
-    {
-      title: "Temas populares",
-      iconKey: "topics",
-      items: categories.map((category) => ({
-        title: category.name,
-        href: `/catalog?subject=${category.slug}`,
-      })),
-    },
-    {
-      title: "Cursos gratuitos",
-      iconKey: "free",
-      items: [
-        {
-          title: "Ver todos los gratuitos",
-          href: "/catalog?access=free",
-        },
-      ],
-    },
-    {
-      title: "En tendencia",
-      iconKey: "trending",
-      items: [
-        {
-          title: "Explorar tendencias",
-          href: "/catalog?sort=trending",
-        },
-      ],
-    },
-  ];
 }

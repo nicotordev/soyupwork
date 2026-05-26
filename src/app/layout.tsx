@@ -1,11 +1,8 @@
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { clerkProviderAppearance } from "@/lib/clerk/appearance";
-import { clerkLocalization } from "@/lib/clerk/localization";
-import { ClerkProvider } from "@clerk/nextjs";
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import QueryClientProvider from "@/providers/query-client-provider";
+import Providers from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,14 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.className} min-h-full flex flex-col font-sans text-base/relaxed text-foreground`}
       >
-        <ClerkProvider
-          appearance={clerkProviderAppearance}
-          localization={clerkLocalization}
-        >
-          <TooltipProvider>
-            <QueryClientProvider>{children}</QueryClientProvider>
-          </TooltipProvider>
-        </ClerkProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

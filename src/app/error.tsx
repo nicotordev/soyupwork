@@ -1,6 +1,12 @@
 "use client";
 
 import { AppErrorState } from "@/components/app-state/app-error-state";
+import "./globals.css";
+import { MarketingFooter } from "@/components/marketing-footer";
+import { MarketingNavServer } from "@/components/marketing-nav";
+import { useClerk } from "@clerk/nextjs";
+import useCatalogSections from "@/hooks/use-catalog-sections";
+import Providers from "./providers";
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -8,14 +14,29 @@ interface ErrorProps {
 }
 
 export default function GlobalRouteError({ error, reset }: ErrorProps) {
+  const { isSignedIn } = useClerk();
+  const catalogSectionsQuery = useCatalogSections();
+  const catalogSections = catalogSectionsQuery.data ?? [];
+
   return (
-    <div className="flex-1 w-full bg-background">
-      <AppErrorState
-        error={error}
-        reset={reset}
-        title="Algo salió mal"
-        description="No pudimos cargar esta sección de la plataforma. Puedes intentar recargar la página o volver a tu panel principal."
-      />
-    </div>
+    <Providers>
+      <div className="flex-1 w-full bg-background">
+        <div className="flex min-h-screen flex-col">
+          <MarketingNavServer
+            isSignedIn={isSignedIn}
+            catalogSections={catalogSections}
+          />
+          <main className="flex-1">
+            <AppErrorState
+              error={error}
+              reset={reset}
+              title="Algo salió mal"
+              description="No pudimos cargar esta sección de la plataforma. Puedes intentar recargar la página o volver a tu panel principal."
+            />
+          </main>
+          <MarketingFooter />
+        </div>
+      </div>
+    </Providers>
   );
 }

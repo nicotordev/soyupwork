@@ -11,11 +11,13 @@ type MarketingNavProps = {
   /** Resuelto en servidor con auth() para que los botones salgan en el HTML inicial. */
   isSignedIn: boolean;
   catalogSections: CatalogSection[];
+  isLoadingCatalogSections?: boolean;
 };
 
 export function MarketingNav({
   isSignedIn,
   catalogSections,
+  isLoadingCatalogSections = false,
 }: MarketingNavProps) {
   return (
     <header
@@ -32,12 +34,19 @@ export function MarketingNav({
         </Link>
 
         <div className="flex flex-1 justify-center">
-          <DesktopNav catalogSections={catalogSections} />
+          <DesktopNav
+            catalogSections={catalogSections}
+            isLoadingCatalogSections={isLoadingCatalogSections}
+          />
         </div>
 
         <NavAuthButtons className="hidden lg:flex" isSignedIn={isSignedIn} />
 
-        <MobileNav isSignedIn={isSignedIn} catalogSections={catalogSections} />
+        <MobileNav
+          isSignedIn={isSignedIn}
+          catalogSections={catalogSections}
+          isLoadingCatalogSections={isLoadingCatalogSections}
+        />
       </div>
     </header>
   );

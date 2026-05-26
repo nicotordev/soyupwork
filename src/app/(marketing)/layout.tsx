@@ -1,6 +1,6 @@
 import { MarketingFooter } from "@/components/marketing-footer";
 import { MarketingNavServer } from "@/components/marketing-nav/marketing-nav-server";
-import { getCatalogNavSections } from "@/lib/catalog/categories";
+import { getCatalogNavSections } from "@/app/actions/catalog.actions";
 import { getClerkSession } from "@/lib/clerk/session";
 
 export default async function MarketingLayout({
