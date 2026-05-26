@@ -1,10 +1,9 @@
+import apiResponse from "@/lib/api/api-response";
 import { handleStripeWebhook } from "@/lib/webhooks/handlers/stripe";
 import {
   WebhookVerificationError,
   verifyStripeWebhook,
 } from "@/lib/webhooks/verify-stripe";
-import { NextResponse } from "next/server";
-
 
 export async function POST(req: Request) {
   const rawBody = await req.text();
@@ -13,12 +12,12 @@ export async function POST(req: Request) {
   try {
     const event = verifyStripeWebhook(rawBody, signature);
     await handleStripeWebhook(event);
-    return NextResponse.json({ received: true });
+    return apiResponse.success({ received: true });
   } catch (err: unknown) {
     if (err instanceof WebhookVerificationError) {
-      return NextResponse.json({ error: err.message }, { status: 400 });
+      return apiResponse.badRequest({ error: err.message }, err.message);
     }
     console.error("[stripe webhook]", err);
-    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+    return apiResponse.internalServerError({ error: "Internal error" });
   }
 }

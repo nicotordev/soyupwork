@@ -1,3 +1,4 @@
+import apiResponse from "@/lib/api/api-response";
 import {
   assertLogIngestAllowed,
   parseLogIngestPayload,
@@ -5,18 +6,18 @@ import {
 } from "@/lib/logger/ingest-guard";
 import { getServerLogger } from "@/lib/logger/server";
 import type { LogLevel } from "@/lib/logger/types";
-import { NextResponse } from "next/server";
 
 const ingestLogger = getServerLogger("api.log");
 
-const REJECT_STATUS: Record<string, { status: number; message: string }> = {
-  method: { status: 405, message: "Method not allowed" },
-  "content-type": { status: 415, message: "Unsupported media type" },
-  "body-size": { status: 413, message: "Payload too large" },
-  origin: { status: 403, message: "Forbidden" },
-  "rate-limit": { status: 429, message: "Too many requests" },
-  unauthorized: { status: 401, message: "Unauthorized" },
-};
+const REJECT_RESPONSES = {
+  method: () => apiResponse.methodNotAllowed({ ok: false }),
+  "content-type": () =>
+    apiResponse.error(415, "Unsupported media type", { ok: false }),
+  "body-size": () => apiResponse.error(413, "Payload too large", { ok: false }),
+  origin: () => apiResponse.forbidden({ ok: false }),
+  "rate-limit": () => apiResponse.tooManyRequests({ ok: false }),
+  unauthorized: () => apiResponse.unauthorized({ ok: false }),
+} as const;
 
 function writeEvent(
   event: {
@@ -62,16 +63,15 @@ function writeEvent(
 export async function POST(request: Request) {
   const guard = await assertLogIngestAllowed(request);
   if (!guard.ok) {
-    const { status, message } = REJECT_STATUS[guard.reason];
     ingestLogger.warn({ reason: guard.reason }, "Rejected client log ingest");
-    return NextResponse.json({ ok: false, error: message }, { status });
+    return REJECT_RESPONSES[guard.reason]();
   }
 
   try {
     const raw = await readLogIngestBody(request);
     if (raw === null) {
       ingestLogger.warn({ ip: guard.auth.ip }, "Client log body too large");
-      return NextResponse.json({ ok: false }, { status: 413 });
+      return apiResponse.error(413, "Payload too large", { ok: false });
     }
 
     const parsed = parseLogIngestPayload(raw);
@@ -80,19 +80,25 @@ export async function POST(request: Request) {
         { userId: guard.auth.userId, ip: guard.auth.ip },
         "Invalid client log payload",
       );
-      return NextResponse.json({ ok: false }, { status: 400 });
+      return apiResponse.badRequest(
+        { ok: false },
+        "Invalid client log payload",
+      );
     }
 
     for (const event of parsed.events) {
       writeEvent(event, guard.auth);
     }
 
-    return NextResponse.json({ ok: true });
+    return apiResponse.success({ ok: true });
   } catch (error) {
     ingestLogger.error(
       { error, userId: guard.auth.userId },
       "Failed to ingest client log",
     );
-    return NextResponse.json({ ok: false }, { status: 500 });
+    return apiResponse.internalServerError(
+      { ok: false },
+      "Failed to ingest client log",
+    );
   }
 }
