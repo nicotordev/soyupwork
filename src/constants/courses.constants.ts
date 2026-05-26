@@ -1,24 +1,24 @@
-export const COURSES_PAGE = {
+export const ADMIN_COURSES_PAGE = {
   eyebrow: "Gestión de contenido",
   title: "Cursos",
   description:
     "Crea, publica y organiza cursos, módulos y lecciones desde un solo lugar.",
 } as const;
 
-export const COURSE_STATUS_LABELS = {
+export const ADMIN_COURSE_STATUS_LABELS = {
   DRAFT: "Borrador",
   PUBLISHED: "Publicado",
   ARCHIVED: "Archivado",
 } as const;
 
-export type CourseStatusKey = keyof typeof COURSE_STATUS_LABELS;
+export type AdminCourseStatusKey = keyof typeof ADMIN_COURSE_STATUS_LABELS;
 
-export const COURSE_STATUS_VARIANTS = {
+export const ADMIN_COURSE_STATUS_VARIANTS = {
   DRAFT: "secondary",
   PUBLISHED: "default",
   ARCHIVED: "outline",
 } as const satisfies Record<
-  CourseStatusKey,
+  AdminCourseStatusKey,
   "default" | "secondary" | "outline" | "destructive"
 >;
 
@@ -32,9 +32,9 @@ export const ADMIN_COURSES_PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
 export const ADMIN_COURSES_STATUS_FILTER_OPTIONS = [
   { value: ADMIN_COURSES_FILTER_ALL, label: "Todos los estados" },
-  { value: "PUBLISHED", label: COURSE_STATUS_LABELS.PUBLISHED },
-  { value: "DRAFT", label: COURSE_STATUS_LABELS.DRAFT },
-  { value: "ARCHIVED", label: COURSE_STATUS_LABELS.ARCHIVED },
+  { value: "PUBLISHED", label: ADMIN_COURSE_STATUS_LABELS.PUBLISHED },
+  { value: "DRAFT", label: ADMIN_COURSE_STATUS_LABELS.DRAFT },
+  { value: "ARCHIVED", label: ADMIN_COURSE_STATUS_LABELS.ARCHIVED },
 ] as const;
 
 export const ADMIN_COURSES_LEVEL_FILTER_OPTIONS = [

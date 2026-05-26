@@ -1,6 +1,6 @@
 import {
-  COURSE_STATUS_LABELS,
-  COURSE_STATUS_VARIANTS,
+  ADMIN_COURSE_STATUS_LABELS,
+  ADMIN_COURSE_STATUS_VARIANTS,
 } from "@/constants/courses.constants";
 import {
   adminPanelClass,
@@ -148,10 +148,10 @@ export function CoursesTable({ courses }: CoursesTableProps) {
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant={COURSE_STATUS_VARIANTS[course.status]}
+                    variant={ADMIN_COURSE_STATUS_VARIANTS[course.status]}
                     className="font-mono text-[10px] uppercase"
                   >
-                    {COURSE_STATUS_LABELS[course.status]}
+                    {ADMIN_COURSE_STATUS_LABELS[course.status]}
                   </Badge>
                 </TableCell>
                 <TableCell className="hidden lg:table-cell">
