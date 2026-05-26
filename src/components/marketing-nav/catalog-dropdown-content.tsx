@@ -46,7 +46,9 @@ export function CatalogDropdownContent({
       <div className="grid grid-cols-3 gap-6 border-t-2 border-dashed border-foreground/35 pt-5">
         {catalogSections.map((section) => (
           <div key={section.title} className="space-y-3">
-            <SectionLabel icon={section.icon}>{section.title}</SectionLabel>
+            <SectionLabel iconKey={section.iconKey}>
+              {section.title}
+            </SectionLabel>
             <ul className="space-y-1">
               {section.items.map((item) => (
                 <li key={item.href}>

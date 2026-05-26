@@ -20,7 +20,9 @@ export function CatalogMobileSection({
       <div className="space-y-4 text-foreground pt-2">
         {catalogSections.map((section) => (
           <div key={section.title} className="space-y-2">
-            <SectionLabel icon={section.icon}>{section.title}</SectionLabel>
+            <SectionLabel iconKey={section.iconKey}>
+              {section.title}
+            </SectionLabel>
             <NavLinkList items={section.items} className="mt-1" />
           </div>
         ))}

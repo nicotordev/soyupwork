@@ -84,6 +84,7 @@ function buildOrderBy(sortBy: string): Prisma.CourseOrderByWithRelationInput[] {
     case "newest":
       return [{ createdAt: "desc" }];
     case "rating":
+    case "trending":
       return [{ reviews: { _count: "desc" } }, { createdAt: "desc" }];
     case "popular":
     default:
@@ -132,7 +133,7 @@ export async function getCatalogCourses(params: ParsedCatalogParams) {
     );
   }
 
-  if (params.sortBy === "rating") {
+  if (params.sortBy === "rating" || params.sortBy === "trending") {
     courses.sort(
       (a, b) => b.rating - a.rating || b.enrollmentCount - a.enrollmentCount,
     );

@@ -83,6 +83,7 @@ export function CatalogGrid({
             className="bg-card border-2 border-foreground px-2 py-1 text-xs font-mono font-bold rounded cursor-pointer outline-none shadow-[1px_1px_0px_0px_var(--foreground)]"
           >
             <option value="popular">Más popular</option>
+            <option value="trending">Tendencias</option>
             <option value="rating">Calificación</option>
             <option value="newest">Más reciente</option>
             <option value="featured">Destacados</option>

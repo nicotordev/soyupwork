@@ -57,11 +57,9 @@ export function parseCatalogSearchParams(
   let sortBy = "popular";
   if (
     typeof resolvedParams.sort === "string" &&
-    ["popular", "rating", "newest", "featured"].includes(resolvedParams.sort)
+    ["popular", "rating", "newest", "featured", "trending"].includes(resolvedParams.sort)
   ) {
     sortBy = resolvedParams.sort;
-  } else if (resolvedParams.sort === "trending") {
-    sortBy = "rating";
   } else if (resolvedParams.featured) {
     sortBy = "featured";
   }

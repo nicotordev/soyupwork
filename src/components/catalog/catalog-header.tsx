@@ -27,18 +27,29 @@ export function CatalogHeader({
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
+      const trimmed = localQuery.trim();
 
-      if (localQuery.trim()) {
-        params.set("q", localQuery.trim());
+      if (trimmed) {
+        params.set("q", trimmed);
       } else {
         params.delete("q");
       }
 
-      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      const nextQuery = params.toString();
+      const currentQuery = searchParams.toString();
+      if (nextQuery === currentQuery) {
+        return;
+      }
+
+      const href = nextQuery ? `${pathname}?${nextQuery}` : pathname;
+      router.replace(href, { scroll: false });
     }, 350);
 
     return () => clearTimeout(delayDebounce);
-  }, [localQuery, searchParams, pathname, router]);
+    // Only re-sync the URL when the user edits the search box — not when searchParams
+    // changes from our own router.replace (that caused an infinite RSC refetch loop).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- searchParams intentionally omitted
+  }, [localQuery]);
 
   const handleClear = () => {
     setLocalQuery("");

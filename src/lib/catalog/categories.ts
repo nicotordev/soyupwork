@@ -1,7 +1,6 @@
 import prisma from "@/lib/prisma";
 import type { CatalogFilterCategory } from "@/types/catalog-filters";
 import type { CatalogSection } from "@/types/marketing-nav.types";
-import { IconGift, IconLayoutGrid, IconTrendingUp } from "@tabler/icons-react";
 
 export interface CatalogTopicChip {
   label: string;
@@ -11,7 +10,7 @@ export interface CatalogTopicChip {
 export async function getCatalogCategories(): Promise<CatalogFilterCategory[]> {
   return prisma.courseCategory.findMany({
     orderBy: { position: "asc" },
-    select: { name: true, slug: true, icon: true },
+    select: { name: true, slug: true },
   });
 }
 
@@ -47,6 +46,7 @@ export async function getCatalogNavSections(): Promise<CatalogSection[]> {
   return [
     {
       title: "Temas populares",
+      iconKey: "topics",
       items: categories.map((category) => ({
         title: category.name,
         href: `/catalog?subject=${category.slug}`,
@@ -54,6 +54,7 @@ export async function getCatalogNavSections(): Promise<CatalogSection[]> {
     },
     {
       title: "Cursos gratuitos",
+      iconKey: "free",
       items: [
         {
           title: "Ver todos los gratuitos",
@@ -63,6 +64,7 @@ export async function getCatalogNavSections(): Promise<CatalogSection[]> {
     },
     {
       title: "En tendencia",
+      iconKey: "trending",
       items: [
         {
           title: "Explorar tendencias",
