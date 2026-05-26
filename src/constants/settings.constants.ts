@@ -16,6 +16,13 @@ export const ADMIN_SETTINGS_PAGE = {
     "Administra integraciones, marca, comunicaciones y preferencias operativas de SoyUpwork.",
 } as const;
 
+export const ADMIN_SETTINGS_GENERAL_PAGE = {
+  eyebrow: "Configuración",
+  title: "General",
+  description:
+    "Marca pública, modo mantenimiento, waitlist, registros y anuncios del sitio.",
+} as const;
+
 export type AdminSettingsSectionStatus = "available" | "coming_soon";
 
 export type AdminSettingsSection = {
@@ -24,15 +31,17 @@ export type AdminSettingsSection = {
   description: string;
   icon: Icon;
   status: AdminSettingsSectionStatus;
+  href?: string;
 };
 
 export const ADMIN_SETTINGS_SECTIONS: AdminSettingsSection[] = [
   {
     id: "general",
     label: "General",
-    description: "Nombre del sitio, URL pública y preferencias regionales.",
+    description: "Marca, mantenimiento, waitlist y acceso público.",
     icon: IconWorld,
-    status: "coming_soon",
+    status: "available",
+    href: "/admin/settings/general",
   },
   {
     id: "auth",

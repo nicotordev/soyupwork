@@ -425,3 +425,39 @@ model Certificate {
   @@unique([userId, courseId])
   @@index([code])
 }
+
+/// Singleton row (`id` = "default") for platform-wide configuration.
+model PlatformSettings {
+  id String @id @default("default")
+
+  siteName    String  @default("SoyUpwork")
+  siteTagline String?
+  supportEmail String?
+
+  maintenanceMode        Boolean @default(false)
+  maintenanceMessage     String?
+  maintenanceAllowAdmins Boolean @default(true)
+
+  waitlistMode         Boolean @default(false)
+  waitlistMessage      String?
+  waitlistAllowCatalog Boolean @default(false)
+
+  registrationsOpen Boolean @default(true)
+
+  showAnnouncementBanner Boolean @default(false)
+  announcementMessage  String?
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+}
+
+model WaitlistEntry {
+  id     String  @id @default(uuid()) @db.Uuid
+  email  String  @unique
+  name   String?
+  source String? @default("waitlist-page")
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([createdAt])
+}

@@ -31,6 +31,8 @@ function getBreadcrumbLabel(pathname: string): string {
     sales: "Ventas",
     cohorts: "Cohortes",
     metrics: "Métricas",
+    settings: "Configuración",
+    general: "General",
   };
 
   const slug = pathname

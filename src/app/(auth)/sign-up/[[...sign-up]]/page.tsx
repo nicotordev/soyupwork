@@ -1,7 +1,9 @@
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { clerkSignUpAppearance } from "@/lib/clerk/appearance";
+import { getPlatformSettings } from "@/lib/platform-settings/get-platform-settings";
 import { SignUp } from "@clerk/nextjs";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Crear cuenta | SoyUpwork",
@@ -9,7 +11,13 @@ export const metadata: Metadata = {
     "Regístrate en SoyUpwork para acceder a cursos, tu panel y el catálogo de la academia.",
 };
 
-export default function SignUpPage() {
+export default async function SignUpPage() {
+  const settings = await getPlatformSettings();
+
+  if (!settings.registrationsOpen) {
+    redirect(settings.waitlistMode ? "/waitlist" : "/sign-in");
+  }
+
   return (
     <AuthSplitLayout variant="sign-up">
       <SignUp
