@@ -9,6 +9,8 @@ import {
 import { adminCourseInclude } from "@/lib/admin/admin-course-include";
 import { mapDbCourseToAdminCourseRow } from "@/lib/admin/map-admin-course";
 import { parseAdminCoursesParams } from "@/lib/admin/parse-admin-courses-params";
+import { serializeError } from "@/lib/logger/serialize-error";
+import { getServerLogger } from "@/lib/logger/server";
 import prisma from "@/lib/prisma";
 import type {
   AdminCourseCategoryOption,
@@ -16,6 +18,8 @@ import type {
   AdminCoursesStats,
   ParsedAdminCoursesParams,
 } from "@/types/admin-course.types";
+
+const log = getServerLogger("courses.actions");
 
 function buildWhere(params: ParsedAdminCoursesParams): Prisma.CourseWhereInput {
   const where: Prisma.CourseWhereInput = {};
@@ -68,35 +72,62 @@ export async function getAdminCoursesPageData(
   searchParams: Record<string, string | string[] | undefined>,
 ): Promise<AdminCoursesPageData> {
   const filters = parseAdminCoursesParams(searchParams);
-  const where = buildWhere(filters);
 
-  const totalCount = await prisma.course.count({ where });
-  const totalPages = Math.max(1, Math.ceil(totalCount / filters.pageSize));
-  const page = Math.min(Math.max(1, filters.page), totalPages);
-  const skip = (page - 1) * filters.pageSize;
-
-  const [courses, stats, categories] = await Promise.all([
-    prisma.course.findMany({
-      where,
-      orderBy: [{ updatedAt: "desc" }],
-      skip,
-      take: filters.pageSize,
-      include: adminCourseInclude,
-    }),
-    getAdminCoursesStats(),
-    getAdminCourseCategories(),
-  ]);
-
-  return {
-    courses: courses.map(mapDbCourseToAdminCourseRow),
-    stats,
-    categories,
-    filters: { ...filters, page },
-    pagination: {
-      page,
+  log.debug(
+    {
+      page: filters.page,
       pageSize: filters.pageSize,
-      totalCount,
-      totalPages,
+      status: filters.status,
+      level: filters.level,
+      hasQuery: filters.q.length > 0,
     },
-  };
+    "Fetching admin courses page",
+  );
+
+  try {
+    const where = buildWhere(filters);
+
+    const totalCount = await prisma.course.count({ where });
+    const totalPages = Math.max(1, Math.ceil(totalCount / filters.pageSize));
+    const page = Math.min(Math.max(1, filters.page), totalPages);
+    const skip = (page - 1) * filters.pageSize;
+
+    const [courses, stats, categories] = await Promise.all([
+      prisma.course.findMany({
+        where,
+        orderBy: [{ updatedAt: "desc" }],
+        skip,
+        take: filters.pageSize,
+        include: adminCourseInclude,
+      }),
+      getAdminCoursesStats(),
+      getAdminCourseCategories(),
+    ]);
+
+    log.info(
+      {
+        page,
+        pageSize: filters.pageSize,
+        returned: courses.length,
+        totalCount,
+      },
+      "Admin courses page loaded",
+    );
+
+    return {
+      courses: courses.map(mapDbCourseToAdminCourseRow),
+      stats,
+      categories,
+      filters: { ...filters, page },
+      pagination: {
+        page,
+        pageSize: filters.pageSize,
+        totalCount,
+        totalPages,
+      },
+    };
+  } catch (error) {
+    log.error(serializeError(error), "Failed to fetch admin courses page");
+    throw error;
+  }
 }

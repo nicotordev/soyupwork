@@ -3,6 +3,7 @@ import {
   IconLayoutDashboard,
   IconReceipt,
   IconSchool,
+  IconSettings,
   IconUsers,
   IconUsersGroup,
 } from "@tabler/icons-react";
@@ -52,6 +53,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     href: "/admin/metrics",
     icon: IconChartBar,
     description: "Analítica y conversión",
+  },
+  {
+    label: "Configuración",
+    href: "/admin/settings",
+    icon: IconSettings,
+    description: "Configuración de la plataforma",
   },
 ];
 

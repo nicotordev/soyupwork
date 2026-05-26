@@ -1,12 +1,16 @@
 "use server";
 
+import { getServerLogger } from "@/lib/logger/server";
 import type { DashboardOverviewData } from "@/types/dashboard.types";
+
+const log = getServerLogger("dashboard.actions");
 
 /** Demo data until Prisma-backed admin APIs are wired. */
 export async function getDashboardOverviewData(): Promise<DashboardOverviewData> {
+  log.debug("Building dashboard overview (demo data)");
   const now = Date.now();
 
-  return {
+  const data: DashboardOverviewData = {
     stats: [
       {
         id: "revenue",
@@ -155,4 +159,7 @@ export async function getDashboardOverviewData(): Promise<DashboardOverviewData>
       },
     ],
   };
+
+  log.info("Dashboard overview ready");
+  return data;
 }

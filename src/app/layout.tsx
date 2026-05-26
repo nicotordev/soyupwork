@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import QueryClientProvider from "@/providers/query-client-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,9 @@ export default function RootLayout({
           appearance={clerkProviderAppearance}
           localization={clerkLocalization}
         >
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <QueryClientProvider>{children}</QueryClientProvider>
+          </TooltipProvider>
         </ClerkProvider>
       </body>
     </html>

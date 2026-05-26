@@ -1,4 +1,5 @@
 import { AppEmptyState } from "@/components/app-state/app-empty-state";
+import MarketingFooter from "@/components/marketing-footer";
 import { MarketingNavServer } from "@/components/marketing-nav";
 import type { Metadata } from "next";
 
@@ -21,6 +22,7 @@ export default function NotFound() {
             showDashboardButton={true}
           />{" "}
         </main>
+        <MarketingFooter />
       </div>
     </div>
   );
