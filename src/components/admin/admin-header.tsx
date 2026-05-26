@@ -33,12 +33,19 @@ function getBreadcrumbLabel(pathname: string): string {
     metrics: "Métricas",
     settings: "Configuración",
     general: "General",
+    auth: "Autenticación",
+    payments: "Pagos",
+    email: "Correo",
+    storage: "Almacenamiento",
+    video: "Video",
+    notifications: "Notificaciones",
   };
 
-  const slug = pathname
+  const parts = pathname
     .replace(ADMIN_BASE_PATH, "")
     .split("/")
-    .filter(Boolean)[0];
+    .filter(Boolean);
+  const slug = parts.at(-1) ?? parts[0];
   if (!slug) return "Resumen";
   return segments[slug] ?? "Admin";
 }

@@ -1,23 +1,51 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { z } from "zod";
-import { AdminAuthError, requireAdmin } from "@/lib/admin/require-admin";
-import { getPlatformSettings } from "@/lib/platform-settings/get-platform-settings";
-import { generalSettingsSchema } from "@/lib/platform-settings/general-settings-schema";
-import {
-  mapFormValuesToPlatformSettingsUpdate,
-  mapPlatformSettingsToFormValues,
-} from "@/lib/platform-settings/map-settings";
-import { PLATFORM_SETTINGS_ID } from "@/lib/platform-settings/constants";
+import { requireAdmin } from "@/lib/admin/require-admin";
 import { getServerLogger } from "@/lib/logger/server";
+import { getPlatformSettings } from "@/lib/platform-settings/get-platform-settings";
+import {
+  mapAuthFormValuesToUpdate,
+  mapEmailFormValuesToUpdate,
+  mapGeneralFormValuesToUpdate,
+  mapNotificationsFormValuesToUpdate,
+  mapPaymentsFormValuesToUpdate,
+  mapPlatformSettingsToAuthFormValues,
+  mapPlatformSettingsToEmailFormValues,
+  mapPlatformSettingsToGeneralFormValues,
+  mapPlatformSettingsToNotificationsFormValues,
+  mapPlatformSettingsToPaymentsFormValues,
+  mapPlatformSettingsToStorageFormValues,
+  mapPlatformSettingsToVideoFormValues,
+  mapStorageFormValuesToUpdate,
+  mapVideoFormValuesToUpdate,
+} from "@/lib/platform-settings/map-settings";
+import {
+  authSettingsSchema,
+  emailSettingsSchema,
+  generalSettingsSchema,
+  notificationsSettingsSchema,
+  paymentsSettingsSchema,
+  storageSettingsSchema,
+  videoSettingsSchema,
+} from "@/lib/platform-settings/settings-schemas";
+import {
+  SETTINGS_REVALIDATE_PATHS,
+  updatePlatformSettingsSection,
+} from "@/lib/platform-settings/update-settings-section";
 import prisma from "@/lib/prisma";
 import type {
+  AuthSettingsFormValues,
+  EmailSettingsFormValues,
   GeneralSettingsFormValues,
   JoinWaitlistResult,
-  UpdateGeneralSettingsResult,
+  NotificationsSettingsFormValues,
+  PaymentsSettingsFormValues,
+  StorageSettingsFormValues,
+  UpdateSettingsResult,
+  VideoSettingsFormValues,
 } from "@/types/platform-settings.types";
+import { redirect } from "next/navigation";
+import { z } from "zod";
 
 const log = getServerLogger("settings.actions");
 
@@ -26,7 +54,9 @@ const joinWaitlistSchema = z.object({
   name: z.string().trim().max(80).optional(),
 });
 
-export async function getGeneralSettingsFormValues(): Promise<GeneralSettingsFormValues> {
+async function requireAdminSettings<T>(
+  loader: (settings: Awaited<ReturnType<typeof getPlatformSettings>>) => T,
+): Promise<T> {
   try {
     await requireAdmin();
   } catch {
@@ -34,46 +64,119 @@ export async function getGeneralSettingsFormValues(): Promise<GeneralSettingsFor
   }
 
   const settings = await getPlatformSettings();
-  return mapPlatformSettingsToFormValues(settings);
+  return loader(settings);
+}
+
+export async function getGeneralSettingsFormValues(): Promise<GeneralSettingsFormValues> {
+  return requireAdminSettings(mapPlatformSettingsToGeneralFormValues);
+}
+
+export async function getAuthSettingsFormValues(): Promise<AuthSettingsFormValues> {
+  return requireAdminSettings(mapPlatformSettingsToAuthFormValues);
+}
+
+export async function getPaymentsSettingsFormValues(): Promise<PaymentsSettingsFormValues> {
+  return requireAdminSettings(mapPlatformSettingsToPaymentsFormValues);
+}
+
+export async function getEmailSettingsFormValues(): Promise<EmailSettingsFormValues> {
+  return requireAdminSettings(mapPlatformSettingsToEmailFormValues);
+}
+
+export async function getStorageSettingsFormValues(): Promise<StorageSettingsFormValues> {
+  return requireAdminSettings(mapPlatformSettingsToStorageFormValues);
+}
+
+export async function getVideoSettingsFormValues(): Promise<VideoSettingsFormValues> {
+  return requireAdminSettings(mapPlatformSettingsToVideoFormValues);
+}
+
+export async function getNotificationsSettingsFormValues(): Promise<NotificationsSettingsFormValues> {
+  return requireAdminSettings(mapPlatformSettingsToNotificationsFormValues);
 }
 
 export async function updateGeneralSettings(
   values: GeneralSettingsFormValues,
-): Promise<UpdateGeneralSettingsResult> {
-  try {
-    await requireAdmin();
+): Promise<UpdateSettingsResult> {
+  return updatePlatformSettingsSection(
+    values,
+    generalSettingsSchema,
+    mapGeneralFormValuesToUpdate,
+    [...SETTINGS_REVALIDATE_PATHS],
+    { section: "general" },
+  );
+}
 
-    const parsed = generalSettingsSchema.safeParse(values);
-    if (!parsed.success) {
-      const firstIssue = parsed.error.issues[0];
-      return {
-        ok: false,
-        error: firstIssue?.message ?? "Datos inválidos.",
-      };
-    }
+export async function updateAuthSettings(
+  values: AuthSettingsFormValues,
+): Promise<UpdateSettingsResult> {
+  return updatePlatformSettingsSection(
+    values,
+    authSettingsSchema,
+    mapAuthFormValuesToUpdate,
+    [...SETTINGS_REVALIDATE_PATHS],
+    { section: "auth" },
+  );
+}
 
-    const data = mapFormValuesToPlatformSettingsUpdate(parsed.data);
+export async function updatePaymentsSettings(
+  values: PaymentsSettingsFormValues,
+): Promise<UpdateSettingsResult> {
+  return updatePlatformSettingsSection(
+    values,
+    paymentsSettingsSchema,
+    mapPaymentsFormValuesToUpdate,
+    [...SETTINGS_REVALIDATE_PATHS],
+    { section: "payments" },
+  );
+}
 
-    await prisma.platformSettings.update({
-      where: { id: PLATFORM_SETTINGS_ID },
-      data,
-    });
+export async function updateEmailSettings(
+  values: EmailSettingsFormValues,
+): Promise<UpdateSettingsResult> {
+  return updatePlatformSettingsSection(
+    values,
+    emailSettingsSchema,
+    mapEmailFormValuesToUpdate,
+    [...SETTINGS_REVALIDATE_PATHS],
+    { section: "email" },
+  );
+}
 
-    revalidatePath("/admin/settings");
-    revalidatePath("/admin/settings/general");
-    revalidatePath("/", "layout");
+export async function updateStorageSettings(
+  values: StorageSettingsFormValues,
+): Promise<UpdateSettingsResult> {
+  return updatePlatformSettingsSection(
+    values,
+    storageSettingsSchema,
+    mapStorageFormValuesToUpdate,
+    [...SETTINGS_REVALIDATE_PATHS],
+    { section: "storage" },
+  );
+}
 
-    log.info({ maintenanceMode: data.maintenanceMode, waitlistMode: data.waitlistMode }, "Platform settings updated");
+export async function updateVideoSettings(
+  values: VideoSettingsFormValues,
+): Promise<UpdateSettingsResult> {
+  return updatePlatformSettingsSection(
+    values,
+    videoSettingsSchema,
+    mapVideoFormValuesToUpdate,
+    [...SETTINGS_REVALIDATE_PATHS],
+    { section: "video" },
+  );
+}
 
-    return { ok: true };
-  } catch (error) {
-    if (error instanceof AdminAuthError) {
-      return { ok: false, error: error.message };
-    }
-
-    log.error({ error }, "Failed to update platform settings");
-    return { ok: false, error: "No se pudo guardar la configuración." };
-  }
+export async function updateNotificationsSettings(
+  values: NotificationsSettingsFormValues,
+): Promise<UpdateSettingsResult> {
+  return updatePlatformSettingsSection(
+    values,
+    notificationsSettingsSchema,
+    mapNotificationsFormValuesToUpdate,
+    [...SETTINGS_REVALIDATE_PATHS],
+    { section: "notifications" },
+  );
 }
 
 export async function joinWaitlist(input: {

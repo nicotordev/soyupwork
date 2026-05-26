@@ -91,11 +91,11 @@ model User {
 }
 
 model CourseCategory {
-  id       String @id @default(uuid()) @db.Uuid
-  slug     String @unique
+  id       String  @id @default(uuid()) @db.Uuid
+  slug     String  @unique
   name     String
   icon     String?
-  position Int    @default(0)
+  position Int     @default(0)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -430,8 +430,8 @@ model Certificate {
 model PlatformSettings {
   id String @id @default("default")
 
-  siteName    String  @default("SoyUpwork")
-  siteTagline String?
+  siteName     String  @default("SoyUpwork")
+  siteTagline  String?
   supportEmail String?
 
   maintenanceMode        Boolean @default(false)
@@ -445,7 +445,46 @@ model PlatformSettings {
   registrationsOpen Boolean @default(true)
 
   showAnnouncementBanner Boolean @default(false)
-  announcementMessage  String?
+  announcementMessage    String?
+
+  // Auth (Clerk UX — secrets remain in env)
+  afterSignInUrl       String  @default("/dashboard")
+  afterSignUpUrl       String  @default("/onboarding")
+  requireVerifiedEmail Boolean @default(false)
+  allowOAuthSignIn     Boolean @default(true)
+
+  // Payments (Stripe — secrets remain in env)
+  stripeCurrency       String  @default("usd")
+  enableStripeCheckout Boolean @default(true)
+  showTaxBreakdown     Boolean @default(false)
+  refundPolicyDays     Int     @default(7)
+
+  // Email (Resend — API key remains in env)
+  emailFrom                String?
+  emailSupport             String?
+  sendPurchaseConfirmation Boolean @default(true)
+  sendEnrollmentEmail      Boolean @default(true)
+
+  // Storage (R2 — credentials remain in env)
+  maxFileSizeMb    Int     @default(100)
+  maxVideoSizeMb   Int     @default(5000)
+  storagePublicUrl String?
+
+  // Video (Mux — credentials remain in env)
+  enableMuxStreaming  Boolean @default(true)
+  videoSignedPlayback Boolean @default(true)
+  defaultVideoQuality String  @default("auto")
+
+  // Notifications & operations
+  notifyAdminOnPurchase      Boolean @default(true)
+  notifyAdminOnRefund        Boolean @default(true)
+  notifyStudentOnEnrollment  Boolean @default(true)
+  notifyStudentOnCertificate Boolean @default(true)
+  enableInAppNotifications   Boolean @default(true)
+  rateLimitMaxRequests       Int     @default(100)
+  rateLimitWindowMs          Int     @default(60000)
+  logLevel                   String  @default("info")
+  analyticsRetentionDays     Int     @default(365)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)

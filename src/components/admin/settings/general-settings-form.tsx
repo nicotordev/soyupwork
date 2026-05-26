@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import { updateGeneralSettings } from "@/app/actions/settings.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,17 +22,23 @@ import {
   IconUsersGroup,
   IconWorld,
 } from "@tabler/icons-react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 type GeneralSettingsFormProps = {
   initialValues: GeneralSettingsFormValues;
 };
 
-export function GeneralSettingsForm({ initialValues }: GeneralSettingsFormProps) {
+export function GeneralSettingsForm({
+  initialValues,
+}: GeneralSettingsFormProps) {
   const [values, setValues] = useState(initialValues);
   const [isPending, startTransition] = useTransition();
 
-  const updateBoolean = (key: keyof GeneralSettingsFormValues, checked: boolean) => {
+  const updateBoolean = (
+    key: keyof GeneralSettingsFormValues,
+    checked: boolean,
+  ) => {
     setValues((current) => ({ ...current, [key]: checked }));
   };
 
@@ -117,7 +122,10 @@ export function GeneralSettingsForm({ initialValues }: GeneralSettingsFormProps)
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Label htmlFor="maintenanceMode" className="text-xs font-mono uppercase">
+            <Label
+              htmlFor="maintenanceMode"
+              className="text-xs font-mono uppercase"
+            >
               Activo
             </Label>
             <Switch
@@ -173,7 +181,10 @@ export function GeneralSettingsForm({ initialValues }: GeneralSettingsFormProps)
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Label htmlFor="waitlistMode" className="text-xs font-mono uppercase">
+            <Label
+              htmlFor="waitlistMode"
+              className="text-xs font-mono uppercase"
+            >
               Activo
             </Label>
             <Switch
@@ -222,30 +233,14 @@ export function GeneralSettingsForm({ initialValues }: GeneralSettingsFormProps)
           <div className="flex items-center gap-2">
             <IconBell className="size-4 text-primary" stroke={2.5} />
             <div>
-              <h2 className={adminPanelTitleClass}>Acceso y anuncios</h2>
+              <h2 className={adminPanelTitleClass}>Anuncios globales</h2>
               <p className="text-xs text-muted-foreground">
-                Registro de usuarios y banner global
+                Banner informativo en el sitio de marketing
               </p>
             </div>
           </div>
         </div>
         <div className="space-y-4 p-4">
-          <div className="flex items-center justify-between gap-4 rounded border-2 border-foreground bg-secondary/40 px-3 py-2">
-            <div className="space-y-0.5">
-              <p className="font-mono text-xs font-bold uppercase">
-                Registros abiertos
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Permite nuevos registros en Clerk (sign-up)
-              </p>
-            </div>
-            <Switch
-              checked={values.registrationsOpen}
-              onCheckedChange={(checked) =>
-                updateBoolean("registrationsOpen", checked)
-              }
-            />
-          </div>
           <div className="flex items-center justify-between gap-4 rounded border-2 border-foreground bg-secondary/40 px-3 py-2">
             <div className="space-y-0.5">
               <p className="font-mono text-xs font-bold uppercase">

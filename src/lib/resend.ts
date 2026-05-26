@@ -1,3 +1,4 @@
+import { getResolvedEmailFrom } from "@/lib/platform-settings/resolve-settings";
 import { Resend } from "resend";
 
 function getResend(): Resend {
@@ -27,7 +28,7 @@ export async function sendEmail(params: {
   html: string;
   from?: string;
 }) {
-  const from = params.from ?? process.env.EMAIL_FROM;
+  const from = params.from ?? (await getResolvedEmailFrom());
   if (!from) {
     throw new Error("EMAIL_FROM is not set");
   }

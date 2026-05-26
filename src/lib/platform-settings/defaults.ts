@@ -1,5 +1,5 @@
-import { PLATFORM_SETTINGS_ID } from "@/lib/platform-settings/constants";
 import type { PlatformSettings } from "@/generated/prisma/client";
+import { PLATFORM_SETTINGS_ID } from "@/lib/platform-settings/constants";
 
 export const DEFAULT_PLATFORM_SETTINGS = {
   id: PLATFORM_SETTINGS_ID,
@@ -15,4 +15,31 @@ export const DEFAULT_PLATFORM_SETTINGS = {
   registrationsOpen: true,
   showAnnouncementBanner: false,
   announcementMessage: null,
+  afterSignInUrl: "/dashboard",
+  afterSignUpUrl: "/onboarding",
+  requireVerifiedEmail: false,
+  allowOAuthSignIn: true,
+  stripeCurrency: "usd",
+  enableStripeCheckout: true,
+  showTaxBreakdown: false,
+  refundPolicyDays: 7,
+  emailFrom: null,
+  emailSupport: null,
+  sendPurchaseConfirmation: true,
+  sendEnrollmentEmail: true,
+  maxFileSizeMb: 100,
+  maxVideoSizeMb: 5000,
+  storagePublicUrl: null,
+  enableMuxStreaming: true,
+  videoSignedPlayback: true,
+  defaultVideoQuality: "auto",
+  notifyAdminOnPurchase: true,
+  notifyAdminOnRefund: true,
+  notifyStudentOnEnrollment: true,
+  notifyStudentOnCertificate: true,
+  enableInAppNotifications: true,
+  rateLimitMaxRequests: 100,
+  rateLimitWindowMs: 60_000,
+  logLevel: "info",
+  analyticsRetentionDays: 365,
 } satisfies Omit<PlatformSettings, "createdAt" | "updatedAt">;
