@@ -47,7 +47,10 @@ export async function resolvePlatformGateAction(
   }
 
   if (settings.waitlistMode) {
-    if (settings.waitlistAllowCatalog && pathname.startsWith("/catalog")) {
+    if (
+      settings.waitlistAllowCatalog &&
+      (pathname.startsWith("/catalog") || pathname.startsWith("/category"))
+    ) {
       return "none";
     }
     return "waitlist";

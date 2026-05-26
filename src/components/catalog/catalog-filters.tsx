@@ -14,7 +14,6 @@ import {
   catalogFilterSectionTitleClass,
   catalogFilterSeparatorClass,
   catalogFilterSheetContentClass,
-  catalogFilterSheetOverlayClass,
   catalogFilterTitleClass,
 } from "@/components/catalog/catalog-filter-styles";
 import { Button } from "@/components/ui/button";
@@ -31,6 +30,11 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetFooter } from "@/components/ui/sheet";
+import {
+  getCatalogPath,
+  getCategoryPath,
+  getCategorySlugFromPath,
+} from "@/lib/catalog/category-paths";
 import type { CatalogFilterOptions } from "@/types/catalog-filters";
 import {
   IconAdjustmentsHorizontal,
@@ -313,11 +317,48 @@ export function CatalogFilters({
 
   const handleToggleCheckbox = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
-    const currentValues = params.getAll(key);
-
+    const activeCategorySlug = getCategorySlugFromPath(pathname);
     params.delete("subject");
     params.delete("free");
     params.delete("featured");
+
+    if (key === "category") {
+      const isSelected =
+        selectedCategorySlugs.includes(value) || activeCategorySlug === value;
+
+      if (activeCategorySlug) {
+        if (isSelected) {
+          router.replace(getCatalogPath(params), { scroll: false });
+          return;
+        }
+
+        router.replace(getCategoryPath(value, params), { scroll: false });
+        return;
+      }
+
+      if (isSelected) {
+        const remaining = selectedCategorySlugs.filter(
+          (slug) => slug !== value,
+        );
+        params.delete("category");
+        remaining.forEach((slug) => params.append("category", slug));
+        router.replace(getCatalogPath(params), { scroll: false });
+        return;
+      }
+
+      const nextSlugs = [...selectedCategorySlugs, value];
+      if (nextSlugs.length === 1) {
+        router.replace(getCategoryPath(value, params), { scroll: false });
+        return;
+      }
+
+      params.delete("category");
+      nextSlugs.forEach((slug) => params.append("category", slug));
+      router.replace(getCatalogPath(params), { scroll: false });
+      return;
+    }
+
+    const currentValues = params.getAll(key);
 
     if (currentValues.includes(value)) {
       const newValues = currentValues.filter((v) => v !== value);
@@ -327,7 +368,10 @@ export function CatalogFilters({
       params.append(key, value);
     }
 
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    const nextPath = activeCategorySlug
+      ? getCategoryPath(activeCategorySlug, params)
+      : getCatalogPath(params);
+    router.replace(nextPath, { scroll: false });
   };
 
   const handleRadioChange = (key: string, value: string) => {
@@ -342,11 +386,18 @@ export function CatalogFilters({
       params.set(key, value);
     }
 
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    const activeCategorySlug = getCategorySlugFromPath(pathname);
+    const nextPath = activeCategorySlug
+      ? getCategoryPath(activeCategorySlug, params)
+      : getCatalogPath(params);
+    router.replace(nextPath, { scroll: false });
   };
 
   const handleClearFilters = () => {
-    router.push(pathname);
+    const activeCategorySlug = getCategorySlugFromPath(pathname);
+    router.push(
+      activeCategorySlug ? getCategoryPath(activeCategorySlug) : "/catalog",
+    );
   };
 
   const panelProps: CatalogFilterPanelProps = {

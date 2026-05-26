@@ -1,8 +1,8 @@
 "use server";
 
 import { getCatalogCategories } from "@/lib/catalog/categories";
+import { getCategoryPath } from "@/lib/catalog/category-paths";
 import { CatalogSection } from "@/types/marketing-nav.types";
-
 
 export async function getCatalogNavSections(): Promise<CatalogSection[]> {
   const categories = await getCatalogCategories();
@@ -13,7 +13,7 @@ export async function getCatalogNavSections(): Promise<CatalogSection[]> {
       iconKey: "topics",
       items: categories.map((category) => ({
         title: category.name,
-        href: `/catalog?subject=${category.slug}`,
+        href: getCategoryPath(category.slug),
       })),
     },
     {

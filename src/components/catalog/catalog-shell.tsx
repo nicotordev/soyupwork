@@ -28,6 +28,8 @@ interface CatalogShellProps {
   selectedAccess: string;
   selectedCertificate: string;
   sortBy: string;
+  pageTitle?: string;
+  pageDescription?: string;
 }
 
 export function CatalogShell({
@@ -44,6 +46,8 @@ export function CatalogShell({
   selectedAccess,
   selectedCertificate,
   sortBy,
+  pageTitle,
+  pageDescription,
 }: CatalogShellProps) {
   // Mobile filter drawer state
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -61,7 +65,12 @@ export function CatalogShell({
   return (
     <div className="bg-background text-foreground min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
       {/* 1. Header component (handles local state & url push for search input) */}
-      <CatalogHeader initialSearchQuery={searchQuery} topicChips={topicChips} />
+      <CatalogHeader
+        initialSearchQuery={searchQuery}
+        topicChips={topicChips}
+        pageTitle={pageTitle}
+        pageDescription={pageDescription}
+      />
 
       {/* 2. Horizontal Featured Rows */}
       {showFeaturedList && (

@@ -3,12 +3,15 @@ import {
   ADMIN_COURSE_STATUS_VARIANTS,
 } from "@/constants/courses.constants";
 import {
+  formatAdminCourseContentSummary,
+  formatDashboardRelativeTime,
+} from "@/lib/admin/formatters";
+import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
 } from "@/lib/admin/styles";
-import { formatAdminCourseContentSummary } from "@/lib/admin/formatters";
-import { formatDashboardRelativeTime } from "@/lib/admin/formatters";
+import { getCategoryPath } from "@/lib/catalog/category-paths";
 import type { AdminCourseRow } from "@/types/admin-course.types";
 import {
   IconCertificate,
@@ -35,14 +38,13 @@ type CoursesTableProps = {
 
 function catalogHref(course: AdminCourseRow): string | null {
   if (course.status !== "PUBLISHED") return null;
-  const params = new URLSearchParams();
   if (course.categorySlug) {
-    params.set("category", course.categorySlug);
-  } else if (course.title) {
-    params.set("q", course.title);
+    return getCategoryPath(course.categorySlug);
   }
-  const query = params.toString();
-  return query ? `/catalog?${query}` : "/catalog";
+  if (course.title) {
+    return `/catalog?q=${encodeURIComponent(course.title)}`;
+  }
+  return "/catalog";
 }
 
 export function CoursesTable({ courses }: CoursesTableProps) {

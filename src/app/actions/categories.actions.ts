@@ -2,6 +2,7 @@
 
 import { parseAdminCategoriesParams } from "@/lib/admin/categories";
 import { requireAdmin } from "@/lib/auth/admin";
+import { getCategoryPath } from "@/lib/catalog/category-paths";
 import prisma from "@/lib/db/prisma";
 import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
@@ -241,6 +242,7 @@ export async function createCategory(
     revalidatePath("/admin/categories");
     revalidatePath("/admin/courses");
     revalidatePath("/catalog");
+    revalidatePath(getCategoryPath(created.slug));
 
     log.info(
       { categoryId: created.id, slug: created.slug },
@@ -262,7 +264,10 @@ export async function deleteCategory(
 
     const existing = await prisma.courseCategory.findUnique({
       where: { id },
-      select: { _count: { select: { courses: true } } },
+      select: {
+        slug: true,
+        _count: { select: { courses: true } },
+      },
     });
 
     if (!existing) {
@@ -281,6 +286,7 @@ export async function deleteCategory(
     revalidatePath("/admin/categories");
     revalidatePath("/admin/courses");
     revalidatePath("/catalog");
+    revalidatePath(getCategoryPath(existing.slug));
 
     log.info({ categoryId: id }, "Category deleted");
 

@@ -12,6 +12,7 @@ import {
   adminPanelHeaderClass,
   adminPanelTitleClass,
 } from "@/lib/admin/styles";
+import { getCategoryPath } from "@/lib/catalog/category-paths";
 import { toSlug } from "@/lib/slug";
 import { cn } from "@/lib/utils";
 import type { CreateCategoryInput } from "@/schemas/category";
@@ -156,7 +157,7 @@ export function CategoryCreationDialog({
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  URL: /catalog?category={slug || "…"}
+                  URL: {slug ? getCategoryPath(slug) : getCategoryPath("…")}
                 </p>
               </div>
               <div className="space-y-2 sm:col-span-2">

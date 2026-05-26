@@ -1,6 +1,7 @@
 "use client";
 
 import type { CatalogTopicChip } from "@/lib/catalog/categories";
+import { getCategoryPath } from "@/lib/catalog/category-paths";
 import { IconSchool, IconSearch, IconX } from "@tabler/icons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,11 +9,15 @@ import { useEffect, useState } from "react";
 interface CatalogHeaderProps {
   initialSearchQuery: string;
   topicChips: CatalogTopicChip[];
+  pageTitle?: string;
+  pageDescription?: string;
 }
 
 export function CatalogHeader({
   initialSearchQuery,
   topicChips,
+  pageTitle,
+  pageDescription,
 }: CatalogHeaderProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -60,9 +65,7 @@ export function CatalogHeader({
 
   const handleTopicChipClick = (chip: CatalogTopicChip) => {
     setLocalQuery("");
-    const params = new URLSearchParams();
-    params.append("category", chip.categorySlug);
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(getCategoryPath(chip.categorySlug));
   };
 
   return (
@@ -74,15 +77,18 @@ export function CatalogHeader({
             Catálogo de Cursos
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight font-sans leading-none text-balance">
-            Explora cursos para vender <br className="hidden md:inline" />
-            <span className="bg-primary/20 border-b-4 border-primary px-1">
-              mejor tus servicios
-            </span>
+            {pageTitle ?? (
+              <>
+                Explora cursos para vender <br className="hidden md:inline" />
+                <span className="bg-primary/20 border-b-4 border-primary px-1">
+                  mejor tus servicios
+                </span>
+              </>
+            )}
           </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
-            Aprende Upwork, propuestas, pricing, entrevistas, automatización e
-            IA con rutas prácticas estructuradas exclusivamente para freelancers
-            de LATAM.
+            {pageDescription ??
+              "Aprende Upwork, propuestas, pricing, entrevistas, automatización e IA con rutas prácticas estructuradas exclusivamente para freelancers de LATAM."}
           </p>
         </div>
       </div>

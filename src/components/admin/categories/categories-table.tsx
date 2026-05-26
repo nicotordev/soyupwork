@@ -6,6 +6,7 @@ import {
   adminPanelHeaderClass,
   adminPanelTitleClass,
 } from "@/lib/admin/styles";
+import { getCategoryPath } from "@/lib/catalog/category-paths";
 import type { AdminCategoryRow } from "@/types/admin-category.types";
 import { IconExternalLink, IconTrash } from "@tabler/icons-react";
 import Link from "next/link";
@@ -115,7 +116,7 @@ export function CategoriesTable({ categories }: CategoriesTableProps) {
                 <div className="flex justify-end gap-1">
                   <Button asChild variant="outline" size="sm">
                     <Link
-                      href={`/catalog?category=${category.slug}`}
+                      href={getCategoryPath(category.slug)}
                       target="_blank"
                       rel="noopener noreferrer"
                     >

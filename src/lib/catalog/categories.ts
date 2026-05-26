@@ -1,6 +1,6 @@
-import 'server-only';
 import prisma from "@/lib/db/prisma";
 import type { CatalogFilterCategory } from "@/types/catalog-filters";
+import "server-only";
 
 export interface CatalogTopicChip {
   label: string;
@@ -14,7 +14,7 @@ export async function getCatalogCategories(): Promise<CatalogFilterCategory[]> {
   });
 }
 
-/** Map legacy `?category=` display names or slugs → canonical slugs */
+/** Map legacy `?category=` / `?subject=` slugs or display names → canonical slugs */
 export function normalizeCategorySlugs(
   rawValues: string[],
   categories: CatalogFilterCategory[],
