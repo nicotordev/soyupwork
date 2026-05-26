@@ -61,7 +61,7 @@ export function AdminHeader() {
         className={cn(adminBrutalButtonClass, "size-8 shrink-0")}
       />
 
-      <Separator orientation="vertical" className="hidden h-6 sm:block" />
+      <Separator orientation="vertical" className="hidden h-full w-px sm:block" />
 
       <Breadcrumb className="hidden min-w-0 sm:block">
         <BreadcrumbList>

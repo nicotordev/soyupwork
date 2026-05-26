@@ -36,18 +36,29 @@ export function AdminSidebar() {
   return (
     <Sidebar
       collapsible="icon"
-      className="border-r-2 border-foreground [&_[data-sidebar=sidebar]]:border-foreground/20 [&_[data-sidebar=sidebar]]:bg-sidebar"
+      className="border-r-2 border-foreground **:data-[sidebar=sidebar]:border-foreground/20 **:data-[sidebar=sidebar]:bg-sidebar"
     >
-      <SidebarHeader className="gap-3 p-3">
-        <Link href="/admin" className={cn(adminSidebarBrandClass, "w-fit")}>
-          {ADMIN_BRAND.name}
+      <SidebarHeader className="gap-3 p-3 group-data-[collapsible=icon]:gap-2 group-data-[collapsible=icon]:p-2">
+        <Link
+          href="/admin"
+          className={cn(
+            adminSidebarBrandClass,
+            "w-fit group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:px-2 group-data-[collapsible=icon]:py-0.5 group-data-[collapsible=icon]:text-[10px] group-data-[collapsible=icon]:uppercase",
+          )}
+        >
+          <span className="group-data-[collapsible=icon]:hidden">
+            {ADMIN_BRAND.name}
+          </span>
+          <span className="hidden group-data-[collapsible=icon]:inline">
+            {ADMIN_BRAND.shortName}
+          </span>
         </Link>
         <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-muted-foreground group-data-[collapsible=icon]:hidden">
           {ADMIN_BRAND.panelLabel}
         </span>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="px-2 group-data-[collapsible=icon]:px-1">
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono text-[10px] font-bold uppercase tracking-wider">
             Navegación
@@ -68,6 +79,7 @@ export function AdminSidebar() {
                       tooltip={item.label}
                       className={cn(
                         "border border-transparent font-mono text-xs font-bold uppercase tracking-wide",
+                        "group-data-[collapsible=icon]:size-7! group-data-[collapsible=icon]:p-1.5! group-data-[collapsible=icon]:[&_svg]:size-3.5!",
                         isActive &&
                           "border-foreground bg-secondary shadow-[2px_2px_0px_0px_var(--foreground)]",
                       )}
@@ -85,7 +97,7 @@ export function AdminSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="gap-2 p-3">
+      <SidebarFooter className="gap-2 p-3 group-data-[collapsible=icon]:gap-1.5 group-data-[collapsible=icon]:p-2">
         <SidebarSeparator className="bg-foreground/20" />
         <div className="flex flex-col gap-1 group-data-[collapsible=icon]:hidden">
           {ADMIN_FOOTER_LINKS.map((link) => (
@@ -103,7 +115,11 @@ export function AdminSidebar() {
           asChild
           variant="outline"
           size="sm"
-          className={cn(adminBrutalButtonClass, "w-full justify-start gap-2")}
+          className={cn(
+            adminBrutalButtonClass,
+            "w-full justify-start gap-2",
+            "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-7 group-data-[collapsible=icon]:w-7 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:[&_svg]:size-3.5",
+          )}
         >
           <Link href="/">
             <IconArrowLeft stroke={2.25} />

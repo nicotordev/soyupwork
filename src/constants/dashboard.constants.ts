@@ -15,6 +15,7 @@ export const ADMIN_BASE_PATH = "/admin";
 
 export const ADMIN_BRAND = {
   name: "SoyUpwork",
+  shortName: "S",
   panelLabel: "Admin",
 } as const;
 

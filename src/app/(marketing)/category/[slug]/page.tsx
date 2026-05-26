@@ -27,14 +27,14 @@ export async function generateMetadata({
   const canonical = getCategoryCanonicalPath(category.slug);
 
   return {
-    title: `Cursos de ${category.name} para Freelancers | soyup.work`,
-    description: `Explora cursos de ${category.name} para freelancers de LATAM. Rutas prácticas, plantillas y estrategias para vender tus servicios al exterior.`,
+    title: `Cursos de ${category.name} para LATAM | soyup.work`,
+    description: `Explora cursos de ${category.name} para LATAM. Rutas prácticas, plantillas y estrategias para vender tus servicios al exterior.`,
     alternates: {
       canonical,
     },
     openGraph: {
       title: `Cursos de ${category.name} | soyup.work`,
-      description: `Catálogo de cursos de ${category.name} para freelancers LATAM.`,
+      description: `Catálogo de cursos de ${category.name} para LATAM.`,
       url: canonical,
     },
   };
