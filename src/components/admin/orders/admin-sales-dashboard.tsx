@@ -82,24 +82,12 @@ export function AdminSalesDashboard({ data }: AdminSalesDashboardProps) {
     isPending,
   } = useAdminListingParams({ resetPageOnChange: false });
 
-  const filterStatus = searchParams.get("status") ?? STATUS_FILTER_ALL;
-
-  const filteredSales = useMemo(() => {
-    const q = localQuery.trim().toLowerCase();
-    return data.orders.filter((s) => {
-      const matchesSearch =
-        !q ||
-        s.customer.toLowerCase().includes(q) ||
-        s.course.toLowerCase().includes(q) ||
-        s.id.toLowerCase().includes(q);
-      const matchesStatus =
-        filterStatus === STATUS_FILTER_ALL || s.status === filterStatus;
-      return matchesSearch && matchesStatus;
-    });
-  }, [data.orders, localQuery, filterStatus]);
-
+  const filterStatus = (searchParams.get("status") ?? STATUS_FILTER_ALL) as
+    | typeof STATUS_FILTER_ALL
+    | OrderStatus;
+  const filteredSales = data.orders;
   const hasActiveFilters =
-    localQuery.trim().length > 0 || filterStatus !== STATUS_FILTER_ALL;
+    data.filters.q.length > 0 || filterStatus !== STATUS_FILTER_ALL;
 
   const activeFiltersCount = filterStatus !== STATUS_FILTER_ALL ? 1 : 0;
 
@@ -119,9 +107,9 @@ export function AdminSalesDashboard({ data }: AdminSalesDashboardProps) {
   }, [filterStatus, setParam]);
 
   const resultSummary =
-    filteredSales.length === 1
+    data.pagination.totalCount === 1
       ? "1 pedido encontrado"
-      : `${filteredSales.length} pedidos encontrados`;
+      : `${data.pagination.totalCount} pedidos encontrados`;
 
   return (
     <div className="space-y-6">

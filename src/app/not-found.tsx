@@ -11,16 +11,15 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="flex-1 w-full bg-background">
-      <div className="flex min-h-screen flex-col">
+    <div className="w-full min-w-0 flex-1 overflow-x-hidden bg-background">
+      <div className="flex min-h-screen min-w-0 flex-col">
         <MarketingNavServer isSignedIn={false} catalogSections={[]} />
-        <main className="flex-1">
-          {" "}
+        <main className="min-w-0 flex-1">
           <AppEmptyState
             title="No encontramos esta página"
             description="Puede que el enlace haya cambiado, el contenido ya no exista o todavía no tengas acceso a este módulo."
             showDashboardButton={true}
-          />{" "}
+          />
         </main>
         <MarketingFooter />
       </div>

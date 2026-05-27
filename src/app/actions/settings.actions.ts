@@ -45,6 +45,7 @@ import type {
 } from "@/types/platform-settings.types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { validateOptionalE164Phone } from "@/lib/phone/validate";
 import { z } from "zod";
 
 const log = getServerLogger("settings.actions");
@@ -64,6 +65,7 @@ const SETTINGS_REVALIDATE_PATHS = [
 const joinWaitlistSchema = z.object({
   email: z.email("Correo inválido."),
   name: z.string().trim().max(80).optional(),
+  phone: z.string().trim().optional(),
 });
 
 async function updatePlatformSettingsSection<T>(
@@ -242,6 +244,7 @@ export async function updateNotificationsSettings(
 export async function joinWaitlist(input: {
   email: string;
   name?: string;
+  phone?: string;
 }): Promise<JoinWaitlistResult> {
   const parsed = joinWaitlistSchema.safeParse(input);
   if (!parsed.success) {
@@ -251,10 +254,17 @@ export async function joinWaitlist(input: {
     };
   }
 
+  const phoneResult = validateOptionalE164Phone(parsed.data.phone);
+  if (!phoneResult.ok) {
+    return { ok: false, error: phoneResult.error };
+  }
+
   const settings = await getPlatformSettings();
   if (!settings.waitlistMode) {
     return { ok: false, error: "La lista de espera no está activa." };
   }
+
+  const phone = phoneResult.e164 ?? null;
 
   try {
     await prisma.waitlistEntry.upsert({
@@ -262,10 +272,12 @@ export async function joinWaitlist(input: {
       create: {
         email: parsed.data.email.toLowerCase(),
         name: parsed.data.name?.trim() || null,
+        phone,
         source: "waitlist-page",
       },
       update: {
         name: parsed.data.name?.trim() || null,
+        phone,
       },
     });
 

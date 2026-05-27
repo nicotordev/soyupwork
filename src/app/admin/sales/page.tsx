@@ -8,8 +8,13 @@ export const metadata: Metadata = {
   description: "Seguimiento de pedidos, suscripciones e integraciones.",
 };
 
-export default async function AdminSalesPage() {
-  const data = await getAdminSalesPageData();
+type PageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function AdminSalesPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
+  const data = await getAdminSalesPageData(resolvedSearchParams);
 
   return (
     <AdminDashboardContainer>

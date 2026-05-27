@@ -20,13 +20,13 @@ export default function GlobalRouteError({ error, reset }: ErrorProps) {
 
   return (
     <Providers>
-      <div className="flex-1 w-full bg-background">
-        <div className="flex min-h-screen flex-col">
+      <div className="w-full min-w-0 flex-1 overflow-x-hidden bg-background">
+        <div className="flex min-h-screen min-w-0 flex-col">
           <MarketingNavServer
             isSignedIn={isSignedIn}
             catalogSections={catalogSections}
           />
-          <main className="flex-1">
+          <main className="min-w-0 flex-1">
             <AppErrorState
               error={error}
               reset={reset}

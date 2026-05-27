@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -31,7 +30,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className={`${geistSans.className} min-h-full flex flex-col font-sans text-base/relaxed text-foreground`}
+        className={`${geistSans.className} flex min-h-full min-w-0 flex-col font-sans text-base/relaxed text-foreground`}
       >
         <Providers>{children}</Providers>
       </body>

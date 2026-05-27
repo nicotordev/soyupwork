@@ -60,36 +60,28 @@ export function AdminMetricsDashboard({ data }: AdminMetricsDashboardProps) {
   const { localQuery, setLocalQuery, viewMode, setViewMode, isPending } =
     useAdminListingParams({ resetPageOnChange: false });
 
-  const filteredStages = useMemo(() => {
-    const q = localQuery.trim().toLowerCase();
-    if (!q) return data.stages;
-    return data.stages.filter(
-      (stage) =>
-        stage.name.toLowerCase().includes(q) ||
-        stage.description.toLowerCase().includes(q),
-    );
-  }, [data.stages, localQuery]);
+  const stages = useMemo(() => data.stages, [data.stages]);
 
   useEffect(() => {
-    if (filteredStages.length === 0) {
+    if (stages.length === 0) {
       setSelectedStage(null);
       return;
     }
 
     if (!selectedStage) {
-      setSelectedStage(filteredStages[0]!);
+      setSelectedStage(stages[0]!);
       return;
     }
 
-    const hasCurrentSelection = filteredStages.some(
+    const hasCurrentSelection = stages.some(
       (stage) => stage.id === selectedStage.id,
     );
     if (!hasCurrentSelection) {
-      setSelectedStage(filteredStages[0]!);
+      setSelectedStage(stages[0]!);
     }
-  }, [filteredStages, selectedStage]);
+  }, [stages, selectedStage]);
 
-  const hasActiveFilters = localQuery.trim().length > 0;
+  const hasActiveFilters = data.filters.q.length > 0;
 
   return (
     <div className="space-y-6">
@@ -142,13 +134,13 @@ export function AdminMetricsDashboard({ data }: AdminMetricsDashboardProps) {
         }}
         view={{ mode: viewMode, onChange: setViewMode }}
         resultSummary={
-          filteredStages.length === 1
+          stages.length === 1
             ? "1 paso encontrado"
-            : `${filteredStages.length} pasos del embudo`
+            : `${stages.length} pasos del embudo`
         }
       />
 
-      {filteredStages.length === 0 ? (
+      {stages.length === 0 ? (
         <EmptyState
           icon={BarChart4}
           title="Sin pasos"
@@ -181,7 +173,7 @@ export function AdminMetricsDashboard({ data }: AdminMetricsDashboardProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredStages.map((stage, idx) => {
+                  {stages.map((stage, idx) => {
                     const Icon = stageIcon(stage.id);
                     const isSelected = selectedStage?.id === stage.id;
                     return (
@@ -225,7 +217,7 @@ export function AdminMetricsDashboard({ data }: AdminMetricsDashboardProps) {
                 </h3>
               </div>
               <AdminCardGrid columns="compact" className="gap-3">
-                {filteredStages.map((stage, idx) => {
+                {stages.map((stage, idx) => {
                   const Icon = stageIcon(stage.id);
                   const isSelected = selectedStage?.id === stage.id;
                   return (

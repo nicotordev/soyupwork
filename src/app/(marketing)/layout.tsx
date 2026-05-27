@@ -15,13 +15,13 @@ export default async function MarketingLayout({
   ]);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen w-full min-w-0 flex-col overflow-x-hidden">
       <PlatformAnnouncementBanner />
       <MarketingNavServer
         isSignedIn={isSignedIn}
         catalogSections={catalogSections}
       />
-      <main className="flex-1">{children}</main>
+      <main className="w-full min-w-0">{children}</main>
       <MarketingFooter />
     </div>
   );

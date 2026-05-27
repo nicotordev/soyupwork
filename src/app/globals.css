@@ -47,6 +47,38 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Neobrutalist custom animations */
+  --animate-float-y: float-y 6s ease-in-out infinite;
+  --animate-float-y-delayed: float-y-delayed 8s ease-in-out infinite;
+  --animate-spin-slow: neobrutalist-spin 16s linear infinite;
+
+  @keyframes float-y {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-10px) rotate(2deg);
+    }
+  }
+
+  @keyframes float-y-delayed {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+      transform: translateY(10px) rotate(-2deg);
+    }
+  }
+
+  @keyframes neobrutalist-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }
 
 :root {
@@ -145,6 +177,10 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+  html,
+  body {
+    @apply overflow-x-hidden;
   }
   body {
     @apply bg-background text-foreground;

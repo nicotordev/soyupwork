@@ -1,6 +1,6 @@
 ## Resumen estratégico — soyup.work LMS
 
-**soyup.work** debe posicionarse como una **academia práctica para vender servicios en Upwork**, no como “otro curso para crear una cuenta”. El briefing marca una oportunidad clara: LATAM necesita formación en **ventas B2B, propuestas, nichos, pricing, inglés para entrevistas, Connects, fiscalidad y operación freelance internacional**. 
+**soyup.work** debe posicionarse como una **academia práctica para vender servicios en Upwork**, no como “otro curso para crear una cuenta”. El briefing marca una oportunidad clara: LATAM necesita formación en **propuestas, nichos, pricing, inglés para entrevistas, Connects y operación freelance internacional**.
 
 ## Propuesta técnica recomendada
 
@@ -115,7 +115,7 @@ EmailSequence
 9. **Legal/fiscal para freelancers LATAM**
 10. **Automatización con IA**
 
-El briefing insiste en que el valor no está en enseñar “cómo abrir Upwork”, sino en enseñar **cómo competir algorítmica y comercialmente**. 
+El briefing insiste en que el valor no está en enseñar “cómo abrir Upwork”, sino en enseñar **cómo competir algorítmica y comercialmente**.
 
 ## Decisión pragmática
 

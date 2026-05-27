@@ -8,8 +8,13 @@ export const metadata: Metadata = {
   description: "Embudos de conversión y retención del estudiante.",
 };
 
-export default async function AdminMetricsPage() {
-  const data = await getAdminMetricsPageData();
+type PageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function AdminMetricsPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
+  const data = await getAdminMetricsPageData(resolvedSearchParams);
 
   return (
     <AdminDashboardContainer>

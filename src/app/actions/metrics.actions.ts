@@ -17,10 +17,18 @@ function safePct(base: number, value: number): number {
   return Number(((value / base) * 100).toFixed(2));
 }
 
-export async function getAdminMetricsPageData(): Promise<AdminMetricsPageData> {
+function firstParam(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+export async function getAdminMetricsPageData(
+  searchParams: Record<string, string | string[] | undefined>,
+): Promise<AdminMetricsPageData> {
   await requireAdmin();
 
   try {
+    const q = firstParam(searchParams.q)?.trim().toLowerCase() ?? "";
     const [
       activeUsersCount,
       enrolledUsersRaw,
@@ -121,6 +129,14 @@ export async function getAdminMetricsPageData(): Promise<AdminMetricsPageData> {
       },
     ];
 
+    const filteredStages = q
+      ? stages.filter(
+          (stage) =>
+            stage.name.toLowerCase().includes(q) ||
+            stage.description.toLowerCase().includes(q),
+        )
+      : stages;
+
     return {
       stats: {
         conversionRate: safePct(activeUsersCount, paidOrdersCount),
@@ -131,7 +147,8 @@ export async function getAdminMetricsPageData(): Promise<AdminMetricsPageData> {
             ? 0
             : Number((paidRevenue / paidCustomersCount).toFixed(2)),
       },
-      stages,
+      stages: filteredStages,
+      filters: { q },
     };
   } catch (error) {
     log.error(serializeError(error), "Failed to load admin metrics page data");

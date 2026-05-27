@@ -19,4 +19,16 @@ export type AdminSalesStats = {
 export type AdminSalesPageData = {
   orders: AdminSalesOrderRow[];
   stats: AdminSalesStats;
+  filters: {
+    q: string;
+    status: OrderStatus | "ALL";
+    page: number;
+    pageSize: number;
+  };
+  pagination: {
+    page: number;
+    pageSize: number;
+    totalCount: number;
+    totalPages: number;
+  };
 };

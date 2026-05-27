@@ -3,6 +3,8 @@
  * Source: https://emojipedia.org/es/apple/ios-26.4
  *
  * Run: bun run scripts/download-apple-emojis.ts
+ *
+ * Country flags (phone dropdown): bun run emojis:flags
  */
 
 import { mkdir, writeFile } from "node:fs/promises";

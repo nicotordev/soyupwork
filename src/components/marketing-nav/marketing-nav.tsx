@@ -22,7 +22,7 @@ export function MarketingNav({
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 border-b-2 border-foreground bg-background transition-all duration-200",
+        "sticky top-0 w-full z-50 border-b-2 border-foreground bg-background transition-all duration-200",
       )}
     >
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">

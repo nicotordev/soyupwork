@@ -23,4 +23,7 @@ export type AdminMetricsStats = {
 export type AdminMetricsPageData = {
   stats: AdminMetricsStats;
   stages: AdminMetricsStage[];
+  filters: {
+    q: string;
+  };
 };
