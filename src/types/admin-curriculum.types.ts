@@ -4,6 +4,28 @@ import type {
   LessonVideoStatus,
 } from "@/generated/prisma/client";
 
+export type AdminCurriculumQuizOption = {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+  position: number;
+};
+
+export type AdminCurriculumQuizQuestion = {
+  id: string;
+  question: string;
+  position: number;
+  options: AdminCurriculumQuizOption[];
+};
+
+export type AdminCurriculumQuiz = {
+  id: string;
+  title: string;
+  description: string;
+  passingScore: number;
+  questions: AdminCurriculumQuizQuestion[];
+};
+
 export type AdminCurriculumLesson = {
   id: string;
   slug: string;
@@ -16,6 +38,7 @@ export type AdminCurriculumLesson = {
   videoStatus: LessonVideoStatus | null;
   videoPlaybackId: string | null;
   durationSec: number | null;
+  quiz: AdminCurriculumQuiz | null;
 };
 
 export type AdminCurriculumModule = {

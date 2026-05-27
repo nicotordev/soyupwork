@@ -5,6 +5,19 @@ export const ADMIN_CURRICULUM_PAGE = {
   backLabel: "Volver a cursos",
   addModuleLabel: "Nuevo módulo",
   addLessonLabel: "Nueva lección",
+  addQuizLessonLabel: "Nueva lección (quiz)",
+  previewLabel: "Vista previa",
+  previewOpenHint: "Abre la vista previa del curso en una pestaña nueva",
+  quizEditorTitle: "Editor de quiz",
+  quizSaveLabel: "Guardar quiz",
+  quizPassingScoreLabel: "Nota mínima para aprobar (%)",
+  quizAddQuestionLabel: "Añadir pregunta",
+  quizAddOptionLabel: "Añadir opción",
+  quizCorrectOptionLabel: "Correcta",
+  quizQuestionsSummary: (count: number) =>
+    count === 1 ? "1 pregunta" : `${count} preguntas`,
+  quizTypeChangeConfirm:
+    "Se eliminará el quiz y todas sus preguntas. ¿Continuar?",
   emptyModulesTitle: "Sin módulos",
   emptyModulesDescription:
     "Añade un módulo para organizar las lecciones de este curso.",
@@ -20,6 +33,7 @@ export const LESSON_TYPE_LABELS: Record<LessonType, string> = {
 export const LESSON_TYPES_V1 = [
   "VIDEO",
   "TEXT",
+  "QUIZ",
 ] as const satisfies readonly LessonType[];
 
 export type CurriculumLessonTypeV1 = (typeof LESSON_TYPES_V1)[number];

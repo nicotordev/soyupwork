@@ -1,6 +1,7 @@
 "use client";
 
 import { updateLesson } from "@/app/actions/curriculum.actions";
+import { LessonQuizEditor } from "@/components/admin/courses/curriculum/lesson-quiz-editor";
 import { LessonTextEditor } from "@/components/admin/courses/curriculum/lesson-text-editor";
 import { LessonVideoUploader } from "@/components/admin/courses/curriculum/lesson-video-uploader";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  ADMIN_CURRICULUM_PAGE,
   LESSON_TYPES_V1,
   LESSON_TYPE_LABELS,
   type CurriculumLessonTypeV1,
@@ -61,6 +63,15 @@ export function LessonEditPanel({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (
+      lesson.type === "QUIZ" &&
+      type !== "QUIZ" &&
+      (lesson.quiz?.questions.length ?? 0) > 0 &&
+      !window.confirm(ADMIN_CURRICULUM_PAGE.quizTypeChangeConfirm)
+    ) {
+      return;
+    }
 
     startTransition(async () => {
       const result = await updateLesson({
@@ -157,7 +168,9 @@ export function LessonEditPanel({
           value={content}
           onChange={setContent}
         />
-      ) : (
+      ) : null}
+
+      {type === "VIDEO" ? (
         <LessonVideoUploader
           lessonId={lesson.id}
           courseId={courseId}
@@ -168,7 +181,18 @@ export function LessonEditPanel({
           videoPlaybackId={lesson.videoPlaybackId}
           onUpdated={onUpdated}
         />
-      )}
+      ) : null}
+
+      {type === "QUIZ" ? (
+        <LessonQuizEditor
+          key={`quiz-${lesson.id}-${lesson.quiz?.id ?? "new"}-${lesson.quiz?.questions.length ?? 0}`}
+          lessonId={lesson.id}
+          courseId={courseId}
+          lessonTitle={title}
+          quiz={lesson.quiz}
+          canPersist={lesson.type === "QUIZ"}
+        />
+      ) : null}
 
       <Button
         type="submit"

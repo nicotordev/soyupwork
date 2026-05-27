@@ -7,6 +7,7 @@ export const lessonSlugField = courseSlugField;
 export const curriculumLessonTypeSchema = z.enum([
   LessonType.VIDEO,
   LessonType.TEXT,
+  LessonType.QUIZ,
 ]);
 
 export const reorderDirectionSchema = z.enum(["up", "down"]);

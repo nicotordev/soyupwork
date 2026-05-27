@@ -44,12 +44,18 @@ export type AdminCourseForEdit = {
   title: string;
   slug: string;
   description: string;
+  thumbnailUrl: string | null;
   status: CourseStatus;
   level: CourseLevel;
   priceCents: number;
   categoryId: string | null;
   isFeatured: boolean;
   offersCertificate: boolean;
+};
+
+export type InitCourseThumbnailUploadData = {
+  uploadUrl: string;
+  thumbnailUrl: string;
 };
 
 export type AdminCourseCategorySelectOption = {
@@ -79,6 +85,8 @@ export type AdminCoursesPageData = {
   categories: AdminCourseCategoryOption[];
   filters: ParsedAdminCoursesParams;
   pagination: AdminCoursesPagination;
+  storageConfigured: boolean;
+  maxThumbnailSizeMb: number;
 };
 
 export type GenerateCourseSyllabusResult =
@@ -100,7 +108,17 @@ export type GetAdminCourseForEditResult =
       ok: true;
       course: AdminCourseForEdit;
       categories: AdminCourseCategorySelectOption[];
+      storageConfigured: boolean;
+      maxThumbnailSizeMb: number;
     }
+  | { ok: false; error: string };
+
+export type InitCourseThumbnailUploadResult =
+  | ({ ok: true } & InitCourseThumbnailUploadData)
+  | { ok: false; error: string };
+
+export type SetCourseThumbnailResult =
+  | { ok: true }
   | { ok: false; error: string };
 
 export type UpdateCourseResult =

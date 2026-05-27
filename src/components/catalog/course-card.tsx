@@ -77,7 +77,7 @@ export function CourseCard({ course }: CourseCardProps) {
 
           {/* Call to Action Button */}
           <Link
-            href={`/courses/${course.slug}`}
+            href={`/dashboard/courses/${course.slug}`}
             className="w-full text-center block font-mono text-xs font-bold uppercase tracking-wider border-2 border-foreground bg-card py-2 hover:bg-primary hover:text-primary-foreground transition-all shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer rounded"
           >
             {course.isFree ? "Empezar gratis" : "Ver curso completo"}

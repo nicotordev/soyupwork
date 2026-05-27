@@ -1,28 +1,40 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { AdminHeader } from "@/components/admin/admin-header";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AnimatePresence, motion } from "framer-motion";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type AdminDashboardShellProps = {
   children: React.ReactNode;
 };
 
+function isAdminCoursePreviewPath(pathname: string | null): boolean {
+  return (
+    pathname !== null && /^\/admin\/courses\/[^/]+\/preview/.test(pathname)
+  );
+}
+
 export function AdminDashboardShell({ children }: AdminDashboardShellProps) {
   const pathname = usePathname();
   const [loading, setLoading] = useState(false);
+  const isCoursePreview = isAdminCoursePreviewPath(pathname);
 
   // Trigger a brief premium top progress loading indicator on route change
   useEffect(() => {
+    if (isCoursePreview) return;
     setLoading(true);
     const timer = setTimeout(() => {
       setLoading(false);
     }, 450);
     return () => clearTimeout(timer);
-  }, [pathname]);
+  }, [pathname, isCoursePreview]);
+
+  if (isCoursePreview) {
+    return <>{children}</>;
+  }
 
   return (
     <SidebarProvider defaultOpen>
@@ -42,7 +54,7 @@ export function AdminDashboardShell({ children }: AdminDashboardShellProps) {
       <AdminSidebar />
       <SidebarInset className="min-h-svh flex flex-col">
         <AdminHeader />
-        
+
         {/* Animated layout route transition */}
         <AnimatePresence mode="wait">
           <motion.main
@@ -60,4 +72,3 @@ export function AdminDashboardShell({ children }: AdminDashboardShellProps) {
     </SidebarProvider>
   );
 }
-

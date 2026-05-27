@@ -40,6 +40,10 @@ import {
   type UpdateLessonInput,
   type UpdateModuleInput,
 } from "@/schemas/curriculum";
+import {
+  upsertLessonQuizSchema,
+  type UpsertLessonQuizInput,
+} from "@/schemas/quiz";
 import type {
   AdminCourseCurriculumData,
   InitLessonVideoUploadData,
@@ -63,6 +67,61 @@ function validationError(
   fallback = "Datos inválidos.",
 ): ActionError {
   return { ok: false, error: message ?? fallback };
+}
+
+const videoClearData = {
+  videoProvider: null,
+  videoAssetId: null,
+  videoPlaybackId: null,
+  videoUrl: null,
+  videoStatus: null,
+} as const;
+
+async function ensureLessonQuiz(lessonId: string, title: string) {
+  const existing = await prisma.quiz.findUnique({
+    where: { lessonId },
+    select: { id: true },
+  });
+
+  if (existing) return existing.id;
+
+  const created = await prisma.quiz.create({
+    data: {
+      lessonId,
+      title,
+      passingScore: 70,
+    },
+    select: { id: true },
+  });
+
+  return created.id;
+}
+
+async function deleteLessonQuiz(lessonId: string) {
+  await prisma.quiz.deleteMany({ where: { lessonId } });
+}
+
+function lessonTypeData(
+  type: "VIDEO" | "TEXT" | "QUIZ",
+  content: string | undefined,
+) {
+  if (type === "TEXT") {
+    return {
+      content: content?.trim() ?? "",
+      ...videoClearData,
+    };
+  }
+
+  if (type === "QUIZ") {
+    return {
+      content: null,
+      ...videoClearData,
+    };
+  }
+
+  return {
+    content: null,
+  };
 }
 
 export async function getAdminCourseCurriculum(
@@ -255,15 +314,30 @@ export async function createLesson(
       resolveLessonSlug(parsed.data.title, position);
     const slug = await resolveUniqueLessonSlug(parsed.data.moduleId, baseSlug);
 
-    const created = await prisma.lesson.create({
-      data: {
-        moduleId: parsed.data.moduleId,
-        title: parsed.data.title,
-        slug,
-        type: parsed.data.type,
-        position,
-      },
-      select: { id: true },
+    const created = await prisma.$transaction(async (tx) => {
+      const lesson = await tx.lesson.create({
+        data: {
+          moduleId: parsed.data.moduleId,
+          title: parsed.data.title,
+          slug,
+          type: parsed.data.type,
+          position,
+          ...lessonTypeData(parsed.data.type, undefined),
+        },
+        select: { id: true },
+      });
+
+      if (parsed.data.type === "QUIZ") {
+        await tx.quiz.create({
+          data: {
+            lessonId: lesson.id,
+            title: parsed.data.title,
+            passingScore: 70,
+          },
+        });
+      }
+
+      return lesson;
     });
 
     revalidateCurriculumPaths(parsed.data.courseId);
@@ -292,6 +366,15 @@ export async function updateLesson(
       parsed.data.courseId,
     );
 
+    const existingLesson = await prisma.lesson.findUnique({
+      where: { id: parsed.data.id },
+      select: { type: true, title: true },
+    });
+
+    if (!existingLesson) {
+      return { ok: false, error: "Lección no encontrada." };
+    }
+
     const slugConflict = await prisma.lesson.findFirst({
       where: {
         moduleId: lesson.moduleId,
@@ -305,20 +388,27 @@ export async function updateLesson(
       return { ok: false, error: "Ese slug ya está en uso en el módulo." };
     }
 
+    const previousType = existingLesson.type;
+    const nextType = parsed.data.type;
+
     await prisma.lesson.update({
       where: { id: parsed.data.id },
       data: {
         title: parsed.data.title,
         slug: parsed.data.slug,
         description: parsed.data.description?.trim() || null,
-        type: parsed.data.type,
-        content:
-          parsed.data.type === "TEXT"
-            ? (parsed.data.content?.trim() ?? "")
-            : null,
+        type: nextType,
         isPreview: parsed.data.isPreview,
+        ...lessonTypeData(nextType, parsed.data.content),
+        ...(nextType !== "VIDEO" ? videoClearData : {}),
       },
     });
+
+    if (previousType !== "QUIZ" && nextType === "QUIZ") {
+      await ensureLessonQuiz(parsed.data.id, parsed.data.title);
+    } else if (previousType === "QUIZ" && nextType !== "QUIZ") {
+      await deleteLessonQuiz(parsed.data.id);
+    }
 
     revalidateCurriculumPaths(parsed.data.courseId);
     return { ok: true };
@@ -539,5 +629,165 @@ export async function getLessonVideoStatus(input: {
   } catch (error) {
     log.error(serializeError(error), "Failed to get lesson video status");
     return { ok: false, error: "No se pudo obtener el estado del vídeo." };
+  }
+}
+
+export async function upsertLessonQuiz(
+  input: UpsertLessonQuizInput,
+): Promise<ActionOk | ActionError> {
+  try {
+    await requireAdmin();
+
+    const parsed = upsertLessonQuizSchema.safeParse(input);
+    if (!parsed.success) {
+      return validationError(parsed.error.issues[0]?.message);
+    }
+
+    await assertLessonBelongsToCourse(
+      parsed.data.lessonId,
+      parsed.data.courseId,
+    );
+
+    const lesson = await prisma.lesson.findUnique({
+      where: { id: parsed.data.lessonId },
+      select: { type: true },
+    });
+
+    if (!lesson) {
+      return { ok: false, error: "Lección no encontrada." };
+    }
+
+    if (lesson.type !== "QUIZ") {
+      return {
+        ok: false,
+        error: "Solo las lecciones tipo Quiz pueden tener un cuestionario.",
+      };
+    }
+
+    await prisma.$transaction(async (tx) => {
+      const quiz = await tx.quiz.upsert({
+        where: { lessonId: parsed.data.lessonId },
+        create: {
+          lessonId: parsed.data.lessonId,
+          title: parsed.data.title,
+          description: parsed.data.description?.trim() || null,
+          passingScore: parsed.data.passingScore,
+        },
+        update: {
+          title: parsed.data.title,
+          description: parsed.data.description?.trim() || null,
+          passingScore: parsed.data.passingScore,
+        },
+      });
+
+      const existingQuestions = await tx.quizQuestion.findMany({
+        where: { quizId: quiz.id },
+        select: { id: true },
+      });
+      const existingQuestionIds = new Set(
+        existingQuestions.map((question) => question.id),
+      );
+      const inputQuestionIds = new Set(
+        parsed.data.questions
+          .map((question) => question.id)
+          .filter((id): id is string => Boolean(id)),
+      );
+
+      const questionsToDelete = [...existingQuestionIds].filter(
+        (id) => !inputQuestionIds.has(id),
+      );
+
+      if (questionsToDelete.length > 0) {
+        await tx.quizQuestion.deleteMany({
+          where: { id: { in: questionsToDelete } },
+        });
+      }
+
+      for (
+        let questionIndex = 0;
+        questionIndex < parsed.data.questions.length;
+        questionIndex++
+      ) {
+        const questionInput = parsed.data.questions[questionIndex];
+        let questionId: string;
+
+        if (questionInput.id && existingQuestionIds.has(questionInput.id)) {
+          await tx.quizQuestion.update({
+            where: { id: questionInput.id },
+            data: {
+              question: questionInput.question,
+              position: questionIndex,
+            },
+          });
+          questionId = questionInput.id;
+        } else {
+          const createdQuestion = await tx.quizQuestion.create({
+            data: {
+              quizId: quiz.id,
+              question: questionInput.question,
+              position: questionIndex,
+            },
+          });
+          questionId = createdQuestion.id;
+        }
+
+        const existingOptions = await tx.quizOption.findMany({
+          where: { questionId },
+          select: { id: true },
+        });
+        const existingOptionIds = new Set(
+          existingOptions.map((option) => option.id),
+        );
+        const inputOptionIds = new Set(
+          questionInput.options
+            .map((option) => option.id)
+            .filter((id): id is string => Boolean(id)),
+        );
+
+        const optionsToDelete = [...existingOptionIds].filter(
+          (id) => !inputOptionIds.has(id),
+        );
+
+        if (optionsToDelete.length > 0) {
+          await tx.quizOption.deleteMany({
+            where: { id: { in: optionsToDelete } },
+          });
+        }
+
+        for (
+          let optionIndex = 0;
+          optionIndex < questionInput.options.length;
+          optionIndex++
+        ) {
+          const optionInput = questionInput.options[optionIndex];
+
+          if (optionInput.id && existingOptionIds.has(optionInput.id)) {
+            await tx.quizOption.update({
+              where: { id: optionInput.id },
+              data: {
+                text: optionInput.text,
+                isCorrect: optionInput.isCorrect,
+                position: optionIndex,
+              },
+            });
+          } else {
+            await tx.quizOption.create({
+              data: {
+                questionId,
+                text: optionInput.text,
+                isCorrect: optionInput.isCorrect,
+                position: optionIndex,
+              },
+            });
+          }
+        }
+      }
+    });
+
+    revalidateCurriculumPaths(parsed.data.courseId);
+    return { ok: true };
+  } catch (error) {
+    log.error(serializeError(error), "Failed to upsert lesson quiz");
+    return { ok: false, error: "No se pudo guardar el quiz." };
   }
 }

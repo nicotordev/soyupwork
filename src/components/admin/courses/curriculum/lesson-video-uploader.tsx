@@ -153,22 +153,52 @@ export function LessonVideoUploader({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {playbackId && status === "READY" ? (
-        <LessonMuxPreview playbackId={playbackId} />
+        <div className="space-y-3">
+          <LessonMuxPreview playbackId={playbackId} />
+        </div>
       ) : null}
 
-      {status === "PENDING" || isUploading ? (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <IconLoader className="size-4 animate-spin" stroke={2.5} />
-          Procesando vídeo en Mux...
+      {!playbackId && status !== "PENDING" && !isUploading ? (
+        <div
+          onClick={() => inputRef.current?.click()}
+          className="group cursor-pointer flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-foreground/45 bg-muted/10 p-7 text-center transition-all duration-300 hover:bg-muted/25 hover:border-foreground shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-y-0.5"
+        >
+          <div className="flex size-10 items-center justify-center rounded-lg border-2 border-foreground bg-secondary shadow-[2px_2px_0px_0px_var(--foreground)] transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+            <IconUpload className="size-5 text-primary" stroke={2.5} />
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-bold tracking-tight">Seleccionar archivo de vídeo</p>
+            <p className="font-mono text-[9px] text-muted-foreground">
+              Máximo {maxVideoSizeMb} MB · formatos de vídeo habituales (MP4, MOV, WebM)
+            </p>
+          </div>
+        </div>
+      ) : null}
+
+      {(status === "PENDING" || isUploading) ? (
+        <div className="rounded-lg border-2 border-foreground bg-card p-4 shadow-[3px_3px_0px_0px_var(--foreground)] space-y-2.5">
+          <div className="flex items-center justify-between text-xs font-mono font-bold uppercase">
+            <span className="flex items-center gap-1.5 text-primary">
+              <IconLoader className="size-4 animate-spin text-primary" stroke={2.5} />
+              Procesando en Mux
+            </span>
+            <span className="text-muted-foreground animate-pulse">Codificando...</span>
+          </div>
+          <div className="h-4 w-full rounded border-2 border-foreground bg-muted overflow-hidden p-0.5">
+            <div className="h-full bg-primary/90 rounded-xs animate-[pulse_1.5s_infinite] w-[70%]" />
+          </div>
+          <p className="font-mono text-[9px] text-muted-foreground leading-relaxed">
+            Tu vídeo se está subiendo y procesando para streaming multidispositivo. Esta sección se actualizará automáticamente.
+          </p>
         </div>
       ) : null}
 
       {status === "ERRORED" ? (
-        <p className="text-xs text-destructive">
-          Error al procesar el vídeo. Intenta subir de nuevo.
-        </p>
+        <div className="rounded border border-destructive bg-destructive/10 p-3 text-xs text-destructive flex items-center gap-2 font-mono uppercase">
+          <span>⚠</span> Error al procesar el vídeo. Intenta subir de nuevo.
+        </div>
       ) : null}
 
       <div className="flex flex-wrap items-center gap-2">
@@ -180,38 +210,38 @@ export function LessonVideoUploader({
           onChange={handleFileChange}
           disabled={isUploading}
         />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={isUploading}
-          className={adminBrutalButtonClass}
-          onClick={() => inputRef.current?.click()}
-        >
-          {isUploading ? (
-            <IconLoader className="animate-spin" stroke={2.25} />
-          ) : (
-            <IconUpload stroke={2.25} />
-          )}
-          {playbackId ? "Reemplazar vídeo" : "Subir vídeo"}
-        </Button>
-        {playbackId || status ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={isUploading}
-            className={cn(adminBrutalButtonClass, "text-destructive")}
-            onClick={handleClearVideo}
-          >
-            Quitar vídeo
-          </Button>
+        {playbackId && !isUploading && status !== "PENDING" ? (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isUploading}
+              className={cn(
+                adminBrutalButtonClass,
+                "inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase transition-all duration-200 hover:bg-secondary hover:scale-[1.02] active:scale-95"
+              )}
+              onClick={() => inputRef.current?.click()}
+            >
+              <IconUpload stroke={2.5} className="size-3.5" />
+              Reemplazar vídeo
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isUploading}
+              className={cn(
+                adminBrutalButtonClass,
+                "text-destructive transition-all duration-200 hover:scale-[1.02] active:scale-95 hover:bg-destructive/10"
+              )}
+              onClick={handleClearVideo}
+            >
+              Quitar vídeo
+            </Button>
+          </>
         ) : null}
       </div>
-
-      <p className="font-mono text-[10px] text-muted-foreground">
-        Máximo {maxVideoSizeMb} MB · formatos de vídeo habituales
-      </p>
     </div>
   );
 }

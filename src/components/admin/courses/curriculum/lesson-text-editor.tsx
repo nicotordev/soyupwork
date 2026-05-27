@@ -26,15 +26,15 @@ export function LessonTextEditor({
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Label htmlFor={id}>Contenido (Markdown)</Label>
-        <div className="flex rounded border-2 border-foreground p-0.5 font-mono text-[10px] font-bold uppercase">
+        <Label htmlFor={id} className="font-semibold text-sm">Contenido (Markdown)</Label>
+        <div className="flex rounded border-2 border-foreground bg-muted p-0.5 font-mono text-[10px] font-bold uppercase shadow-[1px_1px_0px_0px_var(--foreground)]">
           <button
             type="button"
             onClick={() => setTab("edit")}
             className={cn(
-              "inline-flex items-center gap-1 rounded-sm px-2 py-1 transition-colors",
+              "inline-flex items-center gap-1 rounded px-2.5 py-1 transition-all duration-200",
               tab === "edit"
-                ? "bg-primary text-primary-foreground"
+                ? "bg-primary text-primary-foreground shadow-[1px_1px_0px_0px_var(--foreground)] border border-foreground/15"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -45,9 +45,9 @@ export function LessonTextEditor({
             type="button"
             onClick={() => setTab("preview")}
             className={cn(
-              "inline-flex items-center gap-1 rounded-sm px-2 py-1 transition-colors",
+              "inline-flex items-center gap-1 rounded px-2.5 py-1 transition-all duration-200",
               tab === "preview"
-                ? "bg-primary text-primary-foreground"
+                ? "bg-primary text-primary-foreground shadow-[1px_1px_0px_0px_var(--foreground)] border border-foreground/15"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -66,33 +66,34 @@ export function LessonTextEditor({
               onChange={(e) => onChange(e.target.value)}
               className={cn(
                 adminInputClass,
-                "min-h-[280px] resize-y font-mono text-xs leading-relaxed",
+                "min-h-[300px] resize-y font-mono text-xs leading-relaxed transition-all duration-200",
+                "focus-visible:bg-background/95"
               )}
               rows={14}
               placeholder={`# Título de la lección
-
-Introduce el contenido en **Markdown**.
-
-- Listas y tablas (GFM)
-- \`código inline\`
-- Enlaces y citas`}
+Base del texto en **Markdown**...`}
             />
-            <p className="font-mono text-[10px] text-muted-foreground">
-              Soporta GFM: tablas, tachado, listas de tareas, enlaces
-              automáticos.
+            <p className="font-mono text-[10px] text-muted-foreground pl-1">
+              ✓ Soporta GFM: tablas, tachado, listas de tareas, enlaces automáticos.
             </p>
           </div>
           <div
-            className={cn(adminPanelClass, "hidden min-h-[280px] p-4 lg:block")}
+            className={cn(
+              adminPanelClass,
+              "hidden min-h-[300px] p-5 lg:block bg-card/30 backdrop-blur-xs transition-all duration-300 hover:shadow-[5px_5px_0px_0px_var(--foreground)] overflow-y-auto max-h-[450px]"
+            )}
           >
-            <p className="mb-3 font-mono text-[10px] font-bold uppercase text-muted-foreground">
+            <p className="mb-3 font-mono text-[9px] font-bold uppercase text-primary bg-primary/10 border border-primary/20 rounded px-2 py-0.5 w-fit">
               Vista previa en vivo
             </p>
             <MarkdownContent content={value} />
           </div>
         </div>
       ) : (
-        <div className={cn(adminPanelClass, "min-h-[280px] p-4")}>
+        <div className={cn(
+          adminPanelClass,
+          "min-h-[300px] p-5 bg-card/30 backdrop-blur-xs transition-all duration-300 hover:shadow-[5px_5px_0px_0px_var(--foreground)]"
+        )}>
           <MarkdownContent content={value} />
         </div>
       )}

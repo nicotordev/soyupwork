@@ -1,0 +1,80 @@
+"use server";
+
+import { CourseStatus, EnrollmentStatus } from "@/generated/prisma/client";
+import { requireAdmin } from "@/lib/auth/admin";
+import { requireStudent } from "@/lib/auth/student";
+import {
+  buildCoursePageData,
+  coursePageInclude,
+  userHasActiveEnrollment,
+} from "@/lib/course/get-course-page-data";
+import prisma from "@/lib/db/prisma";
+import type { CoursePageData } from "@/types/course-page.types";
+
+export async function getCoursePageForAdminPreview(
+  courseId: string,
+): Promise<CoursePageData | null> {
+  await requireAdmin();
+
+  const course = await prisma.course.findUnique({
+    where: { id: courseId },
+    include: coursePageInclude,
+  });
+
+  if (!course) return null;
+
+  return buildCoursePageData(course, {
+    mode: "adminPreview",
+    hasFullAccess: true,
+  });
+}
+
+export async function getCoursePageForStudent(
+  courseSlug: string,
+): Promise<CoursePageData | null> {
+  const user = await requireStudent();
+
+  const course = await prisma.course.findUnique({
+    where: { slug: courseSlug, status: CourseStatus.PUBLISHED },
+    include: coursePageInclude,
+  });
+
+  if (!course) return null;
+
+  const hasFullAccess = await userHasActiveEnrollment(user.id, course.id);
+
+  return buildCoursePageData(course, {
+    mode: "student",
+    hasFullAccess,
+  });
+}
+
+export async function getStudentEnrolledCourses() {
+  const user = await requireStudent();
+
+  const enrollments = await prisma.enrollment.findMany({
+    where: {
+      userId: user.id,
+      status: {
+        in: [EnrollmentStatus.ACTIVE, EnrollmentStatus.COMPLETED],
+      },
+      course: { status: CourseStatus.PUBLISHED },
+    },
+    orderBy: { updatedAt: "desc" },
+    select: {
+      course: {
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          description: true,
+          thumbnailUrl: true,
+          level: true,
+          priceCents: true,
+        },
+      },
+    },
+  });
+
+  return enrollments.map((enrollment) => enrollment.course);
+}

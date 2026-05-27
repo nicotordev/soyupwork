@@ -22,11 +22,12 @@ import {
   IconPencil,
   IconStar,
 } from "@tabler/icons-react";
-import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { CourseEditDialog } from "@/components/admin/courses/course-edit-dialog";
+import { CourseThumbnailCell } from "@/components/admin/courses/course-thumbnail-cell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,9 +38,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type CoursesTableProps = {
   courses: AdminCourseRow[];
+  storageConfigured: boolean;
+  maxThumbnailSizeMb: number;
 };
 
 function catalogHref(course: AdminCourseRow): string | null {
@@ -53,7 +57,12 @@ function catalogHref(course: AdminCourseRow): string | null {
   return "/catalog";
 }
 
-export function CoursesTable({ courses }: CoursesTableProps) {
+export function CoursesTable({
+  courses,
+  storageConfigured,
+  maxThumbnailSizeMb,
+}: CoursesTableProps) {
+  const router = useRouter();
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
 
   return (
@@ -113,21 +122,14 @@ export function CoursesTable({ courses }: CoursesTableProps) {
                 <TableRow key={course.id} className="border-foreground/15">
                   <TableCell>
                     <div className="flex items-start gap-3">
-                      <div className="relative size-12 shrink-0 overflow-hidden rounded border-2 border-foreground bg-muted shadow-[2px_2px_0px_0px_var(--foreground)]">
-                        {course.thumbnailUrl ? (
-                          <Image
-                            src={course.thumbnailUrl}
-                            alt=""
-                            fill
-                            className="object-cover"
-                            sizes="48px"
-                          />
-                        ) : (
-                          <span className="flex size-full items-center justify-center font-mono text-[10px] font-bold uppercase text-muted-foreground">
-                            —
-                          </span>
-                        )}
-                      </div>
+                      <CourseThumbnailCell
+                        courseId={course.id}
+                        courseTitle={course.title}
+                        thumbnailUrl={course.thumbnailUrl}
+                        storageConfigured={storageConfigured}
+                        maxSizeMb={maxThumbnailSizeMb}
+                        onUpdated={() => router.refresh()}
+                      />
                       <div className="min-w-0 space-y-0.5">
                         <div className="flex flex-wrap items-center gap-1.5">
                           <p className="truncate font-semibold">
@@ -193,46 +195,63 @@ export function CoursesTable({ courses }: CoursesTableProps) {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       {href ? (
-                        <Button asChild variant="outline" size="sm">
-                          <Link
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <IconExternalLink stroke={2.25} />
-                            <span className="sr-only sm:not-sr-only sm:ml-1">
-                              Catálogo
-                            </span>
-                          </Link>
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button asChild variant="outline" size="sm">
+                              <Link
+                                href={href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label="Ver en catálogo"
+                              >
+                                <IconExternalLink stroke={2.25} />
+                              </Link>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Catálogo</TooltipContent>
+                        </Tooltip>
                       ) : (
-                        <Button variant="outline" size="sm" disabled>
-                          Catálogo
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled
+                              aria-label="Catálogo"
+                            >
+                              <IconExternalLink stroke={2.25} />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Catálogo</TooltipContent>
+                        </Tooltip>
                       )}
-                      <Button asChild variant="outline" size="sm">
-                        <Link
-                          href={`/admin/courses/${course.id}/curriculum`}
-                          aria-label={`Contenido de ${course.title}`}
-                        >
-                          <IconList stroke={2.25} />
-                          <span className="sr-only sm:not-sr-only sm:ml-1">
-                            Contenido
-                          </span>
-                        </Link>
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setEditingCourseId(course.id)}
-                        aria-label={`Editar ${course.title}`}
-                      >
-                        <IconPencil stroke={2.25} />
-                        <span className="sr-only sm:not-sr-only sm:ml-1">
-                          Editar
-                        </span>
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button asChild variant="outline" size="sm">
+                            <Link
+                              href={`/admin/courses/${course.id}/curriculum`}
+                              aria-label={`Contenido de ${course.title}`}
+                            >
+                              <IconList stroke={2.25} />
+                            </Link>
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Contenido</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingCourseId(course.id)}
+                            aria-label={`Editar ${course.title}`}
+                          >
+                            <IconPencil stroke={2.25} />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Editar</TooltipContent>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>

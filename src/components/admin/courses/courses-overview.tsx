@@ -31,7 +31,11 @@ export function CoursesOverview({ data }: CoursesOverviewProps) {
         <CoursesEmptyState hasFilters={hasActiveFilters} />
       ) : (
         <>
-          <CoursesTable courses={data.courses} />
+          <CoursesTable
+            courses={data.courses}
+            storageConfigured={data.storageConfigured}
+            maxThumbnailSizeMb={data.maxThumbnailSizeMb}
+          />
           <CoursesPagination pagination={data.pagination} />
         </>
       )}

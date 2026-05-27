@@ -18,13 +18,26 @@ import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
 import { OpenAIConfigError } from "@/lib/openai/config";
 import { generateCourseSyllabusWithOpenAI } from "@/lib/openai/generate-syllabus";
+import { getResolvedUploadLimits } from "@/lib/platform/settings/resolve";
 import { toSlug } from "@/lib/slug";
+import {
+  COURSE_THUMBNAIL_CONTENT_TYPES,
+  StorageConfigError,
+  assertThumbnailUrlAllowed,
+  createCourseThumbnailUploadUrl,
+  isR2Configured,
+  type CourseThumbnailContentType,
+} from "@/lib/storage/r2";
 import {
   createAiDraftCourseSchema,
   generateCourseSyllabusInputSchema,
+  initCourseThumbnailUploadSchema,
+  setCourseThumbnailSchema,
   updateCourseSchema,
   type CreateAiDraftCourseInput,
   type GenerateCourseSyllabusInput,
+  type InitCourseThumbnailUploadInput,
+  type SetCourseThumbnailInput,
   type UpdateCourseInput,
 } from "@/schemas/course";
 import type {
@@ -34,7 +47,9 @@ import type {
   CreateAiDraftCourseResult,
   GenerateCourseSyllabusResult,
   GetAdminCourseForEditResult,
+  InitCourseThumbnailUploadResult,
   ParsedAdminCoursesParams,
+  SetCourseThumbnailResult,
   UpdateCourseResult,
 } from "@/types/admin-course.types";
 import { revalidatePath } from "next/cache";
@@ -137,7 +152,7 @@ export async function getAdminCoursesPageData(
     const page = Math.min(Math.max(1, filters.page), totalPages);
     const skip = (page - 1) * filters.pageSize;
 
-    const [courses, stats, categories] = await Promise.all([
+    const [courses, stats, categories, uploadLimits] = await Promise.all([
       prisma.course.findMany({
         where,
         orderBy: [{ updatedAt: "desc" }],
@@ -147,6 +162,7 @@ export async function getAdminCoursesPageData(
       }),
       getAdminCoursesStats(),
       getAdminCourseCategories(),
+      getResolvedUploadLimits(),
     ]);
 
     log.info(
@@ -170,6 +186,8 @@ export async function getAdminCoursesPageData(
         totalCount,
         totalPages,
       },
+      storageConfigured: isR2Configured(),
+      maxThumbnailSizeMb: Math.min(uploadLimits.maxFileSizeMb, 10),
     };
   } catch (error) {
     log.error(serializeError(error), "Failed to fetch admin courses page");
@@ -312,7 +330,7 @@ export async function getAdminCourseForEdit(
   try {
     await requireAdmin();
 
-    const [course, categories] = await Promise.all([
+    const [course, categories, uploadLimits] = await Promise.all([
       prisma.course.findUnique({
         where: { id: courseId },
         select: {
@@ -320,6 +338,7 @@ export async function getAdminCourseForEdit(
           title: true,
           slug: true,
           description: true,
+          thumbnailUrl: true,
           status: true,
           level: true,
           priceCents: true,
@@ -332,6 +351,7 @@ export async function getAdminCourseForEdit(
         orderBy: { position: "asc" },
         select: { id: true, name: true },
       }),
+      getResolvedUploadLimits(),
     ]);
 
     if (!course) {
@@ -345,10 +365,116 @@ export async function getAdminCourseForEdit(
         description: course.description ?? "",
       },
       categories,
+      storageConfigured: isR2Configured(),
+      maxThumbnailSizeMb: Math.min(uploadLimits.maxFileSizeMb, 10),
     };
   } catch (error) {
     log.error(serializeError(error), "Failed to load course for edit");
     return { ok: false, error: "No se pudo cargar el curso." };
+  }
+}
+
+export async function initCourseThumbnailUpload(
+  input: InitCourseThumbnailUploadInput,
+): Promise<InitCourseThumbnailUploadResult> {
+  try {
+    await requireAdmin();
+
+    const parsed = initCourseThumbnailUploadSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+      };
+    }
+
+    if (
+      !COURSE_THUMBNAIL_CONTENT_TYPES.includes(
+        parsed.data.contentType as CourseThumbnailContentType,
+      )
+    ) {
+      return { ok: false, error: "Formato de imagen no permitido." };
+    }
+
+    const course = await prisma.course.findUnique({
+      where: { id: parsed.data.courseId },
+      select: { id: true },
+    });
+
+    if (!course) {
+      return { ok: false, error: "Curso no encontrado." };
+    }
+
+    const { maxFileSizeMb } = await getResolvedUploadLimits();
+    const maxBytes = Math.min(maxFileSizeMb, 10) * 1024 * 1024;
+
+    if (parsed.data.contentLength > maxBytes) {
+      return {
+        ok: false,
+        error: `La imagen no puede superar ${Math.min(maxFileSizeMb, 10)} MB.`,
+      };
+    }
+
+    const { uploadUrl, thumbnailUrl } = await createCourseThumbnailUploadUrl({
+      courseId: parsed.data.courseId,
+      contentType: parsed.data.contentType as CourseThumbnailContentType,
+      contentLength: parsed.data.contentLength,
+    });
+
+    return { ok: true, uploadUrl, thumbnailUrl };
+  } catch (error) {
+    if (error instanceof StorageConfigError) {
+      return { ok: false, error: error.message };
+    }
+
+    log.error(serializeError(error), "Failed to init course thumbnail upload");
+    return { ok: false, error: "No se pudo iniciar la subida de la imagen." };
+  }
+}
+
+export async function setCourseThumbnail(
+  input: SetCourseThumbnailInput,
+): Promise<SetCourseThumbnailResult> {
+  try {
+    await requireAdmin();
+
+    const parsed = setCourseThumbnailSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+      };
+    }
+
+    const course = await prisma.course.findUnique({
+      where: { id: parsed.data.courseId },
+      select: { id: true },
+    });
+
+    if (!course) {
+      return { ok: false, error: "Curso no encontrado." };
+    }
+
+    if (parsed.data.thumbnailUrl) {
+      await assertThumbnailUrlAllowed(parsed.data.thumbnailUrl);
+    }
+
+    await prisma.course.update({
+      where: { id: parsed.data.courseId },
+      data: { thumbnailUrl: parsed.data.thumbnailUrl },
+    });
+
+    revalidatePath("/admin/courses");
+    revalidatePath("/catalog");
+
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof StorageConfigError) {
+      return { ok: false, error: error.message };
+    }
+
+    log.error(serializeError(error), "Failed to set course thumbnail");
+    return { ok: false, error: "No se pudo guardar la imagen del curso." };
   }
 }
 

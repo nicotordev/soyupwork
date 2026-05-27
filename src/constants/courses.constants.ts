@@ -3,6 +3,13 @@ export const ADMIN_COURSES_PAGE = {
   title: "Cursos",
   description:
     "Crea, publica y organiza cursos, módulos y lecciones desde un solo lugar.",
+  thumbnailLabel: "Imagen del curso",
+  thumbnailHint: "JPG, PNG o WebP. Recomendado 16:9, mín. 1280×720 px.",
+  thumbnailUploadLabel: "Subir imagen",
+  thumbnailReplaceLabel: "Cambiar imagen",
+  thumbnailRemoveLabel: "Quitar imagen",
+  thumbnailStorageMissing:
+    "Configura R2 en variables de entorno o en Ajustes → Almacenamiento para subir imágenes.",
 } as const;
 
 export const ADMIN_COURSE_STATUS_LABELS = {

@@ -4,12 +4,14 @@ import {
   getAdminCourseForEdit,
   updateCourse,
 } from "@/app/actions/courses.actions";
+import { CourseThumbnailUploader } from "@/components/admin/courses/course-thumbnail-uploader";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  ADMIN_COURSES_PAGE,
   ADMIN_COURSES_STATUS_FILTER_OPTIONS,
   ADMIN_COURSE_STATUS_LABELS,
 } from "@/constants/courses.constants";
@@ -64,6 +66,9 @@ export function CourseEditDialog({ courseId, onClose }: CourseEditDialogProps) {
   const [price, setPrice] = useState("0");
   const [isFeatured, setIsFeatured] = useState(false);
   const [offersCertificate, setOffersCertificate] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [storageConfigured, setStorageConfigured] = useState(false);
+  const [maxThumbnailSizeMb, setMaxThumbnailSizeMb] = useState(10);
 
   useEffect(() => {
     if (!courseId) return;
@@ -93,6 +98,9 @@ export function CourseEditDialog({ courseId, onClose }: CourseEditDialogProps) {
       setPrice(String(course.priceCents / 100));
       setIsFeatured(course.isFeatured);
       setOffersCertificate(course.offersCertificate);
+      setThumbnailUrl(course.thumbnailUrl);
+      setStorageConfigured(result.storageConfigured);
+      setMaxThumbnailSizeMb(result.maxThumbnailSizeMb);
     });
 
     return () => {
@@ -237,6 +245,24 @@ export function CourseEditDialog({ courseId, onClose }: CourseEditDialogProps) {
                     onChange={(event) => setDescription(event.target.value)}
                     className={cn(adminInputClass, "min-h-24 resize-y")}
                     rows={4}
+                  />
+                </div>
+
+                <div className="space-y-2 sm:col-span-2">
+                  <Label>{ADMIN_COURSES_PAGE.thumbnailLabel}</Label>
+                  <CourseThumbnailUploader
+                    courseId={courseId}
+                    thumbnailUrl={thumbnailUrl}
+                    storageConfigured={storageConfigured}
+                    maxSizeMb={maxThumbnailSizeMb}
+                    onUpdated={() => {
+                      router.refresh();
+                      void getAdminCourseForEdit(courseId).then((result) => {
+                        if (result.ok) {
+                          setThumbnailUrl(result.course.thumbnailUrl);
+                        }
+                      });
+                    }}
                   />
                 </div>
 

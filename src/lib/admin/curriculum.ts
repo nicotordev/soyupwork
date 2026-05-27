@@ -5,6 +5,7 @@ import type {
   AdminCourseCurriculumData,
   AdminCurriculumLesson,
   AdminCurriculumModule,
+  AdminCurriculumQuiz,
 } from "@/types/admin-curriculum.types";
 
 export const curriculumInclude = {
@@ -13,6 +14,18 @@ export const curriculumInclude = {
     include: {
       lessons: {
         orderBy: { position: "asc" as const },
+        include: {
+          quiz: {
+            include: {
+              questions: {
+                orderBy: { position: "asc" as const },
+                include: {
+                  options: { orderBy: { position: "asc" as const } },
+                },
+              },
+            },
+          },
+        },
       },
     },
   },
@@ -53,6 +66,28 @@ export async function resolveUniqueLessonSlug(
   }
 }
 
+function mapQuiz(
+  quiz: NonNullable<DbCourseCurriculum["modules"][0]["lessons"][0]["quiz"]>,
+): AdminCurriculumQuiz {
+  return {
+    id: quiz.id,
+    title: quiz.title,
+    description: quiz.description ?? "",
+    passingScore: quiz.passingScore,
+    questions: quiz.questions.map((question) => ({
+      id: question.id,
+      question: question.question,
+      position: question.position,
+      options: question.options.map((option) => ({
+        id: option.id,
+        text: option.text,
+        isCorrect: option.isCorrect,
+        position: option.position,
+      })),
+    })),
+  };
+}
+
 function mapLesson(
   lesson: DbCourseCurriculum["modules"][0]["lessons"][0],
 ): AdminCurriculumLesson {
@@ -68,6 +103,17 @@ function mapLesson(
     videoStatus: lesson.videoStatus,
     videoPlaybackId: lesson.videoPlaybackId,
     durationSec: lesson.durationSec,
+    quiz: lesson.quiz ? mapQuiz(lesson.quiz) : null,
+  };
+}
+
+export function buildEmptyQuizDraft(lessonTitle: string): AdminCurriculumQuiz {
+  return {
+    id: "",
+    title: lessonTitle,
+    description: "",
+    passingScore: 70,
+    questions: [],
   };
 }
 

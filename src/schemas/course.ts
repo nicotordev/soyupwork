@@ -61,3 +61,19 @@ export const updateCourseSchema = z.object({
 });
 
 export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
+
+export const initCourseThumbnailUploadSchema = z.object({
+  courseId: z.uuid(),
+  contentType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+  contentLength: z.number().int().positive("El archivo no puede estar vacío."),
+});
+
+export const setCourseThumbnailSchema = z.object({
+  courseId: z.uuid(),
+  thumbnailUrl: z.url().nullable(),
+});
+
+export type InitCourseThumbnailUploadInput = z.infer<
+  typeof initCourseThumbnailUploadSchema
+>;
+export type SetCourseThumbnailInput = z.infer<typeof setCourseThumbnailSchema>;
