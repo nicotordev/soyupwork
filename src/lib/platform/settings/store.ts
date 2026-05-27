@@ -47,8 +47,22 @@ export const DEFAULT_PLATFORM_SETTINGS = {
   analyticsRetentionDays: 365,
 } satisfies Omit<PlatformSettings, "createdAt" | "updatedAt">;
 
+function buildTimePlatformSettings(): PlatformSettings {
+  const now = new Date();
+  return {
+    ...DEFAULT_PLATFORM_SETTINGS,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 export const getPlatformSettings = cache(
   async (): Promise<PlatformSettings> => {
+    // Docker/CI builds have no database during `next build` static generation.
+    if (process.env.NEXT_PHASE === "phase-production-build") {
+      return buildTimePlatformSettings();
+    }
+
     return prisma.platformSettings.upsert({
       where: { id: PLATFORM_SETTINGS_ID },
       create: DEFAULT_PLATFORM_SETTINGS,

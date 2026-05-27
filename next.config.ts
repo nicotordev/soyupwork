@@ -25,6 +25,7 @@ function buildImageRemotePatterns(): NonNullable<
 }
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   reactCompiler: true,
   serverExternalPackages: ["pino", "pino-pretty", "thread-stream"],
   images: {

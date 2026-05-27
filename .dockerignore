@@ -1,0 +1,55 @@
+# Dependencies & build output
+node_modules
+.next
+out
+dist
+build
+coverage
+
+# Env & secrets (inject at runtime / build-args)
+.env
+.env.*
+!.env.example
+
+# Git & IDE
+.git
+.gitignore
+.github
+.vscode
+.idea
+.cursor
+*.swp
+*.swo
+
+# Logs & OS
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Tests
+**/*.test.*
+**/*.spec.*
+__tests__
+__mocks__
+
+# Docs & local tooling (not needed in image)
+docs
+*.md
+!README.md
+agent-transcripts
+
+# Docker (avoid recursive context; compose is run from host)
+Dockerfile*
+docker-compose*.yml
+.docker
+
+# Misc local
+*.local
+.turbo
+.vercel
+cloudflared*
+scripts/tunnel*
