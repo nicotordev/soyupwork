@@ -14,7 +14,10 @@ import {
 } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
+import type {
+  AdminMetricsPageData,
+  AdminMetricsStage,
+} from "@/types/admin-metrics.types";
 import {
   BarChart3,
   BarChart4,
@@ -24,7 +27,7 @@ import {
   Receipt,
   Award,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   Table,
@@ -35,69 +38,56 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type FunnelStage = {
-  id: string;
-  name: string;
-  count: number;
-  percentage: number;
-  description: string;
-  color: string;
-  icon: LucideIcon;
+const stageIconMap = {
+  registered_users: Eye,
+  enrolled_users: MousePointerClick,
+  checkout_started: Receipt,
+  sales_completed: Award,
+} as const;
+
+type AdminMetricsDashboardProps = {
+  data: AdminMetricsPageData;
 };
 
-const STAGES: FunnelStage[] = [
-  {
-    id: "stage-1",
-    name: "Visitas al Catálogo",
-    count: 12500,
-    percentage: 100,
-    description: "Estudiantes potenciales que buscan cursos.",
-    color: "bg-primary",
-    icon: Eye,
-  },
-  {
-    id: "stage-2",
-    name: "Clicks en Detalles",
-    count: 6200,
-    percentage: 49.6,
-    description: "Usuarios interesados en la currícula de un curso.",
-    color: "bg-secondary",
-    icon: MousePointerClick,
-  },
-  {
-    id: "stage-3",
-    name: "Pedidos Iniciados",
-    count: 1800,
-    percentage: 14.4,
-    description: "Estudiantes que ingresan datos de pago.",
-    color: "bg-amber-400",
-    icon: Receipt,
-  },
-  {
-    id: "stage-4",
-    name: "Ventas Completadas",
-    count: 240,
-    percentage: 1.92,
-    description: "Alumnos con acceso activo al curso.",
-    color: "bg-emerald-400",
-    icon: Award,
-  },
-];
+function stageIcon(stageId: AdminMetricsStage["id"]) {
+  return stageIconMap[stageId] ?? BarChart3;
+}
 
-export function AdminMetricsDashboard() {
-  const [selectedStage, setSelectedStage] = useState<FunnelStage>(STAGES[0]!);
+export function AdminMetricsDashboard({ data }: AdminMetricsDashboardProps) {
+  const [selectedStage, setSelectedStage] = useState<AdminMetricsStage | null>(
+    data.stages[0] ?? null,
+  );
   const { localQuery, setLocalQuery, viewMode, setViewMode, isPending } =
     useAdminListingParams({ resetPageOnChange: false });
 
   const filteredStages = useMemo(() => {
     const q = localQuery.trim().toLowerCase();
-    if (!q) return STAGES;
-    return STAGES.filter(
+    if (!q) return data.stages;
+    return data.stages.filter(
       (stage) =>
         stage.name.toLowerCase().includes(q) ||
         stage.description.toLowerCase().includes(q),
     );
-  }, [localQuery]);
+  }, [data.stages, localQuery]);
+
+  useEffect(() => {
+    if (filteredStages.length === 0) {
+      setSelectedStage(null);
+      return;
+    }
+
+    if (!selectedStage) {
+      setSelectedStage(filteredStages[0]!);
+      return;
+    }
+
+    const hasCurrentSelection = filteredStages.some(
+      (stage) => stage.id === selectedStage.id,
+    );
+    if (!hasCurrentSelection) {
+      setSelectedStage(filteredStages[0]!);
+    }
+  }, [filteredStages, selectedStage]);
 
   const hasActiveFilters = localQuery.trim().length > 0;
 
@@ -114,16 +104,20 @@ export function AdminMetricsDashboard() {
         <div className={cn(adminPanelClass, "bg-card p-4")}>
           <p className={adminPanelTitleClass}>Tasa de Conversión</p>
           <p className="mt-2 font-heading text-2xl font-extrabold text-primary">
-            1.92%
+            {data.stats.conversionRate}%
           </p>
         </div>
         <div className={cn(adminPanelClass, "bg-card p-4")}>
           <p className={adminPanelTitleClass}>Retención del Checkout</p>
-          <p className="mt-2 font-heading text-2xl font-extrabold">13.3%</p>
+          <p className="mt-2 font-heading text-2xl font-extrabold">
+            {data.stats.checkoutRetention}%
+          </p>
         </div>
         <div className={cn(adminPanelClass, "bg-card p-4")}>
           <p className={adminPanelTitleClass}>Tiempo de decisión</p>
-          <p className="mt-2 font-heading text-2xl font-extrabold">4.8 hrs</p>
+          <p className="mt-2 font-heading text-2xl font-extrabold">
+            {data.stats.avgHoursToFirstOrder} hrs
+          </p>
         </div>
         <div
           className={cn(
@@ -133,7 +127,7 @@ export function AdminMetricsDashboard() {
         >
           <p className={adminPanelTitleClass}>LTV Estudiante</p>
           <p className="mt-2 font-heading text-2xl font-extrabold text-emerald-800 dark:text-emerald-300">
-            $185 USD
+            ${data.stats.studentLtv.toLocaleString("es-CL")} USD
           </p>
         </div>
       </div>
@@ -188,8 +182,8 @@ export function AdminMetricsDashboard() {
                 </TableHeader>
                 <TableBody>
                   {filteredStages.map((stage, idx) => {
-                    const Icon = stage.icon;
-                    const isSelected = selectedStage.id === stage.id;
+                    const Icon = stageIcon(stage.id);
+                    const isSelected = selectedStage?.id === stage.id;
                     return (
                       <TableRow
                         key={stage.id}
@@ -226,14 +220,14 @@ export function AdminMetricsDashboard() {
             <div className={cn(adminPanelClass, "space-y-4 p-5 md:col-span-2")}>
               <div className="flex items-center gap-2 border-b-2 border-foreground/10 pb-2">
                 <BarChart3 className="size-5 text-primary" aria-hidden />
-                <h3 className="font-heading font-mono text-sm font-extrabold uppercase">
+                <h3 className="font-heading text-sm font-extrabold uppercase">
                   Embudo de adquisición
                 </h3>
               </div>
               <AdminCardGrid columns="compact" className="gap-3">
                 {filteredStages.map((stage, idx) => {
-                  const Icon = stage.icon;
-                  const isSelected = selectedStage.id === stage.id;
+                  const Icon = stageIcon(stage.id);
+                  const isSelected = selectedStage?.id === stage.id;
                   return (
                     <button
                       key={stage.id}
@@ -274,7 +268,9 @@ export function AdminMetricsDashboard() {
             </div>
           )}
 
-          <div className={cn(adminPanelClass, "flex flex-col justify-between p-5")}>
+          <div
+            className={cn(adminPanelClass, "flex flex-col justify-between p-5")}
+          >
             <div className="space-y-4">
               <div className={adminPanelHeaderClass}>
                 <h4 className={adminPanelTitleClass}>Análisis del paso</h4>
@@ -284,23 +280,25 @@ export function AdminMetricsDashboard() {
                   Paso seleccionado
                 </span>
                 <h3 className="font-heading text-lg font-extrabold tracking-tight">
-                  {selectedStage.name}
+                  {selectedStage?.name ?? "Sin selección"}
                 </h3>
                 <p className="text-xs leading-relaxed text-muted-foreground">
-                  {selectedStage.description}
+                  {selectedStage?.description ?? "No hay etapas para mostrar."}
                 </p>
               </div>
               <div className="space-y-2 border-t border-foreground/15 pt-3 text-xs">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Miembros totales</span>
+                  <span className="text-muted-foreground">
+                    Miembros totales
+                  </span>
                   <strong className="font-mono">
-                    {selectedStage.count.toLocaleString("es-CL")}
+                    {selectedStage?.count.toLocaleString("es-CL") ?? "0"}
                   </strong>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Porcentaje</span>
                   <strong className="font-mono">
-                    {selectedStage.percentage}%
+                    {selectedStage?.percentage ?? 0}%
                   </strong>
                 </div>
               </div>

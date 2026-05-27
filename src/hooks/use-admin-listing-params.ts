@@ -5,12 +5,19 @@ import {
   ADMIN_LISTING_VIEW_PARAM,
   type AdminListingViewMode,
 } from "@/constants/admin-listing.constants";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   adminViewModeToParam,
   parseAdminViewMode,
 } from "@/lib/admin/listing-params";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 
 type UseAdminListingParamsOptions = {
   searchParamKey?: string;
@@ -30,6 +37,7 @@ export function useAdminListingParams(
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
 
   const urlQuery = searchParams.get(searchParamKey) ?? "";
@@ -147,5 +155,7 @@ export function useAdminListingParams(
     setParam,
     clearParams,
     replaceParams,
+    invalidateListingQueries: () =>
+      queryClient.invalidateQueries({ queryKey: ["admin-listing", pathname] }),
   };
 }

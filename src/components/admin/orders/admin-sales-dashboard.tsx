@@ -6,19 +6,18 @@ import {
   adminFilterSelectTriggerClass,
 } from "@/components/admin/listing/admin-filter-field";
 import { AdminListingPanel } from "@/components/admin/listing/admin-listing-panel";
-import { AdminTableActions } from "@/components/admin/listing/admin-table-actions";
 import { AdminToolbar } from "@/components/admin/listing/admin-toolbar";
 import { EmptyState } from "@/components/admin/listing/empty-state";
 import { AdminDashboardPageHeader } from "@/components/common/admin-dashboard-page-header";
 import { ADMIN_LISTING_VIEW } from "@/constants/admin-listing.constants";
 import { useAdminListingParams } from "@/hooks/use-admin-listing-params";
+import { formatDashboardDate } from "@/lib/admin/formatters";
 import { adminPanelClass, adminPanelTitleClass } from "@/lib/admin/styles";
-import { playUiSound } from "@/lib/ui-sounds/player";
 import { cn } from "@/lib/utils";
+import type { AdminSalesPageData } from "@/types/admin-sales.types";
 import type { AdminActiveFilter } from "@/types/admin-listing.types";
-import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Receipt, RefreshCw } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Receipt } from "lucide-react";
+import { useMemo } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -37,61 +36,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-type SalesOrderStatus = "PAID" | "PENDING" | "REFUNDED" | "FAILED";
-
-type SalesOrder = {
-  id: string;
-  customer: string;
-  course: string;
-  amount: number;
-  status: SalesOrderStatus;
-  date: string;
-};
-
-const INITIAL_SALES: SalesOrder[] = [
-  {
-    id: "ord_1001",
-    customer: "María González",
-    course: "Ventas B2B en Upwork",
-    amount: 149,
-    status: "PAID",
-    date: "2026-05-26 08:32",
-  },
-  {
-    id: "ord_1002",
-    customer: "Lucas Pérez",
-    course: "Propuestas que convierten",
-    amount: 89,
-    status: "PAID",
-    date: "2026-05-25 19:12",
-  },
-  {
-    id: "ord_1003",
-    customer: "Ana Ruiz",
-    course: "Freelance desde cero",
-    amount: 199,
-    status: "PENDING",
-    date: "2026-05-25 15:00",
-  },
-  {
-    id: "ord_1004",
-    customer: "Diego Martín",
-    course: "Portafolio para clientes",
-    amount: 79,
-    status: "PAID",
-    date: "2026-05-24 11:22",
-  },
-  {
-    id: "ord_1005",
-    customer: "Sofía Lima",
-    course: "Ventas B2B en Upwork",
-    amount: 149,
-    status: "FAILED",
-    date: "2026-05-23 14:05",
-  },
-];
-
 const STATUS_FILTER_ALL = "ALL";
+
+type OrderStatus = "PAID" | "PENDING" | "REFUNDED" | "FAILED" | "CANCELLED";
 
 const STATUS_OPTIONS = [
   { value: STATUS_FILTER_ALL, label: "Todos" },
@@ -99,25 +46,31 @@ const STATUS_OPTIONS = [
   { value: "PENDING", label: "Pendientes" },
   { value: "REFUNDED", label: "Reembolsados" },
   { value: "FAILED", label: "Fallidos" },
+  { value: "CANCELLED", label: "Cancelados" },
 ] as const;
 
-function statusLabel(status: SalesOrderStatus): string {
+function statusLabel(status: OrderStatus): string {
   if (status === "PAID") return "Cobrado";
   if (status === "PENDING") return "Pendiente";
   if (status === "REFUNDED") return "Reembolsado";
+  if (status === "CANCELLED") return "Cancelado";
   return "Fallido";
 }
 
-function statusBadgeVariant(status: SalesOrderStatus) {
+function statusBadgeVariant(status: OrderStatus) {
   if (status === "PAID") return "default" as const;
   if (status === "PENDING") return "secondary" as const;
+  if (status === "REFUNDED") return "secondary" as const;
+  if (status === "FAILED") return "destructive" as const;
+  if (status === "CANCELLED") return "destructive" as const;
   return "destructive" as const;
 }
 
-export function AdminSalesDashboard() {
-  const [sales, setSales] = useState<SalesOrder[]>(INITIAL_SALES);
-  const [refundingId, setRefundingId] = useState<string | null>(null);
+type AdminSalesDashboardProps = {
+  data: AdminSalesPageData;
+};
 
+export function AdminSalesDashboard({ data }: AdminSalesDashboardProps) {
   const {
     localQuery,
     setLocalQuery,
@@ -131,25 +84,9 @@ export function AdminSalesDashboard() {
 
   const filterStatus = searchParams.get("status") ?? STATUS_FILTER_ALL;
 
-  const totalRevenue = sales
-    .filter((s) => s.status === "PAID")
-    .reduce((acc, s) => acc + s.amount, 0);
-
-  const handleRefund = (orderId: string) => {
-    playUiSound("open");
-    setRefundingId(orderId);
-    setTimeout(() => {
-      setSales((prev) =>
-        prev.map((s) => (s.id === orderId ? { ...s, status: "REFUNDED" } : s)),
-      );
-      setRefundingId(null);
-      playUiSound("success");
-    }, 1500);
-  };
-
   const filteredSales = useMemo(() => {
     const q = localQuery.trim().toLowerCase();
-    return sales.filter((s) => {
+    return data.orders.filter((s) => {
       const matchesSearch =
         !q ||
         s.customer.toLowerCase().includes(q) ||
@@ -159,7 +96,7 @@ export function AdminSalesDashboard() {
         filterStatus === STATUS_FILTER_ALL || s.status === filterStatus;
       return matchesSearch && matchesStatus;
     });
-  }, [sales, localQuery, filterStatus]);
+  }, [data.orders, localQuery, filterStatus]);
 
   const hasActiveFilters =
     localQuery.trim().length > 0 || filterStatus !== STATUS_FILTER_ALL;
@@ -195,37 +132,6 @@ export function AdminSalesDashboard() {
         description="Seguimiento de pedidos, suscripciones e integraciones."
       />
 
-      <AnimatePresence>
-        {refundingId ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm"
-          >
-            <div
-              className={cn(
-                adminPanelClass,
-                "max-w-sm space-y-4 border-2 border-foreground bg-background p-8 text-center shadow-[8px_8px_0px_0px_var(--foreground)]",
-              )}
-            >
-              <Loader2
-                className="mx-auto size-10 animate-spin text-primary"
-                aria-hidden
-              />
-              <div className="space-y-2">
-                <p className="font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
-                  Stripe Payment gateway
-                </p>
-                <h4 className="font-heading text-sm font-extrabold">
-                  Reembolsando pedido {refundingId}...
-                </h4>
-              </div>
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
       <div className="grid gap-4 sm:grid-cols-3">
         <div
           className={cn(
@@ -235,23 +141,19 @@ export function AdminSalesDashboard() {
         >
           <p className={adminPanelTitleClass}>Ingresos de Ventas</p>
           <p className="mt-2 font-heading text-2xl font-extrabold text-emerald-800 dark:text-emerald-300">
-            ${totalRevenue.toLocaleString("es-CL")}
+            ${data.stats.totalRevenue.toLocaleString("es-CL")}
           </p>
         </div>
         <div className={cn(adminPanelClass, "bg-card p-4")}>
           <p className={adminPanelTitleClass}>Pedidos Procesados</p>
           <p className="mt-2 font-heading text-2xl font-extrabold">
-            {sales.filter((s) => s.status !== "PENDING").length}
+            {data.stats.processedOrders}
           </p>
         </div>
         <div className={cn(adminPanelClass, "bg-destructive/5 p-4")}>
           <p className={adminPanelTitleClass}>Reembolsos / Fallidos</p>
           <p className="mt-2 font-heading text-2xl font-extrabold">
-            {
-              sales.filter(
-                (s) => s.status === "REFUNDED" || s.status === "FAILED",
-              ).length
-            }
+            {data.stats.failedOrRefundedOrders}
           </p>
         </div>
       </div>
@@ -358,23 +260,9 @@ export function AdminSalesDashboard() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {sale.status === "PAID" ? (
-                      <AdminTableActions
-                        actions={[
-                          {
-                            id: "refund",
-                            label: `Reembolsar pedido ${sale.id}`,
-                            icon: <RefreshCw className="size-4" aria-hidden />,
-                            onClick: () => handleRefund(sale.id),
-                            destructive: true,
-                          },
-                        ]}
-                      />
-                    ) : (
-                      <span className="font-mono text-[10px] text-muted-foreground uppercase">
-                        —
-                      </span>
-                    )}
+                    <span className="font-mono text-[10px] text-muted-foreground uppercase">
+                      —
+                    </span>
                   </TableCell>
                 </TableRow>
               ))}
@@ -420,7 +308,7 @@ export function AdminSalesDashboard() {
                     <span className="text-muted-foreground uppercase">
                       Fecha
                     </span>
-                    <span>{sale.date}</span>
+                    <span>{formatDashboardDate(sale.date)}</span>
                   </div>
                   <Badge
                     variant={statusBadgeVariant(sale.status)}
@@ -431,17 +319,9 @@ export function AdminSalesDashboard() {
                 </div>
                 {sale.status === "PAID" ? (
                   <div className="border-t-2 border-foreground bg-muted p-2">
-                    <AdminTableActions
-                      actions={[
-                        {
-                          id: "refund",
-                          label: `Reembolsar pedido ${sale.id}`,
-                          icon: <RefreshCw className="size-4" aria-hidden />,
-                          onClick: () => handleRefund(sale.id),
-                          destructive: true,
-                        },
-                      ]}
-                    />
+                    <p className="font-mono text-[10px] text-muted-foreground uppercase">
+                      Sin acciones disponibles
+                    </p>
                   </div>
                 ) : null}
               </article>

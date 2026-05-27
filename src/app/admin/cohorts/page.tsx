@@ -1,3 +1,4 @@
+import { getAdminCohortsPageData } from "@/app/actions/cohorts.actions";
 import { AdminDashboardContainer } from "@/components/admin/admin-dashboard-container";
 import { AdminCohortsDashboard } from "@/components/admin/cohorts/admin-cohorts-dashboard";
 import type { Metadata } from "next";
@@ -7,10 +8,17 @@ export const metadata: Metadata = {
   description: "Calendarios de estudio y mentorías grupales.",
 };
 
-export default function AdminCohortsPage() {
+type PageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function AdminCohortsPage({ searchParams }: PageProps) {
+  const resolvedSearchParams = await searchParams;
+  const data = await getAdminCohortsPageData(resolvedSearchParams);
+
   return (
     <AdminDashboardContainer>
-      <AdminCohortsDashboard />
+      <AdminCohortsDashboard data={data} />
     </AdminDashboardContainer>
   );
 }

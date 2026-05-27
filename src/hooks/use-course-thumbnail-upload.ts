@@ -4,6 +4,7 @@ import {
   initCourseThumbnailUpload,
   setCourseThumbnail,
 } from "@/app/actions/courses.actions";
+import { useMutation } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "@/lib/toast";
 
@@ -30,14 +31,62 @@ export function useCourseThumbnailUpload({
   onUpdated,
 }: UseCourseThumbnailUploadOptions) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(thumbnailUrl);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isRemoving, setIsRemoving] = useState(false);
 
   useEffect(() => {
     setPreviewUrl(thumbnailUrl);
   }, [thumbnailUrl]);
 
   const displayUrl = previewUrl ?? thumbnailUrl;
+  const uploadMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const init = await initCourseThumbnailUpload({
+        courseId,
+        contentType: file.type as CourseThumbnailAcceptedType,
+        contentLength: file.size,
+      });
+
+      if (!init.ok) {
+        throw new Error(init.error);
+      }
+
+      const uploadResponse = await fetch(init.uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("No se pudo subir la imagen al almacenamiento.");
+      }
+
+      const save = await setCourseThumbnail({
+        courseId,
+        thumbnailUrl: init.thumbnailUrl,
+      });
+
+      if (!save.ok) {
+        throw new Error(save.error);
+      }
+
+      return init.thumbnailUrl;
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: async () => {
+      const result = await setCourseThumbnail({
+        courseId,
+        thumbnailUrl: null,
+      });
+
+      if (!result.ok) {
+        throw new Error(result.error);
+      }
+    },
+  });
+
+  const isUploading = uploadMutation.isPending;
+  const isRemoving = removeMutation.isPending;
   const busy = isUploading || isRemoving;
 
   const uploadFile = useCallback(
@@ -57,58 +106,24 @@ export function useCourseThumbnailUpload({
         return;
       }
 
-      setIsUploading(true);
       const localPreview = URL.createObjectURL(file);
       setPreviewUrl(localPreview);
 
       try {
-        const init = await initCourseThumbnailUpload({
-          courseId,
-          contentType: file.type as CourseThumbnailAcceptedType,
-          contentLength: file.size,
-        });
-
-        if (!init.ok) {
-          toast.error(init.error);
-          setPreviewUrl(thumbnailUrl);
-          return;
-        }
-
-        const uploadResponse = await fetch(init.uploadUrl, {
-          method: "PUT",
-          headers: { "Content-Type": file.type },
-          body: file,
-        });
-
-        if (!uploadResponse.ok) {
-          toast.error("No se pudo subir la imagen al almacenamiento.");
-          setPreviewUrl(thumbnailUrl);
-          return;
-        }
-
-        const save = await setCourseThumbnail({
-          courseId,
-          thumbnailUrl: init.thumbnailUrl,
-        });
-
-        if (!save.ok) {
-          toast.error(save.error);
-          setPreviewUrl(thumbnailUrl);
-          return;
-        }
-
-        setPreviewUrl(init.thumbnailUrl);
+        const uploadedUrl = await uploadMutation.mutateAsync(file);
+        setPreviewUrl(uploadedUrl);
         toast.success("Imagen del curso actualizada");
         onUpdated();
-      } catch {
-        toast.error("Error al subir la imagen.");
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : "Error al subir la imagen.",
+        );
         setPreviewUrl(thumbnailUrl);
       } finally {
         URL.revokeObjectURL(localPreview);
-        setIsUploading(false);
       }
     },
-    [courseId, maxSizeMb, onUpdated, thumbnailUrl],
+    [maxSizeMb, onUpdated, thumbnailUrl, uploadMutation],
   );
 
   const removeThumbnail = useCallback(async () => {
@@ -116,26 +131,19 @@ export function useCourseThumbnailUpload({
       return;
     }
 
-    setIsRemoving(true);
-
     try {
-      const result = await setCourseThumbnail({
-        courseId,
-        thumbnailUrl: null,
-      });
-
-      if (!result.ok) {
-        toast.error(result.error);
-        return;
-      }
-
+      await removeMutation.mutateAsync();
       setPreviewUrl(null);
       toast.success("Imagen eliminada");
       onUpdated();
-    } finally {
-      setIsRemoving(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "No se pudo eliminar la imagen.",
+      );
     }
-  }, [courseId, onUpdated]);
+  }, [onUpdated, removeMutation]);
 
   return {
     displayUrl,

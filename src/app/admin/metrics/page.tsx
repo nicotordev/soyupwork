@@ -1,3 +1,4 @@
+import { getAdminMetricsPageData } from "@/app/actions/metrics.actions";
 import { AdminDashboardContainer } from "@/components/admin/admin-dashboard-container";
 import { AdminMetricsDashboard } from "@/components/admin/metrics/admin-metrics-dashboard";
 import type { Metadata } from "next";
@@ -7,10 +8,12 @@ export const metadata: Metadata = {
   description: "Embudos de conversión y retención del estudiante.",
 };
 
-export default function AdminMetricsPage() {
+export default async function AdminMetricsPage() {
+  const data = await getAdminMetricsPageData();
+
   return (
     <AdminDashboardContainer>
-      <AdminMetricsDashboard />
+      <AdminMetricsDashboard data={data} />
     </AdminDashboardContainer>
   );
 }

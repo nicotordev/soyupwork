@@ -1,5 +1,5 @@
 import { getPaginatedCategories } from "@/app/actions/categories.actions";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -84,9 +84,9 @@ export default function useCategories(): UseCategoriesResult {
 
   const categoriesQuery = useQuery({
     queryKey: ["categories", page, pageSize],
-    queryFn: ({ queryKey }) =>
-      getPaginatedCategories(Number(queryKey[1]), Number(queryKey[2])),
+    queryFn: () => getPaginatedCategories(page, pageSize),
     staleTime: 60_000,
+    placeholderData: keepPreviousData,
   });
 
   const totalCount = categoriesQuery.data?.total ?? 0;
