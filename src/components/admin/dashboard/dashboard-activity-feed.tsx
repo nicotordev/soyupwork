@@ -1,10 +1,17 @@
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { ACTIVITY_TYPE_LABELS } from "@/constants/dashboard.constants";
+import { formatDashboardRelativeTime } from "@/lib/admin/formatters";
 import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
 } from "@/lib/admin/styles";
-import { formatDashboardRelativeTime } from "@/lib/admin/formatters";
 import type { DashboardActivity } from "@/types/dashboard.types";
 import {
   IconBook,
@@ -29,6 +36,39 @@ const activityIcons = {
 export function DashboardActivityFeed({
   activity,
 }: DashboardActivityFeedProps) {
+  if (activity.length === 0) {
+    return (
+      <section
+        className={adminPanelClass}
+        aria-labelledby="activity-feed-title"
+      >
+        <div className={adminPanelHeaderClass}>
+          <div>
+            <h2 id="activity-feed-title" className={adminPanelTitleClass}>
+              Actividad reciente
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Eventos de ventas, cursos y usuarios
+            </p>
+          </div>
+        </div>
+        <div className="px-4 py-4"> 
+          <Empty className="border-2 border-dashed border-foreground/30 bg-muted/20 py-8">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <IconBook />
+              </EmptyMedia>
+              <EmptyTitle>Todavia no hay actividad.</EmptyTitle>
+              <EmptyDescription>
+                Cuando haya ventas o inscripciones, se mostraran aqui.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className={adminPanelClass} aria-labelledby="activity-feed-title">
       <div className={adminPanelHeaderClass}>

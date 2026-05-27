@@ -1,12 +1,12 @@
 "use client";
 
 import { DASHBOARD_CHART_CONFIG } from "@/constants/dashboard.constants";
+import { formatDashboardCompactCurrency } from "@/lib/admin/formatters";
 import {
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
 } from "@/lib/admin/styles";
-import { formatDashboardCompactCurrency } from "@/lib/admin/formatters";
 import type { DashboardRevenuePoint } from "@/types/dashboard.types";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
@@ -18,6 +18,14 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { IconChartBar } from "@tabler/icons-react";
 
 type DashboardRevenueChartProps = {
   data: DashboardRevenuePoint[];
@@ -35,6 +43,39 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function DashboardRevenueChart({ data }: DashboardRevenueChartProps) {
+  if (data.length === 0) {
+    return (
+      <section
+        className={adminPanelClass}
+        aria-labelledby="revenue-chart-title"
+      >
+        <div className={adminPanelHeaderClass}>
+          <div>
+            <h2 id="revenue-chart-title" className={adminPanelTitleClass}>
+              Ingresos y pedidos
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Serie real segun el rango seleccionado
+            </p>
+          </div>
+        </div>
+        <div className="px-4 py-4">
+          <Empty className="border-2 border-dashed border-foreground/30 bg-muted/20 py-8">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <IconChartBar />
+              </EmptyMedia>
+              <EmptyTitle>Sin datos para graficar.</EmptyTitle>
+              <EmptyDescription>
+                Cambia el rango o espera nuevas ventas para ver la serie.
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className={adminPanelClass} aria-labelledby="revenue-chart-title">
       <div className={adminPanelHeaderClass}>
@@ -43,7 +84,7 @@ export function DashboardRevenueChart({ data }: DashboardRevenueChartProps) {
             Ingresos y pedidos
           </h2>
           <p className="text-xs text-muted-foreground">
-            Últimos 6 meses · datos de demostración
+            Serie real según el rango seleccionado
           </p>
         </div>
       </div>

@@ -19,7 +19,7 @@ export default async function AdminPage({ searchParams }: PageProps) {
     typeof resolvedSearchParams.range === "string"
       ? resolvedSearchParams.range
       : "30d";
-  const data = await getDashboardOverviewData();
+  const data = await getDashboardOverviewData(range);
 
   return (
     <AdminDashboardContainer>

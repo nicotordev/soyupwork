@@ -1,18 +1,16 @@
 "use client";
 
-import { useTransition, useMemo } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
 import { DashboardActivityFeed } from "@/components/admin/dashboard/dashboard-activity-feed";
 import { DashboardOrdersTable } from "@/components/admin/dashboard/dashboard-orders-table";
 import { DashboardPageHeader } from "@/components/admin/dashboard/dashboard-page-header";
 import { DashboardQuickActions } from "@/components/admin/dashboard/dashboard-quick-actions";
 import { DashboardRevenueChart } from "@/components/admin/dashboard/dashboard-revenue-chart";
 import { DashboardStatsGrid } from "@/components/admin/dashboard/dashboard-stats-grid";
-import type { DashboardOverviewData, DashboardStat, DashboardRevenuePoint } from "@/types/dashboard.types";
-import { adminBrutalButtonClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
-import { IconCircleDot } from "@tabler/icons-react";
+import type { DashboardOverviewData } from "@/types/dashboard.types";
+import { motion } from "framer-motion";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
 
 type DashboardOverviewProps = {
   data: DashboardOverviewData;
@@ -26,11 +24,16 @@ const RANGES = [
   { id: "all", label: "Histórico" },
 ];
 
-export function DashboardOverview({ data, range = "30d" }: DashboardOverviewProps) {
+export function DashboardOverview({
+  data,
+  range = "30d",
+}: DashboardOverviewProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const activeRangeLabel =
+    RANGES.find((item) => item.id === range)?.label ?? "30 días";
 
   const handleRangeChange = (newRange: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -40,54 +43,6 @@ export function DashboardOverview({ data, range = "30d" }: DashboardOverviewProp
     });
   };
 
-  // Simulate range-based statistics transformation to make it look alive and responsive!
-  const simulatedData = useMemo(() => {
-    const multiplier = range === "7d" ? 0.25 : range === "12m" ? 4.2 : range === "all" ? 12.8 : 1.0;
-    
-    const transformedStats = data.stats.map((stat): DashboardStat => {
-      if (stat.id === "revenue") {
-        const numericVal = 12480 * multiplier;
-        return {
-          ...stat,
-          value: `$${Math.round(numericVal).toLocaleString("es-CL")}`,
-          changeLabel: range === "7d" ? "+3.1%" : range === "12m" ? "+42.8%" : "+128.4%",
-          trend: multiplier < 1.0 ? "down" : "up",
-        };
-      }
-      if (stat.id === "sales") {
-        const val = Math.round(186 * multiplier);
-        return {
-          ...stat,
-          value: String(val),
-          changeLabel: range === "7d" ? "-1.2%" : range === "12m" ? "+31.5%" : "+98.0%",
-          trend: multiplier < 1.0 ? "down" : "up",
-        };
-      }
-      if (stat.id === "students") {
-        const val = Math.round(1284 * (range === "7d" ? 0.85 : multiplier * 0.9 + 0.1));
-        return {
-          ...stat,
-          value: String(val),
-          changeLabel: range === "7d" ? "+0.5%" : "+12.4%",
-        };
-      }
-      return stat;
-    });
-
-    const transformedRevenue = data.revenueSeries.map((point): DashboardRevenuePoint => {
-      return {
-        ...point,
-        revenue: Math.round(point.revenue * multiplier),
-        orders: Math.round(point.orders * multiplier),
-      };
-    });
-
-    return {
-      stats: transformedStats,
-      revenueSeries: transformedRevenue,
-    };
-  }, [data, range]);
-
   return (
     <div className="space-y-6">
       {/* Top Header Section with Status & Range Selector */}
@@ -95,15 +50,9 @@ export function DashboardOverview({ data, range = "30d" }: DashboardOverviewProp
         <DashboardPageHeader />
 
         <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
-          {/* Pulsing Live Connection Indicator */}
-          <div className="inline-flex items-center gap-1.5 rounded-full border-2 border-foreground bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-800 shadow-[2px_2px_0px_0px_var(--foreground)] dark:bg-emerald-950 dark:text-emerald-300">
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full size-2 bg-emerald-500"></span>
-            </span>
-            En vivo
-          </div>
-
+          <span className="inline-flex items-center rounded border-2 border-foreground bg-primary/10 px-2 py-1 font-mono text-[10px] font-bold uppercase text-foreground">
+            Rango: {activeRangeLabel}
+          </span>
           {/* Neobrutalist Range Tab Selector */}
           <div className="flex border-2 border-foreground rounded bg-background shadow-[3px_3px_0px_0px_var(--foreground)] overflow-hidden">
             {RANGES.map((r) => {
@@ -113,14 +62,17 @@ export function DashboardOverview({ data, range = "30d" }: DashboardOverviewProp
                   key={r.id}
                   type="button"
                   onClick={() => handleRangeChange(r.id)}
+                  aria-pressed={active}
+                  disabled={isPending}
                   className={cn(
                     "px-3 py-1 font-mono text-[10px] font-extrabold uppercase border-r-2 border-foreground last:border-r-0 transition-colors",
                     active
-                      ? "bg-secondary text-foreground"
+                      ? "bg-secondary text-foreground shadow-inner"
                       : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                    isPending && "opacity-70",
                   )}
                 >
-                  {r.label}
+                  {active ? `● ${r.label}` : r.label}
                 </button>
               );
             })}
@@ -133,13 +85,16 @@ export function DashboardOverview({ data, range = "30d" }: DashboardOverviewProp
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className={cn("space-y-6", isPending && "opacity-75 transition-opacity")}
+        className={cn(
+          "space-y-6",
+          isPending && "opacity-75 transition-opacity",
+        )}
       >
-        <DashboardStatsGrid stats={simulatedData.stats} />
+        <DashboardStatsGrid stats={data.stats} />
 
         <div className="grid gap-6 xl:grid-cols-3">
           <div className="space-y-6 xl:col-span-2">
-            <DashboardRevenueChart data={simulatedData.revenueSeries} />
+            <DashboardRevenueChart data={data.revenueSeries} />
             <DashboardOrdersTable orders={data.recentOrders} />
           </div>
           <div className="space-y-6">
@@ -151,4 +106,3 @@ export function DashboardOverview({ data, range = "30d" }: DashboardOverviewProp
     </div>
   );
 }
-
