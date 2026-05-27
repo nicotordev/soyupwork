@@ -34,18 +34,33 @@ import {
 } from "@/lib/platform/settings/store";
 import type {
   AuthSettingsFormValues,
+  ConfirmWaitlistVerificationResult,
   EmailSettingsFormValues,
   GeneralSettingsFormValues,
   JoinWaitlistResult,
   NotificationsSettingsFormValues,
   PaymentsSettingsFormValues,
+  RequestWaitlistVerificationResult,
   StorageSettingsFormValues,
   UpdateSettingsResult,
   VideoSettingsFormValues,
 } from "@/types/platform-settings.types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { syncEmailToClerkWaitlist } from "@/lib/clerk/waitlist";
+import { sendWaitlistVerificationEmail } from "@/lib/email/send-waitlist-verification";
 import { validateOptionalE164Phone } from "@/lib/phone/validate";
+import { addEmailToResendWaitlistAudience } from "@/lib/resend/waitlist-audience";
+import {
+  generateWaitlistVerificationCode,
+  getWaitlistVerificationExpiry,
+  hasExceededWaitlistVerificationAttempts,
+  hashWaitlistVerificationCode,
+  isWaitlistVerificationExpired,
+  verifyWaitlistCode,
+} from "@/lib/waitlist/verification";
+import { WAITLIST_VERIFICATION } from "@/lib/waitlist/verification.constants";
+import { verifyTurnstileToken } from "@/lib/turnstile/verify";
 import { z } from "zod";
 
 const log = getServerLogger("settings.actions");
@@ -241,11 +256,79 @@ export async function updateNotificationsSettings(
   );
 }
 
-export async function joinWaitlist(input: {
+async function assertWaitlistOpen(): Promise<
+  { ok: true } | { ok: false; error: string }
+> {
+  const settings = await getPlatformSettings();
+  if (!settings.waitlistMode) {
+    return { ok: false, error: "La lista de espera no está activa." };
+  }
+  return { ok: true };
+}
+
+async function completeVerifiedWaitlistJoin(input: {
+  email: string;
+  name?: string;
+  phone?: string | null;
+}): Promise<JoinWaitlistResult> {
+  const email = input.email.toLowerCase();
+
+  try {
+    await prisma.waitlistEntry.upsert({
+      where: { email },
+      create: {
+        email,
+        name: input.name?.trim() || null,
+        phone: input.phone ?? null,
+        source: "waitlist-page",
+      },
+      update: {
+        name: input.name?.trim() || null,
+        phone: input.phone ?? null,
+      },
+    });
+  } catch (error) {
+    log.error({ error, email }, "Failed to join waitlist in database");
+    return { ok: false, error: "No se pudo registrar tu correo." };
+  }
+
+  const clerkSync = await syncEmailToClerkWaitlist(email);
+  if (!clerkSync.ok) {
+    log.warn(
+      { email, error: clerkSync.error },
+      "Waitlist saved in database; Clerk waitlist sync failed",
+    );
+  }
+
+  const resendSync = await addEmailToResendWaitlistAudience({
+    email,
+    name: input.name,
+  });
+  if (!resendSync.ok) {
+    log.warn(
+      { email, error: resendSync.error },
+      "Waitlist saved; Resend audience sync failed",
+    );
+  }
+
+  return { ok: true };
+}
+
+/** Step 1: validate signup data and email a verification code (Resend). */
+export async function requestWaitlistVerification(input: {
   email: string;
   name?: string;
   phone?: string;
-}): Promise<JoinWaitlistResult> {
+  turnstileToken?: string;
+}): Promise<RequestWaitlistVerificationResult> {
+  const gate = await assertWaitlistOpen();
+  if (!gate.ok) return gate;
+
+  const turnstile = await verifyTurnstileToken(input.turnstileToken);
+  if (!turnstile.ok) {
+    return { ok: false, error: turnstile.error };
+  }
+
   const parsed = joinWaitlistSchema.safeParse(input);
   if (!parsed.success) {
     return {
@@ -259,31 +342,161 @@ export async function joinWaitlist(input: {
     return { ok: false, error: phoneResult.error };
   }
 
-  const settings = await getPlatformSettings();
-  if (!settings.waitlistMode) {
-    return { ok: false, error: "La lista de espera no está activa." };
-  }
-
+  const email = parsed.data.email.toLowerCase();
+  const name = parsed.data.name?.trim() || null;
   const phone = phoneResult.e164 ?? null;
 
+  const existingMember = await prisma.waitlistEntry.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+
+  if (existingMember) {
+    return {
+      ok: false,
+      error: "Este correo ya está en la lista de espera.",
+    };
+  }
+
+  const code = generateWaitlistVerificationCode();
+  const codeHash = hashWaitlistVerificationCode(email, code);
+  const expiresAt = getWaitlistVerificationExpiry();
+
   try {
-    await prisma.waitlistEntry.upsert({
-      where: { email: parsed.data.email.toLowerCase() },
+    await prisma.waitlistVerification.upsert({
+      where: { email },
       create: {
-        email: parsed.data.email.toLowerCase(),
-        name: parsed.data.name?.trim() || null,
+        email,
+        codeHash,
+        name,
         phone,
-        source: "waitlist-page",
+        expiresAt,
+        attempts: 0,
       },
       update: {
-        name: parsed.data.name?.trim() || null,
+        codeHash,
+        name,
         phone,
+        expiresAt,
+        attempts: 0,
       },
     });
-
-    return { ok: true };
   } catch (error) {
-    log.error({ error }, "Failed to join waitlist");
-    return { ok: false, error: "No se pudo registrar tu correo." };
+    log.error({ error, email }, "Failed to store waitlist verification");
+    return { ok: false, error: "No se pudo iniciar la verificación." };
   }
+
+  try {
+    await sendWaitlistVerificationEmail({ to: email, code });
+  } catch (error) {
+    log.error({ error, email }, "Failed to send waitlist verification email");
+    await prisma.waitlistVerification.deleteMany({ where: { email } });
+    return {
+      ok: false,
+      error:
+        "No pudimos enviar el correo de verificación. Revisa que Resend esté configurado.",
+    };
+  }
+
+  return { ok: true };
+}
+
+/** Step 2: confirm OTP, then register in DB, Clerk and Resend audience. */
+export async function confirmWaitlistVerification(input: {
+  email: string;
+  code: string;
+}): Promise<ConfirmWaitlistVerificationResult> {
+  const gate = await assertWaitlistOpen();
+  if (!gate.ok) return gate;
+
+  const email = input.email.trim().toLowerCase();
+  const code = input.code.replace(/\D/g, "");
+
+  if (code.length !== WAITLIST_VERIFICATION.codeLength) {
+    return { ok: false, error: "El código debe tener 6 dígitos." };
+  }
+
+  const pending = await prisma.waitlistVerification.findUnique({
+    where: { email },
+  });
+
+  if (!pending) {
+    return {
+      ok: false,
+      error: "No hay una verificación pendiente. Solicita un código nuevo.",
+    };
+  }
+
+  if (isWaitlistVerificationExpired(pending.expiresAt)) {
+    await prisma.waitlistVerification.delete({ where: { email } });
+    return {
+      ok: false,
+      error: "El código expiró. Solicita uno nuevo.",
+    };
+  }
+
+  if (hasExceededWaitlistVerificationAttempts(pending.attempts)) {
+    await prisma.waitlistVerification.delete({ where: { email } });
+    return {
+      ok: false,
+      error: "Demasiados intentos. Solicita un código nuevo.",
+    };
+  }
+
+  const valid = verifyWaitlistCode(email, code, pending.codeHash);
+
+  if (!valid) {
+    const attempts = pending.attempts + 1;
+    if (attempts >= WAITLIST_VERIFICATION.maxAttempts) {
+      await prisma.waitlistVerification.delete({ where: { email } });
+      return {
+        ok: false,
+        error: "Demasiados intentos. Solicita un código nuevo.",
+      };
+    }
+
+    await prisma.waitlistVerification.update({
+      where: { email },
+      data: { attempts },
+    });
+
+    return { ok: false, error: "Código incorrecto." };
+  }
+
+  const joinResult = await completeVerifiedWaitlistJoin({
+    email,
+    name: pending.name ?? undefined,
+    phone: pending.phone,
+  });
+
+  if (!joinResult.ok) {
+    return joinResult;
+  }
+
+  await prisma.waitlistVerification
+    .delete({ where: { email } })
+    .catch((error: unknown) => {
+      log.warn(
+        { error, email },
+        "Waitlist joined but pending verification cleanup failed",
+      );
+    });
+
+  return { ok: true };
+}
+
+/** @deprecated Use requestWaitlistVerification + confirmWaitlistVerification */
+export async function joinWaitlist(input: {
+  email: string;
+  name?: string;
+  phone?: string;
+}): Promise<JoinWaitlistResult> {
+  const request = await requestWaitlistVerification(input);
+  if (!request.ok) return request;
+
+  return {
+    ok: false,
+    error:
+      "Debes verificar tu correo con el código enviado antes de unirte a la lista.",
+  };
 }

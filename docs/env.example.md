@@ -3,16 +3,16 @@
 This document explains all the variables in the `.env` file used by the **soyup.work** platform.
 The architecture is based on:
 
-* Next.js App Router
-* Prisma + PostgreSQL
-* Clerk
-* Stripe
-* Resend
-* Cloudflare R2
-* Mux
-* Inngest
+- Next.js App Router
+- Prisma + PostgreSQL
+- Clerk
+- Stripe
+- Resend
+- Cloudflare R2
+- Mux
+- Inngest
 
-The project aims to maintain complete ownership of the LMS and minimize unnecessary external dependencies.  
+The project aims to maintain complete ownership of the LMS and minimize unnecessary external dependencies.
 
 ---
 
@@ -57,11 +57,11 @@ NEXT_PUBLIC_APP_URL=https://soyupwork.nicotordev.com
 
 Used for:
 
-* redirects
-* callbacks
-* emails
-* webhooks
-* absolute URL generation
+- redirects
+- callbacks
+- emails
+- webhooks
+- absolute URL generation
 
 ---
 
@@ -104,11 +104,11 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=
 
 Clerk handles:
 
-* authentication
-* sessions
-* OAuth
-* email verification
-* social login
+- authentication
+- sessions
+- OAuth
+- email verification
+- social login
 
 The app does not store passwords.
 
@@ -181,11 +181,11 @@ STRIPE_CURRENCY=
 
 Stripe handles:
 
-* checkout
-* subscriptions
-* payments
-* invoices
-* refunds
+- checkout
+- subscriptions
+- payments
+- invoices
+- refunds
 
 The database only synchronizes IDs and statuses.
 
@@ -261,15 +261,25 @@ RESEND_API_KEY=
 
 EMAIL_FROM=
 EMAIL_SUPPORT=
+
+# Waitlist (verified signups only)
+RESEND_WAITLIST_SEGMENT_ID=
+WAITLIST_VERIFICATION_SECRET=
+
+# Cloudflare Turnstile (waitlist form)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
 ```
 
 Resend is used for:
 
-* transactional emails
-* onboarding
-* receipts
-* password/access recovery
-* LMS system emails
+- transactional emails
+- onboarding
+- receipts
+- password/access recovery
+- LMS system emails
+- waitlist email verification (OTP)
+- waitlist contact list (segment)
 
 ---
 
@@ -309,6 +319,77 @@ EMAIL_SUPPORT=support@soyup.work
 
 ---
 
+## Waitlist (verification + audience)
+
+Used when `waitlistMode` is enabled in platform settings (`/waitlist` page).
+
+Flow:
+
+1. User submits email → app sends a 6-digit code via Resend (`EMAIL_FROM`).
+2. User confirms the code → entry is saved in the database, synced to Clerk waitlist, and added to the Resend segment.
+
+### `RESEND_WAITLIST_SEGMENT_ID`
+
+Resend **Segment** ID for verified waitlist contacts (not the legacy Audience ID).
+
+Create the segment and print the ID:
+
+```bash
+bun run resend:waitlist-segment
+```
+
+Example:
+
+```env
+RESEND_WAITLIST_SEGMENT_ID=seg_xxxxxxxx
+```
+
+Optional: if unset, waitlist signups still work in the database and Clerk; contacts are not added to Resend.
+
+Requires `RESEND_API_KEY` and a verified sending domain for `EMAIL_FROM`.
+
+### `WAITLIST_VERIFICATION_SECRET`
+
+Secret for HMAC hashing of waitlist OTP codes stored in `WaitlistVerification`.
+
+Example (generate once):
+
+```bash
+openssl rand -hex 32
+```
+
+```env
+WAITLIST_VERIFICATION_SECRET=your_random_64_char_hex_string
+```
+
+If unset, the app falls back to `CLERK_SECRET_KEY` (convenient for local dev; prefer a dedicated secret in production).
+
+---
+
+## Cloudflare Turnstile
+
+Bot protection on the public waitlist form (`/waitlist`). The server validates the token before sending verification emails.
+
+### `NEXT_PUBLIC_TURNSTILE_SITE_KEY`
+
+Public site key from [Cloudflare Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile).
+
+```env
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAAA...
+```
+
+### `TURNSTILE_SECRET_KEY`
+
+Secret key for server-side `siteverify` (never expose to the client).
+
+```env
+TURNSTILE_SECRET_KEY=0x4AAAAAAA...
+```
+
+In **production**, both keys are required when the waitlist is enabled. In **development**, if they are missing, verification is skipped (logged as a warning).
+
+---
+
 # 6. CLOUDFLARE R2
 
 ```env
@@ -327,11 +408,11 @@ R2_REGION=auto
 
 R2 stores:
 
-* PDFs
-* templates
-* private assets
-* thumbnails
-* downloadable resources
+- PDFs
+- templates
+- private assets
+- thumbnails
+- downloadable resources
 
 The recommendation is to use a private bucket + signed URLs.
 
@@ -411,11 +492,11 @@ MUX_WEBHOOK_SECRET=
 
 Mux handles:
 
-* uploads
-* encoding
-* HLS streaming
-* protected playback
-* video processing
+- uploads
+- encoding
+- HLS streaming
+- protected playback
+- video processing
 
 ---
 
@@ -513,12 +594,12 @@ INNGEST_SIGNING_KEY=
 
 Inngest handles:
 
-* background jobs
-* workflows
-* retries
-* cron jobs
-* async emails
-* analytics processing
+- background jobs
+- workflows
+- retries
+- cron jobs
+- async emails
+- analytics processing
 
 ---
 
@@ -613,11 +694,11 @@ REDIS_URL=
 
 Redis is optional and can be used for:
 
-* distributed rate limiting
-* caching
-* locks
-* queues
-* temporary sessions
+- distributed rate limiting
+- caching
+- locks
+- queues
+- temporary sessions
 
 Local example:
 
@@ -637,21 +718,21 @@ REDIS_URL=redis://default:password@host:6379
 
 For the MVP, it is recommended to use:
 
-* PostgreSQL as the source of truth
-* Stripe as the payment provider
-* Clerk as the auth provider
-* R2 for assets
-* Mux for video
-* Resend for emails
-* Simple internal analytics
-* Simple internal logging
+- PostgreSQL as the source of truth
+- Stripe as the payment provider
+- Clerk as the auth provider
+- R2 for assets
+- Mux for video
+- Resend for emails
+- Simple internal analytics
+- Simple internal logging
 
 Avoid:
 
-* microservices
-* Kafka
-* complex observability
-* analytical warehouses
-* full event sourcing
+- microservices
+- Kafka
+- complex observability
+- analytical warehouses
+- full event sourcing
 
 The priority must be shipping fast, driving sales, and validating educational content.

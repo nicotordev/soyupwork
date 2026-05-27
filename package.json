@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "sounds:fetch": "bun scripts/fetch-ui-sounds.ts",
     "emojis:flags": "bun scripts/download-apple-country-flags.ts",
+    "resend:waitlist-segment": "bun scripts/setup-resend-waitlist-segment.ts",
     "tunnel": "cloudflared tunnel run soyupwork-local"
   },
   "dependencies": {

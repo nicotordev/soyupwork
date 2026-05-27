@@ -42,4 +42,12 @@ export type UpdateGeneralSettingsResult = UpdateSettingsResult;
 
 export type JoinWaitlistResult = { ok: true } | { ok: false; error: string };
 
+export type RequestWaitlistVerificationResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+export type ConfirmWaitlistVerificationResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
 export type PlatformGateAction = "none" | "maintenance" | "waitlist";

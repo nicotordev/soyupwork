@@ -502,3 +502,17 @@ model WaitlistEntry {
 
   @@index([createdAt])
 }
+
+/// Pending waitlist signup until email OTP is verified (Resend).
+model WaitlistVerification {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  codeHash  String
+  name      String?
+  phone     String?
+  attempts  Int      @default(0)
+  expiresAt DateTime @db.Timestamp(6)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+
+  @@index([expiresAt])
+}
