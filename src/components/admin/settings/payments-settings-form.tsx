@@ -10,7 +10,7 @@ import { adminInputClass } from "@/lib/admin/styles";
 import type { PaymentsSettingsFormValues } from "@/types/platform-settings.types";
 import { IconBrandStripe, IconReceipt } from "@tabler/icons-react";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type PaymentsSettingsFormProps = {
   initialValues: PaymentsSettingsFormValues;

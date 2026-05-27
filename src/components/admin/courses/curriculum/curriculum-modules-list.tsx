@@ -14,7 +14,7 @@ import type { AdminCourseCurriculumData } from "@/types/admin-curriculum.types";
 import { IconFolderPlus, IconLoader, IconPlus } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type CurriculumModulesListProps = {
   data: AdminCourseCurriculumData;

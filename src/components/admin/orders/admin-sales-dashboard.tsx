@@ -1,10 +1,10 @@
 "use client";
 
+import { AdminCardGrid } from "@/components/admin/listing/admin-card-grid";
 import {
   AdminFilterField,
   adminFilterSelectTriggerClass,
 } from "@/components/admin/listing/admin-filter-field";
-import { AdminCardGrid } from "@/components/admin/listing/admin-card-grid";
 import { AdminListingPanel } from "@/components/admin/listing/admin-listing-panel";
 import { AdminTableActions } from "@/components/admin/listing/admin-table-actions";
 import { AdminToolbar } from "@/components/admin/listing/admin-toolbar";
@@ -13,6 +13,7 @@ import { AdminDashboardPageHeader } from "@/components/common/admin-dashboard-pa
 import { ADMIN_LISTING_VIEW } from "@/constants/admin-listing.constants";
 import { useAdminListingParams } from "@/hooks/use-admin-listing-params";
 import { adminPanelClass, adminPanelTitleClass } from "@/lib/admin/styles";
+import { playUiSound } from "@/lib/ui-sounds/player";
 import { cn } from "@/lib/utils";
 import type { AdminActiveFilter } from "@/types/admin-listing.types";
 import { AnimatePresence, motion } from "framer-motion";
@@ -135,12 +136,14 @@ export function AdminSalesDashboard() {
     .reduce((acc, s) => acc + s.amount, 0);
 
   const handleRefund = (orderId: string) => {
+    playUiSound("open");
     setRefundingId(orderId);
     setTimeout(() => {
       setSales((prev) =>
         prev.map((s) => (s.id === orderId ? { ...s, status: "REFUNDED" } : s)),
       );
       setRefundingId(null);
+      playUiSound("success");
     }, 1500);
   };
 

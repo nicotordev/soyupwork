@@ -5,7 +5,7 @@ import { AdminDashboardPageHeader } from "@/components/common/admin-dashboard-pa
 import { Button } from "@/components/ui/button";
 import { ADMIN_COURSES_PAGE } from "@/constants/courses.constants";
 import { adminBrutalButtonClass } from "@/lib/admin/styles";
-import { IconPlus, IconSchool } from "@tabler/icons-react";
+import { Plus, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -15,7 +15,7 @@ export function CoursesPageHeader() {
   return (
     <AdminDashboardPageHeader
       eyebrow={ADMIN_COURSES_PAGE.eyebrow}
-      icon={<IconSchool className="size-4 text-primary" stroke={2.5} />}
+      icon={<GraduationCap className="size-4 text-primary" />}
       title={ADMIN_COURSES_PAGE.title}
       description={ADMIN_COURSES_PAGE.description}
       actions={
@@ -27,7 +27,7 @@ export function CoursesPageHeader() {
             onClick={() => setIsOpen(true)}
             className={adminBrutalButtonClass}
           >
-            <IconPlus stroke={2.25} />
+            <Plus />
             Nuevo curso
           </Button>
         </div>

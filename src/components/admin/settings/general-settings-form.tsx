@@ -23,7 +23,7 @@ import {
   IconWorld,
 } from "@tabler/icons-react";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type GeneralSettingsFormProps = {
   initialValues: GeneralSettingsFormValues;

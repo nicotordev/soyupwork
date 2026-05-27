@@ -10,7 +10,7 @@ import { adminInputClass } from "@/lib/admin/styles";
 import type { EmailSettingsFormValues } from "@/types/platform-settings.types";
 import { IconMail, IconSend } from "@tabler/icons-react";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type EmailSettingsFormProps = {
   initialValues: EmailSettingsFormValues;

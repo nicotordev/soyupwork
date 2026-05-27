@@ -23,7 +23,7 @@ import {
 } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type CurriculumModuleCardProps = {
   module: AdminCurriculumModule;

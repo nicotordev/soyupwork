@@ -29,7 +29,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type CourseCreationDialogProps = {
   isOpen: boolean;

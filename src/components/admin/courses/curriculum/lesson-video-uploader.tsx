@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { IconLoader, IconUpload } from "@tabler/icons-react";
 import { useRef, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import { LessonMuxPreview } from "@/components/admin/courses/curriculum/lesson-mux-preview";
 import { adminBrutalButtonClass } from "@/lib/admin/styles";

@@ -25,17 +25,17 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import {
-  IconCertificate,
-  IconExternalLink,
-  IconList,
-  IconPencil,
-  IconStar,
-  IconTrash,
-} from "@tabler/icons-react";
+  Award,
+  ExternalLink,
+  List,
+  Pencil,
+  Star,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import { CourseEditDialog } from "@/components/admin/courses/course-edit-dialog";
 import { CourseThumbnailCell } from "@/components/admin/courses/course-thumbnail-cell";
@@ -138,16 +138,16 @@ export function CoursesTable({
                     {course.title}
                   </p>
                   {course.isFeatured ? (
-                    <IconStar
+                    <Star
                       className="size-3.5 shrink-0 text-primary"
-                      stroke={2.5}
+                     
                       aria-label="Destacado"
                     />
                   ) : null}
                   {course.offersCertificate ? (
-                    <IconCertificate
+                    <Award
                       className="size-3.5 shrink-0 text-primary"
-                      stroke={2.5}
+                     
                       aria-label="Con certificado"
                     />
                   ) : null}
@@ -268,7 +268,7 @@ export function CoursesTable({
                         rel="noopener noreferrer"
                         aria-label="Ver en catálogo"
                       >
-                        <IconExternalLink stroke={2.25} />
+                        <ExternalLink />
                       </Link>
                     </Button>
                   </TooltipTrigger>
@@ -283,7 +283,7 @@ export function CoursesTable({
                       disabled
                       aria-label="Catálogo"
                     >
-                      <IconExternalLink stroke={2.25} />
+                      <ExternalLink />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Catálogo</TooltipContent>
@@ -296,7 +296,7 @@ export function CoursesTable({
                       href={`/admin/courses/${course.id}/curriculum`}
                       aria-label={`Contenido de ${course.title}`}
                     >
-                      <IconList stroke={2.25} />
+                      <List />
                     </Link>
                   </Button>
                 </TooltipTrigger>
@@ -311,7 +311,7 @@ export function CoursesTable({
                     onClick={() => setEditingCourseId(course.id)}
                     aria-label={`Editar ${course.title}`}
                   >
-                    <IconPencil stroke={2.25} />
+                    <Pencil />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Editar</TooltipContent>
@@ -327,7 +327,7 @@ export function CoursesTable({
                     aria-label={`Eliminar ${course.title}`}
                     className="text-destructive hover:bg-destructive/10"
                   >
-                    <IconTrash stroke={2.25} />
+                    <Trash2 />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Eliminar</TooltipContent>

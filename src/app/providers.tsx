@@ -1,8 +1,10 @@
+import { UiSoundsProvider } from "@/components/providers/ui-sounds-provider";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ClerkProvider } from "@clerk/nextjs";
 import { clerkProviderAppearance } from "@/lib/clerk/appearance";
 import { clerkLocalization } from "@/lib/clerk/localization";
 import QueryClientProvider from "@/providers/query-client-provider";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +13,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       localization={clerkLocalization}
     >
       <TooltipProvider>
-        <QueryClientProvider>{children}</QueryClientProvider>
+        <UiSoundsProvider>
+          <QueryClientProvider>{children}</QueryClientProvider>
+          <Toaster />
+        </UiSoundsProvider>
       </TooltipProvider>
     </ClerkProvider>
   );

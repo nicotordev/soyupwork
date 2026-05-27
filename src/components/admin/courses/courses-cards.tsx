@@ -20,17 +20,17 @@ import { getCategoryPath } from "@/lib/catalog/category-paths";
 import { cn } from "@/lib/utils";
 import type { AdminCourseRow } from "@/types/admin-course.types";
 import {
-  IconCertificate,
-  IconExternalLink,
-  IconList,
-  IconPencil,
-  IconStar,
-  IconTrash,
-} from "@tabler/icons-react";
+  Award,
+  ExternalLink,
+  List,
+  Pencil,
+  Star,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import { CourseEditDialog } from "@/components/admin/courses/course-edit-dialog";
 import { CourseThumbnailCell } from "@/components/admin/courses/course-thumbnail-cell";
@@ -137,16 +137,16 @@ export function CoursesCards({
                       {course.title}
                     </h3>
                     {course.isFeatured ? (
-                      <IconStar
+                      <Star
                         className="size-3.5 shrink-0 text-primary animate-pulse"
-                        stroke={2.5}
+                       
                         aria-label="Destacado"
                       />
                     ) : null}
                     {course.offersCertificate ? (
-                      <IconCertificate
+                      <Award
                         className="size-3.5 shrink-0 text-primary"
-                        stroke={2.5}
+                       
                         aria-label="Con certificado"
                       />
                     ) : null}
@@ -221,7 +221,7 @@ export function CoursesCards({
                           rel="noopener noreferrer"
                           aria-label="Ver en catálogo"
                         >
-                          <IconExternalLink stroke={2.25} className="size-4" />
+                          <ExternalLink className="size-4" />
                         </Link>
                       </Button>
                     </TooltipTrigger>
@@ -237,7 +237,7 @@ export function CoursesCards({
                         aria-label="Catálogo"
                         className="h-8 w-8 p-0"
                       >
-                        <IconExternalLink stroke={2.25} className="size-4" />
+                        <ExternalLink className="size-4" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>Catálogo</TooltipContent>
@@ -250,7 +250,7 @@ export function CoursesCards({
                         href={`/admin/courses/${course.id}/curriculum`}
                         aria-label={`Contenido de ${course.title}`}
                       >
-                        <IconList stroke={2.25} className="size-4" />
+                        <List className="size-4" />
                       </Link>
                     </Button>
                   </TooltipTrigger>
@@ -266,7 +266,7 @@ export function CoursesCards({
                       aria-label={`Editar ${course.title}`}
                       className="h-8 w-8 p-0"
                     >
-                      <IconPencil stroke={2.25} className="size-4" />
+                      <Pencil className="size-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Editar</TooltipContent>
@@ -282,7 +282,7 @@ export function CoursesCards({
                       aria-label={`Eliminar ${course.title}`}
                       className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
                     >
-                      <IconTrash stroke={2.25} className="size-4" />
+                      <Trash2 className="size-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Eliminar</TooltipContent>

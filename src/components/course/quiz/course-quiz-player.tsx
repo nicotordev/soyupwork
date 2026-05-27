@@ -14,7 +14,7 @@ import type { CoursePageMode } from "@/types/course-page.types";
 import type { QuizAnswerInput, QuizPlayData } from "@/types/quiz-play.types";
 import { AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type GamePhase = "loading" | "intro" | "question" | "feedback" | "results";
 

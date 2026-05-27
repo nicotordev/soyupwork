@@ -1,4 +1,3 @@
-import { UserRole } from "@/generated/prisma/client";
 import { USER_ROLES } from "@/constants/users.constants";
 import { z } from "zod";
 
@@ -27,7 +26,7 @@ export const createAdminUserSchema = z.object({
 
 export const updateUserRoleSchema = z.object({
   userId: z.string().uuid(),
-  role: z.nativeEnum(UserRole),
+  role: z.enum(USER_ROLES),
 });
 
 export const setUserActiveSchema = z.object({

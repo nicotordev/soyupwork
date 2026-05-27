@@ -26,7 +26,7 @@ import { createAdminUserSchema } from "@/schemas/user";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import {
   Select,

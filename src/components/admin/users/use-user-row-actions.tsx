@@ -1,13 +1,18 @@
 "use client";
 
 import { setUserActive, updateUserRole } from "@/app/actions/users.actions";
-import type { AdminTableActionItem } from "@/types/admin-listing.types";
 import { USER_ROLES, type AppUserRole } from "@/constants/users.constants";
+import {
+  toastCopyError,
+  toastCopySuccess,
+  toastCopyUnavailable,
+} from "@/lib/toast/app-toast";
+import type { AdminTableActionItem } from "@/types/admin-listing.types";
 import type { AdminUserRow } from "@/types/admin-user.types";
 import { UserCheck, UserX } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import {
   AlertDialog,
@@ -35,14 +40,14 @@ export function useUserRowActions(currentAdminUserId: string) {
 
   const handleCopyEmail = async (email: string | null) => {
     if (!email) {
-      toast.error("Este usuario no tiene correo registrado.");
+      toastCopyUnavailable("Este usuario no tiene correo registrado.");
       return;
     }
     try {
       await navigator.clipboard.writeText(email);
-      toast.success("Correo copiado al portapapeles");
+      toastCopySuccess(email, "Correo copiado");
     } catch {
-      toast.error("No se pudo copiar el correo.");
+      toastCopyError();
     }
   };
 

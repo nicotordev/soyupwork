@@ -25,7 +25,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type CategoryCreationDialogProps = {
   isOpen: boolean;

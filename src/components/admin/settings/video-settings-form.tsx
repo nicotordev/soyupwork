@@ -16,7 +16,7 @@ import { adminInputClass } from "@/lib/admin/styles";
 import type { VideoSettingsFormValues } from "@/types/platform-settings.types";
 import { IconMovie, IconPlayerPlay } from "@tabler/icons-react";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type VideoSettingsFormProps = {
   initialValues: VideoSettingsFormValues;

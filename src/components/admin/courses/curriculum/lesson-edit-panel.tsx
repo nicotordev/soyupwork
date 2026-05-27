@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils";
 import type { AdminCurriculumLesson } from "@/types/admin-curriculum.types";
 import { IconDeviceFloppy, IconLoader } from "@tabler/icons-react";
 import { useRef, useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type LessonEditPanelProps = {
   lesson: AdminCurriculumLesson;

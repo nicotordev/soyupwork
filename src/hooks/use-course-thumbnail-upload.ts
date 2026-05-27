@@ -5,7 +5,7 @@ import {
   setCourseThumbnail,
 } from "@/app/actions/courses.actions";
 import { useCallback, useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export const COURSE_THUMBNAIL_ACCEPTED_TYPES = [
   "image/jpeg",

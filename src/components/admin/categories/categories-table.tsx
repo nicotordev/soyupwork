@@ -9,7 +9,7 @@ import type { AdminCategoryRow } from "@/types/admin-category.types";
 import { ExternalLink, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import {
   AlertDialog,

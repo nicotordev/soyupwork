@@ -157,3 +157,35 @@
     @apply font-sans;
   }
 }
+
+@layer components {
+  [data-sonner-toaster] {
+    --width: 22rem;
+    font-family: var(--font-sans);
+  }
+
+  [data-sonner-toast] {
+    padding: 0.75rem 2rem 0.75rem 0.75rem;
+  }
+
+  [data-sonner-toast] [data-icon] {
+    display: flex;
+    align-items: center;
+  }
+
+  [data-sonner-toast] [data-content] {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  [data-sonner-toast][data-styled="true"] [data-title] {
+    line-height: 1.2;
+  }
+
+  [data-sonner-toast][data-styled="true"] [data-description] {
+    color: color-mix(in oklch, var(--foreground) 88%, transparent);
+  }
+}
