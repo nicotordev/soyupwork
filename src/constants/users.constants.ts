@@ -7,6 +7,11 @@ export const ADMIN_USERS_PAGE = {
     "Se creará la cuenta en Clerk y se sincronizará en la base de datos.",
   createUserSuccess: (name: string) => `${name} fue creado correctamente.`,
   createUserError: "No se pudo crear el usuario.",
+  editUserTitle: "Editar miembro",
+  editUserDescription:
+    "Actualizá nombre y apellido. Los cambios se sincronizan en Clerk y base de datos.",
+  editUserSuccess: (name: string) => `${name} fue actualizado correctamente.`,
+  editUserError: "No se pudo actualizar el usuario.",
 } as const;
 
 export const ADMIN_USERS_FILTER_ALL = "ALL" as const;

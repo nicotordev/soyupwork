@@ -7,7 +7,7 @@ import {
   ADMIN_USERS_STATUS_FILTER,
   type AdminUsersStatusFilter,
 } from "@/constants/users.constants";
-import { UserRole, type Prisma } from "@/generated/prisma/client";
+import { UserRole, Prisma } from "@/generated/prisma/client";
 import { displayName } from "@/lib/user/display-name";
 import type {
   AdminUserRow,
@@ -15,6 +15,24 @@ import type {
 } from "@/types/admin-user.types";
 
 export const adminUserListSelect = {
+  id: true,
+  email: true,
+  firstName: true,
+  lastName: true,
+  imageUrl: true,
+  bio: true,
+  role: true,
+  deletedAt: true,
+  createdAt: true,
+  _count: {
+    select: {
+      enrollments: true,
+      instructedCourses: true,
+    },
+  },
+} satisfies Prisma.UserSelect;
+
+export const adminUserListSelectLegacy = {
   id: true,
   email: true,
   firstName: true,
@@ -33,6 +51,10 @@ export const adminUserListSelect = {
 
 export type DbAdminUserListItem = Prisma.UserGetPayload<{
   select: typeof adminUserListSelect;
+}>;
+
+export type DbAdminUserListItemLegacy = Prisma.UserGetPayload<{
+  select: typeof adminUserListSelectLegacy;
 }>;
 
 function firstParam(value: string | string[] | undefined): string | undefined {
@@ -121,13 +143,16 @@ export function buildUsersWhere(
 }
 
 export function mapDbUserToAdminUserRow(
-  user: DbAdminUserListItem,
+  user: DbAdminUserListItem | DbAdminUserListItemLegacy,
 ): AdminUserRow {
   return {
     id: user.id,
     displayName: displayName(user),
     email: user.email,
+    firstName: user.firstName,
+    lastName: user.lastName,
     imageUrl: user.imageUrl,
+    bio: "bio" in user ? user.bio : null,
     role: user.role,
     isActive: user.deletedAt === null,
     enrollmentCount: user._count.enrollments,

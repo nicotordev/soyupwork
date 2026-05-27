@@ -57,6 +57,7 @@ export function UsersTable({ users, currentAdminUserId }: UsersTableProps) {
     isSelf,
     handleCopyEmail,
     handleRoleChange,
+    getEditAction,
     getActiveAction,
     dialogs,
   } = useUserRowActions(currentAdminUserId);
@@ -192,6 +193,7 @@ export function UsersTable({ users, currentAdminUserId }: UsersTableProps) {
                         onClick: () => handleCopyEmail(user.email),
                         disabled: !user.email,
                       },
+                      getEditAction(user),
                       getActiveAction(user),
                     ]}
                   />

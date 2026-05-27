@@ -50,6 +50,7 @@ export function UsersCards({ users, currentAdminUserId }: UsersCardsProps) {
     isSelf,
     handleCopyEmail,
     handleRoleChange,
+    getEditAction,
     getActiveAction,
     dialogs,
   } = useUserRowActions(currentAdminUserId);
@@ -175,6 +176,7 @@ export function UsersCards({ users, currentAdminUserId }: UsersCardsProps) {
                     onClick: () => handleCopyEmail(user.email),
                     disabled: !user.email,
                   },
+                  getEditAction(user),
                   getActiveAction(user),
                 ]}
               />

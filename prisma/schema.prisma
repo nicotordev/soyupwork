@@ -70,6 +70,7 @@ model User {
   firstName String?
   lastName  String?
   imageUrl  String?
+  bio       String?
   role      UserRole @default(STUDENT)
 
   stripeCustomerId String?   @unique

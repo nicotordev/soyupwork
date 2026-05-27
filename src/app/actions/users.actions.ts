@@ -5,6 +5,7 @@ import { isClerkAPIResponseError } from "@clerk/shared/error";
 import { UserRole } from "@/generated/prisma/client";
 import {
   adminUserListSelect,
+  adminUserListSelectLegacy,
   buildUsersWhere,
   mapDbUserToAdminUserRow,
   parseAdminUsersParams,
@@ -18,6 +19,7 @@ import { getPrimaryEmail } from "@/lib/webhooks/shared";
 import {
   createAdminUserSchema,
   setUserActiveSchema,
+  updateAdminUserProfileSchema,
   updateUserRoleSchema,
 } from "@/schemas/user";
 import type {
@@ -25,6 +27,7 @@ import type {
   AdminUsersStats,
   CreateAdminUserResult,
   SetUserActiveResult,
+  UpdateAdminUserProfileResult,
   UpdateUserRoleResult,
 } from "@/types/admin-user.types";
 import { revalidatePath } from "next/cache";
@@ -79,16 +82,41 @@ export async function getAdminUsersPageData(
     const page = Math.min(Math.max(1, filters.page), totalPages);
     const skip = (page - 1) * filters.pageSize;
 
-    const [users, stats] = await Promise.all([
-      prisma.user.findMany({
+    const statsPromise = getAdminUsersStats();
+    let users;
+    try {
+      users = await prisma.user.findMany({
         where,
         orderBy: { createdAt: "desc" },
         skip,
         take: filters.pageSize,
         select: adminUserListSelect,
-      }),
-      getAdminUsersStats(),
-    ]);
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      const isBioSelectMismatch =
+        error instanceof Error &&
+        message.includes(
+          "Unknown field `bio` for select statement on model `User`",
+        );
+
+      if (!isBioSelectMismatch) throw error;
+
+      log.warn(
+        { error: serializeError(error) },
+        "Falling back to legacy user select without bio",
+      );
+
+      users = await prisma.user.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: filters.pageSize,
+        select: adminUserListSelectLegacy,
+      });
+    }
+
+    const stats = await statsPromise;
 
     log.info(
       {
@@ -283,6 +311,91 @@ export async function updateUserRole(
   } catch (error) {
     log.error(serializeError(error), "Failed to update user role");
     return { ok: false, error: "No se pudo actualizar el rol." };
+  }
+}
+
+export async function updateAdminUserProfile(
+  input: unknown,
+): Promise<UpdateAdminUserProfileResult> {
+  try {
+    const admin = await requireAdmin();
+
+    const parsed = updateAdminUserProfileSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+      };
+    }
+
+    const { userId, firstName, lastName, imageUrl, bio, role, active } =
+      parsed.data;
+    const existing = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        clerkId: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        deletedAt: true,
+      },
+    });
+
+    if (!existing) {
+      return { ok: false, error: "El usuario no existe." };
+    }
+
+    if (userId === admin.id && role !== existing.role) {
+      return { ok: false, error: "No puedes cambiar tu propio rol." };
+    }
+
+    if (userId === admin.id && !active) {
+      return { ok: false, error: "No puedes desactivar tu propia cuenta." };
+    }
+
+    const wasActive = existing.deletedAt === null;
+    const willBeActiveAdmin = active && role === UserRole.ADMIN;
+    if (
+      wasActive &&
+      existing.role === UserRole.ADMIN &&
+      !willBeActiveAdmin &&
+      (await countActiveAdmins(userId)) === 0
+    ) {
+      return {
+        ok: false,
+        error: "Debe quedar al menos un administrador activo.",
+      };
+    }
+
+    const client = await clerkClient();
+    await client.users.updateUser(existing.clerkId, {
+      firstName,
+      lastName,
+    });
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        firstName,
+        lastName,
+        imageUrl,
+        bio,
+        role,
+        deletedAt: active ? null : (existing.deletedAt ?? new Date()),
+      },
+      select: { firstName: true, lastName: true, email: true },
+    });
+
+    revalidatePath("/admin/users");
+    const name = displayName(updatedUser);
+
+    log.info({ userId }, "Admin updated user profile");
+    return { ok: true, displayName: name };
+  } catch (error) {
+    log.error(serializeError(error), "Failed to update admin user profile");
+    return { ok: false, error: clerkErrorMessage(error) };
   }
 }
 

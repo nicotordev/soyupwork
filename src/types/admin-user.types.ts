@@ -8,7 +8,10 @@ export type AdminUserRow = {
   id: string;
   displayName: string;
   email: string | null;
+  firstName: string | null;
+  lastName: string | null;
   imageUrl: string | null;
+  bio: string | null;
   role: AppUserRole;
   isActive: boolean;
   enrollmentCount: number;
@@ -47,6 +50,10 @@ export type AdminUsersPageData = {
 };
 
 export type UpdateUserRoleResult = { ok: true } | { ok: false; error: string };
+
+export type UpdateAdminUserProfileResult =
+  | { ok: true; displayName: string }
+  | { ok: false; error: string };
 
 export type SetUserActiveResult = { ok: true } | { ok: false; error: string };
 

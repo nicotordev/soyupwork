@@ -1,6 +1,7 @@
 "use client";
 
 import { setUserActive, updateUserRole } from "@/app/actions/users.actions";
+import { UserEditDialog } from "@/components/admin/users/user-edit-dialog";
 import { USER_ROLES, type AppUserRole } from "@/constants/users.constants";
 import {
   toastCopyError,
@@ -9,7 +10,7 @@ import {
 } from "@/lib/toast/app-toast";
 import type { AdminTableActionItem } from "@/types/admin-listing.types";
 import type { AdminUserRow } from "@/types/admin-user.types";
-import { UserCheck, UserX } from "lucide-react";
+import { Pencil, UserCheck, UserX } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "@/lib/toast";
@@ -35,6 +36,9 @@ export function useUserRowActions(currentAdminUserId: string) {
   const [pendingActiveUser, setPendingActiveUser] =
     useState<AdminUserRow | null>(null);
   const [pendingUser, setPendingUser] = useState<AdminUserRow | null>(null);
+  const [pendingEditUser, setPendingEditUser] = useState<AdminUserRow | null>(
+    null,
+  );
 
   const isSelf = (userId: string) => userId === currentAdminUserId;
 
@@ -128,6 +132,14 @@ export function useUserRowActions(currentAdminUserId: string) {
     destructive: user.isActive,
   });
 
+  const getEditAction = (user: AdminUserRow): AdminTableActionItem => ({
+    id: "edit",
+    label: `Editar ${user.displayName}`,
+    icon: <Pencil className="size-4" aria-hidden />,
+    onClick: () => setPendingEditUser(user),
+    disabled: isPending,
+  });
+
   const dialogs = (
     <>
       <AlertDialog
@@ -199,6 +211,13 @@ export function useUserRowActions(currentAdminUserId: string) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <UserEditDialog
+        user={pendingEditUser}
+        onOpenChange={(open) => {
+          if (!open) setPendingEditUser(null);
+        }}
+      />
     </>
   );
 
@@ -208,6 +227,7 @@ export function useUserRowActions(currentAdminUserId: string) {
     handleCopyEmail,
     handleRoleChange,
     handleActiveToggle,
+    getEditAction,
     getActiveAction,
     dialogs,
     USER_ROLES,

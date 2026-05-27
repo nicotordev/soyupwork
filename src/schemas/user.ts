@@ -29,6 +29,32 @@ export const updateUserRoleSchema = z.object({
   role: z.enum(USER_ROLES),
 });
 
+export const updateAdminUserProfileSchema = z.object({
+  userId: z.string().uuid(),
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "El nombre es obligatorio.")
+    .max(80, "El nombre es demasiado largo."),
+  lastName: z
+    .string()
+    .trim()
+    .min(1, "El apellido es obligatorio.")
+    .max(80, "El apellido es demasiado largo."),
+  imageUrl: z.preprocess((value) => {
+    if (typeof value !== "string") return value;
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : null;
+  }, z.string().url("Ingresá una URL de imagen válida.").max(500, "La URL de imagen es demasiado larga.").nullable()),
+  bio: z.preprocess((value) => {
+    if (typeof value !== "string") return value;
+    const normalized = value.trim();
+    return normalized.length > 0 ? normalized : null;
+  }, z.string().max(300, "La biografía no puede superar 300 caracteres.").nullable()),
+  role: z.enum(USER_ROLES),
+  active: z.boolean(),
+});
+
 export const setUserActiveSchema = z.object({
   userId: z.string().uuid(),
   active: z.boolean(),
@@ -36,4 +62,7 @@ export const setUserActiveSchema = z.object({
 
 export type CreateAdminUserInput = z.infer<typeof createAdminUserSchema>;
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>;
+export type UpdateAdminUserProfileInput = z.infer<
+  typeof updateAdminUserProfileSchema
+>;
 export type SetUserActiveInput = z.infer<typeof setUserActiveSchema>;

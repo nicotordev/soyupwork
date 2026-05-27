@@ -1,15 +1,13 @@
 "use client";
 
 import { ADMIN_BASE_PATH } from "@/constants/dashboard.constants";
-import {
-  adminBrutalButtonClass,
-  adminInputClass,
-} from "@/lib/admin/styles";
+import { adminBrutalButtonClass, adminInputClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { UserButton } from "@clerk/nextjs";
 import { IconBell, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import {
   Breadcrumb,
@@ -54,6 +52,11 @@ function getBreadcrumbLabel(pathname: string): string {
 export function AdminHeader() {
   const pathname = usePathname();
   const pageLabel = getBreadcrumbLabel(pathname);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b-2 border-foreground bg-background px-4">
@@ -61,7 +64,10 @@ export function AdminHeader() {
         className={cn(adminBrutalButtonClass, "size-8 shrink-0")}
       />
 
-      <Separator orientation="vertical" className="hidden h-full w-px sm:block" />
+      <Separator
+        orientation="vertical"
+        className="hidden h-full w-px sm:block"
+      />
 
       <Breadcrumb className="hidden min-w-0 sm:block">
         <BreadcrumbList>
@@ -112,7 +118,14 @@ export function AdminHeader() {
           adminBrutalButtonClass,
         )}
       >
-        <UserButton />
+        {isMounted ? (
+          <UserButton />
+        ) : (
+          <div
+            className="size-5 animate-pulse rounded-full bg-foreground/20"
+            aria-hidden
+          />
+        )}
       </div>
     </header>
   );
