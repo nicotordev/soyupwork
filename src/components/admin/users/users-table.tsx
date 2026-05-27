@@ -1,34 +1,16 @@
 "use client";
 
-import { setUserActive, updateUserRole } from "@/app/actions/users.actions";
+import { AdminListingPanel } from "@/components/admin/listing/admin-listing-panel";
+import { AdminTableActions } from "@/components/admin/listing/admin-table-actions";
+import { useUserRowActions } from "@/components/admin/users/use-user-row-actions";
 import { USER_ROLES, type AppUserRole } from "@/constants/users.constants";
 import { formatDashboardDate } from "@/lib/admin/formatters";
-import {
-  adminBrutalButtonClass,
-  adminPanelClass,
-  adminPanelHeaderClass,
-  adminPanelTitleClass,
-} from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import type { AdminUserRow } from "@/types/admin-user.types";
-import { IconCopy, IconMail, IconShield } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-import { toast } from "sonner";
+import { Copy, Mail, Shield } from "lucide-react";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -44,7 +26,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useState } from "react";
 
 const ROLE_LABELS: Record<AppUserRole, string> = {
   STUDENT: "Estudiante",
@@ -71,107 +52,21 @@ type UsersTableProps = {
 };
 
 export function UsersTable({ users, currentAdminUserId }: UsersTableProps) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [pendingRoleUserId, setPendingRoleUserId] = useState<string | null>(
-    null,
-  );
-  const [pendingRole, setPendingRole] = useState<AppUserRole | null>(null);
-  const [pendingActiveUser, setPendingActiveUser] =
-    useState<AdminUserRow | null>(null);
-
-  const isSelf = (userId: string) => userId === currentAdminUserId;
-
-  const handleCopyEmail = async (email: string | null) => {
-    if (!email) {
-      toast.error("Este usuario no tiene correo registrado.");
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(email);
-      toast.success("Correo copiado al portapapeles");
-    } catch {
-      toast.error("No se pudo copiar el correo.");
-    }
-  };
-
-  const handleRoleChange = (user: AdminUserRow, nextRole: AppUserRole) => {
-    if (nextRole === user.role) return;
-    if (isSelf(user.id)) {
-      toast.error("No puedes cambiar tu propio rol.");
-      return;
-    }
-    if (nextRole === "ADMIN") {
-      setPendingRoleUserId(user.id);
-      setPendingRole(nextRole);
-      return;
-    }
-    applyRoleChange(user.id, nextRole);
-  };
-
-  const applyRoleChange = (userId: string, role: AppUserRole) => {
-    startTransition(async () => {
-      const result = await updateUserRole({ userId, role });
-      if (result.ok) {
-        toast.success("Rol actualizado");
-        router.refresh();
-        return;
-      }
-      toast.error(result.error);
-    });
-  };
-
-  const confirmRoleChange = () => {
-    if (!pendingRoleUserId || !pendingRole) return;
-    applyRoleChange(pendingRoleUserId, pendingRole);
-    setPendingRoleUserId(null);
-    setPendingRole(null);
-  };
-
-  const handleActiveToggle = (user: AdminUserRow) => {
-    if (isSelf(user.id)) {
-      toast.error("No puedes desactivar tu propia cuenta.");
-      return;
-    }
-    setPendingActiveUser(user);
-  };
-
-  const confirmActiveChange = () => {
-    if (!pendingActiveUser) return;
-    const nextActive = !pendingActiveUser.isActive;
-    const userId = pendingActiveUser.id;
-
-    startTransition(async () => {
-      const result = await setUserActive({ userId, active: nextActive });
-      if (result.ok) {
-        toast.success(
-          nextActive ? "Usuario restaurado" : "Usuario desactivado",
-        );
-        router.refresh();
-        setPendingActiveUser(null);
-        return;
-      }
-      toast.error(result.error);
-      setPendingActiveUser(null);
-    });
-  };
-
-  const pendingUser = users.find((u) => u.id === pendingRoleUserId);
+  const {
+    isPending,
+    isSelf,
+    handleCopyEmail,
+    handleRoleChange,
+    getActiveAction,
+    dialogs,
+  } = useUserRowActions(currentAdminUserId);
 
   return (
     <>
-      <section className={adminPanelClass} aria-labelledby="users-table-title">
-        <div className={adminPanelHeaderClass}>
-          <div>
-            <h2 id="users-table-title" className={adminPanelTitleClass}>
-              Registro de miembros
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Miembros sincronizados desde Clerk · datos en base de datos
-            </p>
-          </div>
-        </div>
-
+      <AdminListingPanel
+        title="Registro de miembros"
+        description="Miembros sincronizados desde Clerk · datos en base de datos"
+      >
         <Table>
           <TableHeader>
             <TableRow className="border-foreground/20 hover:bg-transparent">
@@ -224,7 +119,7 @@ export function UsersTable({ users, currentAdminUserId }: UsersTableProps) {
                       <p className="truncate font-medium">{user.displayName}</p>
                       {user.email ? (
                         <p className="flex items-center gap-1 truncate font-mono text-[10px] text-muted-foreground">
-                          <IconMail className="size-3 shrink-0" />
+                          <Mail className="size-3 shrink-0" aria-hidden />
                           {user.email}
                         </p>
                       ) : (
@@ -241,7 +136,7 @@ export function UsersTable({ users, currentAdminUserId }: UsersTableProps) {
                       variant={roleBadgeVariant(user.role)}
                       className="text-[9px] uppercase"
                     >
-                      <IconShield className="mr-1 size-2.5" />
+                      <Shield className="mr-1 size-2.5" aria-hidden />
                       {ROLE_LABELS[user.role]}
                     </Badge>
                   ) : (
@@ -252,11 +147,7 @@ export function UsersTable({ users, currentAdminUserId }: UsersTableProps) {
                         handleRoleChange(user, value as AppUserRole)
                       }
                     >
-                      <SelectTrigger
-                        className={cn(
-                          "h-8 w-[130px] font-mono text-[10px] font-bold uppercase",
-                        )}
-                      >
+                      <SelectTrigger className="h-8 w-[130px] font-mono text-[10px] font-bold uppercase">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -275,7 +166,7 @@ export function UsersTable({ users, currentAdminUserId }: UsersTableProps) {
                     className={cn(
                       "text-[9px] uppercase",
                       user.isActive
-                        ? "border-emerald-600/40 bg-emerald-100 text-emerald-900"
+                        ? "border-emerald-600/40 bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"
                         : "text-destructive",
                     )}
                   >
@@ -292,103 +183,26 @@ export function UsersTable({ users, currentAdminUserId }: UsersTableProps) {
                   {formatDashboardDate(user.createdAt)}
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon-sm"
-                      disabled={!user.email}
-                      onClick={() => handleCopyEmail(user.email)}
-                      aria-label={`Copiar correo de ${user.displayName}`}
-                    >
-                      <IconCopy stroke={2.25} />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={isPending || isSelf(user.id)}
-                      onClick={() => handleActiveToggle(user)}
-                      className={adminBrutalButtonClass}
-                    >
-                      {user.isActive ? "Desactivar" : "Restaurar"}
-                    </Button>
-                  </div>
+                  <AdminTableActions
+                    actions={[
+                      {
+                        id: "copy",
+                        label: `Copiar correo de ${user.displayName}`,
+                        icon: <Copy className="size-4" aria-hidden />,
+                        onClick: () => handleCopyEmail(user.email),
+                        disabled: !user.email,
+                      },
+                      getActiveAction(user),
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </section>
+      </AdminListingPanel>
 
-      <AlertDialog
-        open={pendingRoleUserId !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setPendingRoleUserId(null);
-            setPendingRole(null);
-          }
-        }}
-      >
-        <AlertDialogContent className="border-2 border-foreground shadow-[6px_6px_0px_0px_var(--foreground)] sm:max-w-md">
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle className="text-base font-extrabold">
-              Promover a administrador
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {pendingUser
-                ? `¿Confirmás dar acceso de administrador a ${pendingUser.displayName}? Podrá gestionar el panel completo.`
-                : "¿Confirmás este cambio de rol?"}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={isPending}
-              onClick={(event) => {
-                event.preventDefault();
-                confirmRoleChange();
-              }}
-            >
-              Confirmar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog
-        open={pendingActiveUser !== null}
-        onOpenChange={(open) => {
-          if (!open) setPendingActiveUser(null);
-        }}
-      >
-        <AlertDialogContent className="border-2 border-foreground shadow-[6px_6px_0px_0px_var(--foreground)] sm:max-w-md">
-          <AlertDialogHeader className="text-left">
-            <AlertDialogTitle className="text-base font-extrabold">
-              {pendingActiveUser?.isActive
-                ? "Desactivar miembro"
-                : "Restaurar miembro"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {pendingActiveUser?.isActive
-                ? `El usuario ${pendingActiveUser.displayName} no podrá acceder a la plataforma hasta que lo restaures.`
-                : `¿Restaurar el acceso de ${pendingActiveUser?.displayName ?? "este usuario"}?`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={isPending}
-              onClick={(event) => {
-                event.preventDefault();
-                confirmActiveChange();
-              }}
-            >
-              Confirmar
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {dialogs}
     </>
   );
 }

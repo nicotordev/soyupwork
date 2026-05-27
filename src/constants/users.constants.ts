@@ -2,6 +2,11 @@ export const ADMIN_USERS_PAGE = {
   eyebrow: "Panel de administración",
   title: "Estudiantes y Permisos",
   description: "Gestión de alumnos, roles y permisos de acceso.",
+  createUserTitle: "Crear miembro",
+  createUserDescription:
+    "Se creará la cuenta en Clerk y se sincronizará en la base de datos.",
+  createUserSuccess: (name: string) => `${name} fue creado correctamente.`,
+  createUserError: "No se pudo crear el usuario.",
 } as const;
 
 export const ADMIN_USERS_FILTER_ALL = "ALL" as const;

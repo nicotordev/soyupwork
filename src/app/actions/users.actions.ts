@@ -1,5 +1,7 @@
 "use server";
 
+import { clerkClient } from "@clerk/nextjs/server";
+import { isClerkAPIResponseError } from "@clerk/shared/error";
 import { UserRole } from "@/generated/prisma/client";
 import {
   adminUserListSelect,
@@ -9,12 +11,19 @@ import {
 } from "@/lib/admin/users";
 import { requireAdmin } from "@/lib/auth/admin";
 import prisma from "@/lib/db/prisma";
+import { displayName } from "@/lib/user/display-name";
 import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
-import { setUserActiveSchema, updateUserRoleSchema } from "@/schemas/user";
+import { getPrimaryEmail } from "@/lib/webhooks/shared";
+import {
+  createAdminUserSchema,
+  setUserActiveSchema,
+  updateUserRoleSchema,
+} from "@/schemas/user";
 import type {
   AdminUsersPageData,
   AdminUsersStats,
+  CreateAdminUserResult,
   SetUserActiveResult,
   UpdateUserRoleResult,
 } from "@/types/admin-user.types";
@@ -117,6 +126,101 @@ async function countActiveAdmins(excludeUserId?: string): Promise<number> {
       ...(excludeUserId ? { id: { not: excludeUserId } } : {}),
     },
   });
+}
+
+function clerkErrorMessage(error: unknown): string {
+  if (isClerkAPIResponseError(error)) {
+    const first = error.errors[0];
+    if (first?.longMessage) return first.longMessage;
+    if (first?.message) return first.message;
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return "No se pudo completar la operación en Clerk.";
+}
+
+export async function createAdminUser(
+  input: unknown,
+): Promise<CreateAdminUserResult> {
+  try {
+    await requireAdmin();
+
+    const parsed = createAdminUserSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+      };
+    }
+
+    const { email, firstName, lastName, password, role } = parsed.data;
+
+    const existing = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
+      select: { id: true, deletedAt: true },
+    });
+
+    if (existing && existing.deletedAt === null) {
+      return {
+        ok: false,
+        error: "Ya existe un miembro activo con este correo.",
+      };
+    }
+
+    const client = await clerkClient();
+    const clerkUser = await client.users.createUser({
+      emailAddress: [email],
+      firstName,
+      lastName,
+      password,
+      skipPasswordChecks: false,
+    });
+
+    const clerkEmail = getPrimaryEmail(
+      clerkUser.emailAddresses.map((entry) => ({
+        email_address: entry.emailAddress,
+      })),
+    );
+
+    const dbUser = await prisma.user.upsert({
+      where: { clerkId: clerkUser.id },
+      create: {
+        clerkId: clerkUser.id,
+        email: clerkEmail ?? email,
+        firstName,
+        lastName,
+        imageUrl: clerkUser.imageUrl ?? null,
+        role,
+      },
+      update: {
+        email: clerkEmail ?? email,
+        firstName,
+        lastName,
+        imageUrl: clerkUser.imageUrl ?? null,
+        role,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+      },
+    });
+
+    revalidatePath("/admin/users");
+
+    const name = displayName(dbUser);
+
+    log.info(
+      { userId: dbUser.id, clerkId: clerkUser.id, role },
+      "Admin created user via Clerk",
+    );
+
+    return { ok: true, userId: dbUser.id, displayName: name };
+  } catch (error) {
+    log.error(serializeError(error), "Failed to create admin user");
+    return { ok: false, error: clerkErrorMessage(error) };
+  }
 }
 
 export async function updateUserRole(

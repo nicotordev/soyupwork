@@ -1,34 +1,49 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  IconReceipt,
-  IconSearch,
-  IconArrowRight,
-  IconRefresh,
-  IconCheck,
-  IconCurrencyDollar,
-  IconLoader,
-} from "@tabler/icons-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+  AdminFilterField,
+  adminFilterSelectTriggerClass,
+} from "@/components/admin/listing/admin-filter-field";
+import { AdminCardGrid } from "@/components/admin/listing/admin-card-grid";
+import { AdminListingPanel } from "@/components/admin/listing/admin-listing-panel";
+import { AdminTableActions } from "@/components/admin/listing/admin-table-actions";
+import { AdminToolbar } from "@/components/admin/listing/admin-toolbar";
+import { EmptyState } from "@/components/admin/listing/empty-state";
+import { AdminDashboardPageHeader } from "@/components/common/admin-dashboard-page-header";
+import { ADMIN_LISTING_VIEW } from "@/constants/admin-listing.constants";
+import { useAdminListingParams } from "@/hooks/use-admin-listing-params";
+import { adminPanelClass, adminPanelTitleClass } from "@/lib/admin/styles";
+import { cn } from "@/lib/utils";
+import type { AdminActiveFilter } from "@/types/admin-listing.types";
+import { AnimatePresence, motion } from "framer-motion";
+import { Loader2, Receipt, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import {
-  adminBrutalButtonClass,
-  adminInputClass,
-  adminPanelClass,
-  adminPanelHeaderClass,
-  adminPanelTitleClass,
-} from "@/lib/admin/styles";
-import { cn } from "@/lib/utils";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+type SalesOrderStatus = "PAID" | "PENDING" | "REFUNDED" | "FAILED";
 
 type SalesOrder = {
   id: string;
   customer: string;
   course: string;
   amount: number;
-  status: "PAID" | "PENDING" | "REFUNDED" | "FAILED";
+  status: SalesOrderStatus;
   date: string;
 };
 
@@ -75,11 +90,45 @@ const INITIAL_SALES: SalesOrder[] = [
   },
 ];
 
+const STATUS_FILTER_ALL = "ALL";
+
+const STATUS_OPTIONS = [
+  { value: STATUS_FILTER_ALL, label: "Todos" },
+  { value: "PAID", label: "Cobrados" },
+  { value: "PENDING", label: "Pendientes" },
+  { value: "REFUNDED", label: "Reembolsados" },
+  { value: "FAILED", label: "Fallidos" },
+] as const;
+
+function statusLabel(status: SalesOrderStatus): string {
+  if (status === "PAID") return "Cobrado";
+  if (status === "PENDING") return "Pendiente";
+  if (status === "REFUNDED") return "Reembolsado";
+  return "Fallido";
+}
+
+function statusBadgeVariant(status: SalesOrderStatus) {
+  if (status === "PAID") return "default" as const;
+  if (status === "PENDING") return "secondary" as const;
+  return "destructive" as const;
+}
+
 export function AdminSalesDashboard() {
   const [sales, setSales] = useState<SalesOrder[]>(INITIAL_SALES);
-  const [query, setQuery] = useState("");
   const [refundingId, setRefundingId] = useState<string | null>(null);
-  const [filterStatus, setFilterStatus] = useState<string>("ALL");
+
+  const {
+    localQuery,
+    setLocalQuery,
+    viewMode,
+    setViewMode,
+    setParam,
+    clearParams,
+    searchParams,
+    isPending,
+  } = useAdminListingParams({ resetPageOnChange: false });
+
+  const filterStatus = searchParams.get("status") ?? STATUS_FILTER_ALL;
 
   const totalRevenue = sales
     .filter((s) => s.status === "PAID")
@@ -87,177 +136,316 @@ export function AdminSalesDashboard() {
 
   const handleRefund = (orderId: string) => {
     setRefundingId(orderId);
-    
-    // Simulate Stripe refund API delay
     setTimeout(() => {
       setSales((prev) =>
-        prev.map((s) => (s.id === orderId ? { ...s, status: "REFUNDED" } : s))
+        prev.map((s) => (s.id === orderId ? { ...s, status: "REFUNDED" } : s)),
       );
       setRefundingId(null);
     }, 1500);
   };
 
-  const filteredSales = sales.filter((s) => {
-    const matchesSearch =
-      s.customer.toLowerCase().includes(query.toLowerCase()) ||
-      s.course.toLowerCase().includes(query.toLowerCase());
-    const matchesStatus = filterStatus === "ALL" || s.status === filterStatus;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredSales = useMemo(() => {
+    const q = localQuery.trim().toLowerCase();
+    return sales.filter((s) => {
+      const matchesSearch =
+        !q ||
+        s.customer.toLowerCase().includes(q) ||
+        s.course.toLowerCase().includes(q) ||
+        s.id.toLowerCase().includes(q);
+      const matchesStatus =
+        filterStatus === STATUS_FILTER_ALL || s.status === filterStatus;
+      return matchesSearch && matchesStatus;
+    });
+  }, [sales, localQuery, filterStatus]);
+
+  const hasActiveFilters =
+    localQuery.trim().length > 0 || filterStatus !== STATUS_FILTER_ALL;
+
+  const activeFiltersCount = filterStatus !== STATUS_FILTER_ALL ? 1 : 0;
+
+  const activeFilterBadges = useMemo((): AdminActiveFilter[] => {
+    if (filterStatus === STATUS_FILTER_ALL) return [];
+    const label =
+      STATUS_OPTIONS.find((o) => o.value === filterStatus)?.label ??
+      filterStatus;
+    return [
+      {
+        key: "status",
+        label: "Estado",
+        value: label,
+        onRemove: () => setParam("status", null, STATUS_FILTER_ALL),
+      },
+    ];
+  }, [filterStatus, setParam]);
+
+  const resultSummary =
+    filteredSales.length === 1
+      ? "1 pedido encontrado"
+      : `${filteredSales.length} pedidos encontrados`;
 
   return (
     <div className="space-y-6">
-      {/* Dynamic Stripe Simulator Overlay */}
+      <AdminDashboardPageHeader
+        eyebrow="Panel de administración"
+        icon={<Receipt className="size-4 text-primary" aria-hidden />}
+        title="Ventas y Cobros"
+        description="Seguimiento de pedidos, suscripciones e integraciones."
+      />
+
       <AnimatePresence>
-        {refundingId && (
+        {refundingId ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm"
           >
-            <div className={cn(adminPanelClass, "p-8 max-w-sm bg-background border-2 border-foreground shadow-[8px_8px_0px_0px_var(--foreground)] text-center space-y-4")}>
-              <IconLoader className="size-10 animate-spin text-primary mx-auto" stroke={2.5} />
+            <div
+              className={cn(
+                adminPanelClass,
+                "max-w-sm space-y-4 border-2 border-foreground bg-background p-8 text-center shadow-[8px_8px_0px_0px_var(--foreground)]",
+              )}
+            >
+              <Loader2
+                className="mx-auto size-10 animate-spin text-primary"
+                aria-hidden
+              />
               <div className="space-y-2">
-                <p className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
                   Stripe Payment gateway
                 </p>
-                <h4 className="font-heading text-sm font-extrabold">Reembolsando Pedido {refundingId}...</h4>
-                <p className="text-[11px] text-muted-foreground">
-                  Comunicándose con las API de Stripe para retornar fondos y cancelar acceso del alumno.
-                </p>
+                <h4 className="font-heading text-sm font-extrabold">
+                  Reembolsando pedido {refundingId}...
+                </h4>
               </div>
             </div>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
 
-      {/* Top metrics bar */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className={cn(adminPanelClass, "p-4 bg-emerald-500/10 border-emerald-500")}>
+        <div
+          className={cn(
+            adminPanelClass,
+            "border-emerald-500 bg-emerald-500/10 p-4",
+          )}
+        >
           <p className={adminPanelTitleClass}>Ingresos de Ventas</p>
           <p className="mt-2 font-heading text-2xl font-extrabold text-emerald-800 dark:text-emerald-300">
             ${totalRevenue.toLocaleString("es-CL")}
           </p>
-          <p className="font-mono text-[9px] text-muted-foreground uppercase mt-1">Cobrado con éxito</p>
         </div>
-        <div className={cn(adminPanelClass, "p-4 bg-card")}>
+        <div className={cn(adminPanelClass, "bg-card p-4")}>
           <p className={adminPanelTitleClass}>Pedidos Procesados</p>
           <p className="mt-2 font-heading text-2xl font-extrabold">
-            {sales.filter((s) => s.status !== "PENDING").length} pedidos
+            {sales.filter((s) => s.status !== "PENDING").length}
           </p>
-          <p className="font-mono text-[9px] text-muted-foreground uppercase mt-1">Stripe Checkout sessions</p>
         </div>
-        <div className={cn(adminPanelClass, "p-4 bg-destructive/5")}>
+        <div className={cn(adminPanelClass, "bg-destructive/5 p-4")}>
           <p className={adminPanelTitleClass}>Reembolsos / Fallidos</p>
           <p className="mt-2 font-heading text-2xl font-extrabold">
-            {sales.filter((s) => s.status === "REFUNDED" || s.status === "FAILED").length} transacciones
+            {
+              sales.filter(
+                (s) => s.status === "REFUNDED" || s.status === "FAILED",
+              ).length
+            }
           </p>
-          <p className="font-mono text-[9px] text-muted-foreground uppercase mt-1">Tasa de contracargo</p>
         </div>
       </div>
 
-      {/* Toolbar */}
-      <div className={cn(adminPanelClass, "p-4 bg-background")}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative min-w-0 flex-1">
-            <IconSearch className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" stroke={2.25} />
-            <Input
-              type="search"
-              placeholder="Buscar por cliente, curso o ID..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className={cn(adminInputClass, "h-9 pl-8 font-mono text-xs")}
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            {["ALL", "PAID", "PENDING", "REFUNDED"].map((st) => (
-              <button
-                key={st}
-                onClick={() => setFilterStatus(st)}
-                className={cn(
-                  "px-3 py-1 font-mono text-[10px] font-extrabold uppercase border-2 border-foreground rounded transition-all shadow-[2px_2px_0px_0px_var(--foreground)] active:translate-y-px",
-                  filterStatus === st ? "bg-secondary text-foreground" : "bg-background text-muted-foreground"
-                )}
+      <AdminToolbar
+        isPending={isPending}
+        search={{
+          value: localQuery,
+          onChange: setLocalQuery,
+          placeholder: "Buscar por cliente, curso o ID...",
+          ariaLabel: "Buscar pedidos",
+        }}
+        filters={{
+          activeCount: activeFiltersCount,
+          hasActiveFilters,
+          onClear: () => clearParams(["status", "q"]),
+          title: "Filtros",
+          children: (
+            <AdminFilterField label="Estado">
+              <Select
+                value={filterStatus}
+                onValueChange={(value) =>
+                  setParam("status", value, STATUS_FILTER_ALL)
+                }
               >
-                {st === "ALL" ? "Todos" : st === "PAID" ? "Cobrados" : st === "PENDING" ? "Pendientes" : "Reembolsados"}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+                <SelectTrigger className={adminFilterSelectTriggerClass}>
+                  <SelectValue placeholder="Estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </AdminFilterField>
+          ),
+        }}
+        view={{ mode: viewMode, onChange: setViewMode }}
+        activeFilterBadges={activeFilterBadges}
+        resultSummary={resultSummary}
+      />
 
-      {/* Sales log */}
-      <div className={cn(adminPanelClass, "overflow-hidden")}>
-        <div className={adminPanelHeaderClass}>
-          <div>
-            <h2 className={adminPanelTitleClass}>Libro de Cobros</h2>
-            <p className="text-[10px] text-muted-foreground">Monitoreo transaccional de pasarela</p>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b-2 border-foreground/20 bg-muted/20 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-4 py-3">ID Pedido</th>
-                <th className="px-4 py-3">Cliente / Curso</th>
-                <th className="px-4 py-3">Monto</th>
-                <th className="px-4 py-3">Estado Pasarela</th>
-                <th className="px-4 py-3 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-foreground/10">
+      {filteredSales.length === 0 ? (
+        <EmptyState
+          icon={Receipt}
+          title="Sin pedidos"
+          description="Los pedidos procesados por Stripe aparecerán en este listado."
+          hasFilters={hasActiveFilters}
+          onClearFilters={
+            hasActiveFilters ? () => clearParams(["status", "q"]) : undefined
+          }
+        />
+      ) : viewMode === ADMIN_LISTING_VIEW.TABLE ? (
+        <AdminListingPanel
+          title="Libro de cobros"
+          description="Monitoreo transaccional de pasarela"
+        >
+          <Table>
+            <TableHeader>
+              <TableRow className="border-foreground/20 hover:bg-transparent">
+                <TableHead className="font-mono text-[10px] uppercase">
+                  ID
+                </TableHead>
+                <TableHead className="font-mono text-[10px] uppercase">
+                  Cliente / Curso
+                </TableHead>
+                <TableHead className="font-mono text-[10px] uppercase">
+                  Monto
+                </TableHead>
+                <TableHead className="font-mono text-[10px] uppercase">
+                  Estado
+                </TableHead>
+                <TableHead className="text-right font-mono text-[10px] uppercase">
+                  Acciones
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredSales.map((sale) => (
-                <tr key={sale.id} className="text-xs transition-colors hover:bg-muted/15">
-                  <td className="px-4 py-3 font-mono font-bold">{sale.id}</td>
-                  <td className="px-4 py-3">
+                <TableRow
+                  key={sale.id}
+                  className="border-foreground/15 text-xs"
+                >
+                  <TableCell className="font-mono font-bold">
+                    {sale.id}
+                  </TableCell>
+                  <TableCell>
                     <div className="font-semibold">{sale.customer}</div>
-                    <div className="text-[10px] text-muted-foreground">{sale.course}</div>
-                  </td>
-                  <td className="px-4 py-3 font-mono font-bold">${sale.amount}</td>
-                  <td className="px-4 py-3">
+                    <div className="text-[10px] text-muted-foreground">
+                      {sale.course}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono font-bold">
+                    ${sale.amount}
+                  </TableCell>
+                  <TableCell>
                     <Badge
-                      variant={
-                        sale.status === "PAID"
-                          ? "default"
-                          : sale.status === "PENDING"
-                          ? "secondary"
-                          : "destructive"
-                      }
+                      variant={statusBadgeVariant(sale.status)}
                       className="font-mono text-[9px] uppercase"
                     >
-                      {sale.status === "PAID"
-                        ? "Cobrado"
-                        : sale.status === "PENDING"
-                        ? "Pendiente"
-                        : sale.status === "REFUNDED"
-                        ? "Reembolsado"
-                        : "Fallido"}
+                      {statusLabel(sale.status)}
                     </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-right">
+                  </TableCell>
+                  <TableCell className="text-right">
                     {sale.status === "PAID" ? (
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        onClick={() => handleRefund(sale.id)}
-                        className={cn(adminBrutalButtonClass, "text-[9px] font-mono hover:bg-destructive/10")}
-                      >
-                        <IconRefresh className="size-3 mr-1" />
-                        Reembolso
-                      </Button>
+                      <AdminTableActions
+                        actions={[
+                          {
+                            id: "refund",
+                            label: `Reembolsar pedido ${sale.id}`,
+                            icon: <RefreshCw className="size-4" aria-hidden />,
+                            onClick: () => handleRefund(sale.id),
+                            destructive: true,
+                          },
+                        ]}
+                      />
                     ) : (
-                      <span className="text-[10px] font-mono text-muted-foreground uppercase">—</span>
+                      <span className="font-mono text-[10px] text-muted-foreground uppercase">
+                        —
+                      </span>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </AdminListingPanel>
+      ) : (
+        <>
+          <AdminListingPanel
+            title="Vista de tarjetas"
+            description="Pedidos filtrados"
+            className="border-b-0 rounded-b-none pb-0"
+          />
+          <AdminCardGrid columns="wide" className="mb-6">
+            {filteredSales.map((sale) => (
+              <article
+                key={sale.id}
+                role="listitem"
+                className={cn(
+                  adminPanelClass,
+                  "flex flex-col overflow-hidden p-0 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--foreground)]",
+                )}
+              >
+                <div className="border-b-2 border-foreground bg-muted/40 p-4">
+                  <p className="font-mono text-[10px] font-bold text-muted-foreground uppercase">
+                    {sale.id}
+                  </p>
+                  <p className="font-heading text-sm font-extrabold">
+                    {sale.customer}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{sale.course}</p>
+                </div>
+                <div className="flex flex-1 flex-col gap-2 p-4 font-mono text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground uppercase">
+                      Monto
+                    </span>
+                    <span className="font-extrabold text-primary">
+                      ${sale.amount}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground uppercase">
+                      Fecha
+                    </span>
+                    <span>{sale.date}</span>
+                  </div>
+                  <Badge
+                    variant={statusBadgeVariant(sale.status)}
+                    className="w-fit font-mono text-[9px] uppercase"
+                  >
+                    {statusLabel(sale.status)}
+                  </Badge>
+                </div>
+                {sale.status === "PAID" ? (
+                  <div className="border-t-2 border-foreground bg-muted p-2">
+                    <AdminTableActions
+                      actions={[
+                        {
+                          id: "refund",
+                          label: `Reembolsar pedido ${sale.id}`,
+                          icon: <RefreshCw className="size-4" aria-hidden />,
+                          onClick: () => handleRefund(sale.id),
+                          destructive: true,
+                        },
+                      ]}
+                    />
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </AdminCardGrid>
+        </>
+      )}
     </div>
   );
 }

@@ -49,3 +49,7 @@ export type AdminUsersPageData = {
 export type UpdateUserRoleResult = { ok: true } | { ok: false; error: string };
 
 export type SetUserActiveResult = { ok: true } | { ok: false; error: string };
+
+export type CreateAdminUserResult =
+  | { ok: true; userId: string; displayName: string }
+  | { ok: false; error: string };
