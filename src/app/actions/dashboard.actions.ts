@@ -9,6 +9,7 @@ import { requireAdmin } from "@/lib/auth/admin";
 import prisma from "@/lib/db/prisma";
 import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
+import { displayName } from "@/lib/user/display-name";
 import type { DashboardOverviewData } from "@/types/dashboard.types";
 
 const log = getServerLogger("dashboard.actions");
@@ -28,15 +29,6 @@ function parseRange(input?: string): DashboardRange {
     return input as DashboardRange;
   }
   return "30d";
-}
-
-function displayName(user: {
-  firstName: string | null;
-  lastName: string | null;
-  email: string | null;
-}): string {
-  const fullName = `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim();
-  return fullName || user.email || "Usuario";
 }
 
 function compactOrderId(id: string): string {

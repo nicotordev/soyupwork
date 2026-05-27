@@ -1,10 +1,10 @@
 import {
   IconChartBar,
   IconLayoutDashboard,
+  IconList,
   IconReceipt,
   IconSchool,
   IconSettings,
-  IconList,
   IconUsers,
   IconUsersGroup,
 } from "@tabler/icons-react";
@@ -110,14 +110,6 @@ export const ACTIVITY_TYPE_LABELS = {
   refund: "Reembolso",
   user: "Usuario",
 } as const;
-
-/** Placeholder routes until sub-pages are implemented */
-export const ADMIN_PLACEHOLDER_ROUTES = [
-  "/admin/users",
-  "/admin/sales",
-  "/admin/cohorts",
-  "/admin/metrics",
-] as const;
 
 export const ADMIN_FOOTER_LINKS = [
   { label: "Ver sitio", href: "/" },
