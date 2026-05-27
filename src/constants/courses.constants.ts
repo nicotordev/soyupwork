@@ -10,6 +10,15 @@ export const ADMIN_COURSES_PAGE = {
   thumbnailRemoveLabel: "Quitar imagen",
   thumbnailStorageMissing:
     "Configura R2 en variables de entorno o en Ajustes → Almacenamiento para subir imágenes.",
+  deleteCourseTitle: "Eliminar curso",
+  deleteCourseDescription: (title: string, enrollmentCount: number) =>
+    enrollmentCount > 0
+      ? `Se eliminará "${title}" de forma permanente, junto con su contenido, quizzes e ${enrollmentCount} inscripción${enrollmentCount === 1 ? "" : "es"}. Esta acción no se puede deshacer.`
+      : `Se eliminará "${title}" de forma permanente, junto con todo su contenido y quizzes. Esta acción no se puede deshacer.`,
+  deleteCourseConfirm: "Eliminar curso",
+  deleteCourseCancel: "Cancelar",
+  deleteCourseSuccess: (title: string) => `Curso "${title}" eliminado`,
+  deleteCourseError: "No se pudo eliminar el curso.",
 } as const;
 
 export const ADMIN_COURSE_STATUS_LABELS = {

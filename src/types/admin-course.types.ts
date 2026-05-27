@@ -124,3 +124,7 @@ export type SetCourseThumbnailResult =
 export type UpdateCourseResult =
   | { ok: true; course: { id: string; slug: string; title: string } }
   | { ok: false; error: string };
+
+export type DeleteCourseResult =
+  | { ok: true; course: { id: string; slug: string; title: string } }
+  | { ok: false; error: string };

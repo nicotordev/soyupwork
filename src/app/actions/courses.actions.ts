@@ -30,11 +30,13 @@ import {
 } from "@/lib/storage/r2";
 import {
   createAiDraftCourseSchema,
+  deleteCourseSchema,
   generateCourseSyllabusInputSchema,
   initCourseThumbnailUploadSchema,
   setCourseThumbnailSchema,
   updateCourseSchema,
   type CreateAiDraftCourseInput,
+  type DeleteCourseInput,
   type GenerateCourseSyllabusInput,
   type InitCourseThumbnailUploadInput,
   type SetCourseThumbnailInput,
@@ -45,6 +47,7 @@ import type {
   AdminCoursesPageData,
   AdminCoursesStats,
   CreateAiDraftCourseResult,
+  DeleteCourseResult,
   GenerateCourseSyllabusResult,
   GetAdminCourseForEditResult,
   InitCourseThumbnailUploadResult,
@@ -554,5 +557,45 @@ export async function updateCourse(
   } catch (error) {
     log.error(serializeError(error), "Failed to update course");
     return { ok: false, error: "No se pudo actualizar el curso." };
+  }
+}
+
+export async function deleteCourse(
+  input: DeleteCourseInput,
+): Promise<DeleteCourseResult> {
+  try {
+    await requireAdmin();
+
+    const parsed = deleteCourseSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        ok: false,
+        error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+      };
+    }
+
+    const existing = await prisma.course.findUnique({
+      where: { id: parsed.data.id },
+      select: { id: true, slug: true, title: true },
+    });
+
+    if (!existing) {
+      return { ok: false, error: "Curso no encontrado." };
+    }
+
+    await prisma.course.delete({ where: { id: existing.id } });
+
+    revalidatePath("/admin/courses");
+    revalidatePath("/catalog");
+    revalidatePath(`/admin/courses/${existing.id}/curriculum`);
+    revalidatePath(`/admin/courses/${existing.id}/preview`, "layout");
+    revalidatePath(`/dashboard/courses/${existing.slug}`, "layout");
+
+    log.info({ courseId: existing.id, slug: existing.slug }, "Course deleted");
+
+    return { ok: true, course: existing };
+  } catch (error) {
+    log.error(serializeError(error), "Failed to delete course");
+    return { ok: false, error: "No se pudo eliminar el curso." };
   }
 }

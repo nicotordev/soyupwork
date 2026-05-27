@@ -77,3 +77,9 @@ export type InitCourseThumbnailUploadInput = z.infer<
   typeof initCourseThumbnailUploadSchema
 >;
 export type SetCourseThumbnailInput = z.infer<typeof setCourseThumbnailSchema>;
+
+export const deleteCourseSchema = z.object({
+  id: z.uuid("ID de curso inválido."),
+});
+
+export type DeleteCourseInput = z.infer<typeof deleteCourseSchema>;
