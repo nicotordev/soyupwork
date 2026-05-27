@@ -71,30 +71,14 @@ ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
     NEXT_PUBLIC_LOG_REMOTE=$NEXT_PUBLIC_LOG_REMOTE \
     R2_PUBLIC_URL=$R2_PUBLIC_URL
 
-# Prisma config reads DATABASE_URL; generate does not connect to the DB.
-ARG DATABASE_URL="postgresql://build:build@127.0.0.1:5432/build?schema=public"
-ENV DATABASE_URL=$DATABASE_URL
-
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Placeholders so `next build` can evaluate server modules (overridden at runtime).
-ENV STRIPE_SECRET_KEY=sk_build_placeholder \
-    STRIPE_WEBHOOK_SECRET=whsec_build_placeholder \
-    RESEND_API_KEY=re_build_placeholder \
-    EMAIL_FROM="build@localhost" \
-    CLERK_SECRET_KEY=sk_build_placeholder \
-    CLERK_WEBHOOK_SECRET=whsec_build_placeholder \
-    MUX_WEBHOOK_SECRET=whsec_build_placeholder \
-    MUX_TOKEN_ID=build \
-    MUX_TOKEN_SECRET=build \
-    OPENAI_API_KEY=sk-build-placeholder \
-    INNGEST_EVENT_KEY=build \
-    INNGEST_SIGNING_KEY=build \
-    WAITLIST_VERIFICATION_SECRET=build_waitlist_verification_secret_32chars \
-    TURNSTILE_SECRET_KEY=build
+# Prisma config reads DATABASE_URL at generate time only (not persisted in the image).
+RUN DATABASE_URL="postgresql://build:build@127.0.0.1:5432/build?schema=public" \
+  bunx prisma generate
 
-RUN bunx prisma generate
+# No server secrets here — they are injected at runtime via --env-file / orchestrator.
 RUN bun run build
 
 # -----------------------------------------------------------------------------

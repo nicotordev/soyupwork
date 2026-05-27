@@ -1,6 +1,6 @@
 import "server-only";
 
-import resend from "@/lib/resend";
+import { getResendClient } from "@/lib/resend";
 import { getServerLogger } from "@/lib/logger/server";
 
 const log = getServerLogger("resend.waitlist-audience");
@@ -49,7 +49,7 @@ export async function addEmailToResendWaitlistAudience(input: {
   const { firstName, lastName } = splitName(input.name);
 
   try {
-    const { data, error } = await resend.contacts.create({
+    const { data, error } = await getResendClient().contacts.create({
       email,
       firstName,
       lastName,
@@ -75,9 +75,10 @@ export async function addEmailToResendWaitlistAudience(input: {
       };
     }
 
-    const { data: existing, error: getError } = await resend.contacts.get({
-      email,
-    });
+    const { data: existing, error: getError } =
+      await getResendClient().contacts.get({
+        email,
+      });
 
     if (getError || !existing) {
       log.error(
@@ -87,10 +88,11 @@ export async function addEmailToResendWaitlistAudience(input: {
       return { ok: true };
     }
 
-    const { error: segmentError } = await resend.contacts.segments.add({
-      email,
-      segmentId,
-    });
+    const { error: segmentError } =
+      await getResendClient().contacts.segments.add({
+        email,
+        segmentId,
+      });
 
     if (segmentError) {
       log.warn(
@@ -100,7 +102,7 @@ export async function addEmailToResendWaitlistAudience(input: {
     }
 
     if (firstName || lastName) {
-      await resend.contacts.update({
+      await getResendClient().contacts.update({
         email,
         firstName: firstName ?? null,
         lastName: lastName ?? null,

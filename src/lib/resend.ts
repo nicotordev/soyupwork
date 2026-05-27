@@ -1,26 +1,21 @@
 import { getResolvedEmailFrom } from "@/lib/platform/settings/resolve";
 import { Resend } from "resend";
 
-function getResend(): Resend {
+let resendClient: Resend | undefined;
+
+export function getResendClient(): Resend {
+  if (resendClient) {
+    return resendClient;
+  }
+
   const key = process.env.RESEND_API_KEY;
   if (!key) {
     throw new Error("RESEND_API_KEY is not set");
   }
-  return new Resend(key);
+
+  resendClient = new Resend(key);
+  return resendClient;
 }
-
-declare global {
-  // eslint-disable-next-line no-var
-  var resend: Resend | undefined;
-}
-
-const resend = global.resend ?? getResend();
-
-if (process.env.NODE_ENV !== "production") {
-  global.resend = resend;
-}
-
-export default resend;
 
 export async function sendEmail(params: {
   to: string;
@@ -33,7 +28,7 @@ export async function sendEmail(params: {
     throw new Error("EMAIL_FROM is not set");
   }
 
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await getResendClient().emails.send({
     from,
     to: params.to,
     subject: params.subject,

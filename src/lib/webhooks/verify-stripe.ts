@@ -1,4 +1,4 @@
-import stripe from "@/lib/stripe";
+import { getStripeClient } from "@/lib/stripe";
 import { WebhookVerificationError } from "@/lib/webhooks/shared";
 import type Stripe from "stripe";
 
@@ -17,7 +17,11 @@ export function verifyStripeWebhook(
   }
 
   try {
-    return stripe.webhooks.constructEvent(rawBody, signature, secret);
+    return getStripeClient().webhooks.constructEvent(
+      rawBody,
+      signature,
+      secret,
+    );
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Invalid Stripe signature";
