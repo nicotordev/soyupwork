@@ -20,9 +20,7 @@
 #
 # Run (runtime secrets — Postgres, Redis, Stripe, Clerk, etc.):
 #
-#   docker run -p 3000:3000 --env-file .env.production \
-#     -e RUN_MIGRATIONS=true \
-#     soyupwork:latest
+#   docker run -p 3000:3000 --env-file .env.production soyupwork:latest
 #
 # Redis is optional at runtime (REDIS_URL). Postgres is required (DATABASE_URL).
 
@@ -91,6 +89,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+ENV RUN_MIGRATIONS=true
 
 RUN groupadd --system --gid 1001 nodejs \
   && useradd --system --uid 1001 --gid nodejs nextjs
@@ -99,7 +98,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Optional: RUN_MIGRATIONS=true runs `prisma migrate deploy` before start
+# By default, runs `prisma migrate deploy` before app start.
+# Set RUN_MIGRATIONS=false to skip it.
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/package.json ./package.json
