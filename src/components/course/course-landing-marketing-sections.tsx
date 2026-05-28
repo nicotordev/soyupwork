@@ -145,7 +145,7 @@ export function CourseLandingMarketingSections({
               <dt className="inline font-semibold text-foreground">
                 {feature.icon}
                 {feature.title}
-              </dt>
+              </dt><br/>
               <dd className="inline">{feature.description}</dd>
             </div>
           ))}
