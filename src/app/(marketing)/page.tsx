@@ -54,66 +54,72 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             1. HERO SECTION (MARKETING-FIRST CON MOCKUP PREMIUM Y CHAT FLOTANTE)
            ---------------------------------------------------------------------- */}
-        <MarketingHeroSectionClient />
+        <div className="relative">
+          <MarketingHeroSectionClient />
 
-        {/* ----------------------------------------------------------------------
+          <hr />
+
+          {/* ----------------------------------------------------------------------
             2. PROPUESTA DE VALOR
            ---------------------------------------------------------------------- */}
-        <section
-          id="social-proof"
-          className="relative border-y-2 border-foreground bg-secondary/15 py-16 sm:py-20 overflow-hidden font-sans"
-        >
-          {/* Subtle grid pattern background */}
-          <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-45" />
+          <section
+            id="social-proof"
+            className="absolute -bottom-58 left-1/2 -translate-x-1/2 border-foreground bg-secondary/15 py-12 sm:py-20 overflow-hidden font-sans"
+          >
+            {/* Subtle grid pattern background */}
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-45" />
 
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
-              <div className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-6 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none">
-                <div className="mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-                  <BookOpen className="size-6 stroke-[2.5]" />
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
+                <div className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-5 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none">
+                  <div className="mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                    <BookOpen className="size-6 stroke-[2.5]" />
+                  </div>
+                  <h3 className="text-xl font-black text-foreground sm:text-3xl tracking-tight">
+                    Cursos
+                  </h3>
+                  <p className="mt-3 text-pretty text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs leading-none">
+                    PAGADOS POR TEMA Y ENFOCADOS EN UPWORK
+                  </p>
                 </div>
-                <h3 className="text-2xl font-black text-foreground sm:text-3xl tracking-tight">
-                  Cursos
-                </h3>
-                <p className="mt-3 text-pretty text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs leading-none">
-                  PAGADOS POR TEMA Y ENFOCADOS EN UPWORK
-                </p>
-              </div>
-              <div className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-6 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none">
-                <div className="mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground bg-secondary text-foreground group-hover:scale-110 transition-transform shadow-[2px_2px_0px_0px_var(--foreground)]">
-                  <Send className="size-6 stroke-[2.5]" />
+                <div className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-5 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none">
+                  <div className="mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground bg-secondary text-foreground group-hover:scale-110 transition-transform shadow-[2px_2px_0px_0px_var(--foreground)]">
+                    <Send className="size-6 stroke-[2.5]" />
+                  </div>
+                  <h3 className="text-xl font-black text-foreground sm:text-3xl tracking-tight">
+                    Contenido
+                  </h3>
+                  <p className="mt-3 text-pretty text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs leading-none">
+                    VIDEO, TEXTO, EJERCICIOS Y CUESTIONARIOS
+                  </p>
                 </div>
-                <h3 className="text-2xl font-black text-foreground sm:text-3xl tracking-tight">
-                  Contenido
-                </h3>
-                <p className="mt-3 text-pretty text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs leading-none">
-                  VIDEO, TEXTO, EJERCICIOS Y CUESTIONARIOS
-                </p>
-              </div>
-              <div className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-6 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none">
-                <div className="mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground bg-accent text-accent-foreground group-hover:scale-110 transition-transform">
-                  <Award className="size-6 stroke-[2.5]" />
+                <div className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-5 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none">
+                  <div className="mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground bg-accent text-accent-foreground group-hover:scale-110 transition-transform">
+                    <Award className="size-6 stroke-[2.5]" />
+                  </div>
+                  <h3 className="text-xl font-black text-foreground sm:text-3xl tracking-tight">
+                    Enfoque
+                  </h3>
+                  <p className="mt-3 text-pretty text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs leading-none">
+                    PROPUESTAS, NICHOS, PRICING Y OPERACION
+                  </p>
                 </div>
-                <h3 className="text-2xl font-black text-foreground sm:text-3xl tracking-tight">
-                  Enfoque
-                </h3>
-                <p className="mt-3 text-pretty text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs leading-none">
-                  PROPUESTAS, NICHOS, PRICING Y OPERACION
-                </p>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
 
         {/* ----------------------------------------------------------------------
             3. INTERACTIVE PROPOSAL SIMULATOR
            ---------------------------------------------------------------------- */}
-        <MarketingProposalSimulatorClient />
+        <div className="pt-32">
+          <MarketingProposalSimulatorClient />
+        </div>
 
         {/* ----------------------------------------------------------------------
             4. COMPARA MATRIX (SOYUPWORK VS CURSO DE GURÚ)
            ---------------------------------------------------------------------- */}
-        <section className="relative border-y-2 border-foreground bg-muted py-16 sm:py-24 overflow-hidden font-sans">
+        <section className="relative border-y-2 border-foreground bg-muted py-12 sm:py-24 overflow-hidden font-sans">
           {/* Subtle grid pattern background */}
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-35" />
           <div className="pointer-events-none absolute -left-20 top-0 -z-10 size-96 rounded-full bg-primary/5 blur-3xl" />
@@ -127,7 +133,7 @@ export default function LandingPage() {
               >
                 COMPAREMOS ESTRATEGIAS
               </Badge>
-              <h2 className="mt-4 text-3xl font-black sm:text-4xl lg:text-5xl leading-tight text-foreground tracking-tight">
+              <h2 className="mt-4 text-2xl font-black sm:text-4xl lg:text-5xl leading-tight text-foreground tracking-tight">
                 No vendemos atajos. Enseñamos criterio para competir mejor.
               </h2>
             </div>
@@ -142,8 +148,8 @@ export default function LandingPage() {
                   <h3 className="border-b-2 border-foreground bg-secondary/80 px-4 py-3 text-sm font-black text-foreground uppercase tracking-wider font-mono">
                     {row.aspect}
                   </h3>
-                  <div className="space-y-3.5 p-4">
-                    <div className="rounded-xl border-2 border-foreground bg-destructive/10 p-3.5">
+                  <div className="space-y-3 p-3.5 sm:p-4">
+                    <div className="rounded-xl border-2 border-foreground bg-destructive/10 p-3 sm:p-3.5">
                       <p className="mb-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-destructive flex items-center gap-1.5">
                         <AlertTriangle className="size-3.5" /> Cursos superficiales
                       </p>
@@ -151,7 +157,7 @@ export default function LandingPage() {
                         {row.superficial}
                       </p>
                     </div>
-                    <div className="rounded-xl border-2 border-foreground bg-primary/10 p-3.5">
+                    <div className="rounded-xl border-2 border-foreground bg-primary/10 p-3 sm:p-3.5">
                       <p className="mb-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
                         <CheckCircle2 className="size-3.5" /> El sistema soyup.work
                       </p>
@@ -201,7 +207,7 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             5. CURRICULUM SUGERIDO
            ---------------------------------------------------------------------- */}
-        <section className="relative overflow-hidden py-16 sm:py-24 font-sans border-b-2 border-foreground">
+        <section className="relative overflow-hidden py-12 sm:py-24 font-sans border-foreground">
           {/* Engineering grid lines background */}
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_6%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_6%)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35" />
 
@@ -213,7 +219,7 @@ export default function LandingPage() {
               >
                 CURRICULUM SUGERIDO
               </Badge>
-              <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl tracking-tight">
+              <h2 className="text-2xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl tracking-tight">
                 De entender Upwork a operar como freelancer internacional
               </h2>
               <p className="mx-auto max-w-2xl text-sm sm:text-base font-medium text-muted-foreground leading-relaxed">
@@ -254,7 +260,7 @@ export default function LandingPage() {
                 return (
                   <div
                     key={step.num}
-                    className="group relative flex flex-col justify-between rounded-2xl border-2 border-foreground bg-card p-6 shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--foreground)] transition-all select-none"
+                    className="group relative flex flex-col justify-between rounded-2xl border-2 border-foreground bg-card p-5 shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--foreground)] transition-all select-none sm:p-6"
                   >
                     <div className="space-y-5">
                       <div className="flex items-center justify-between">
@@ -289,7 +295,7 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             7. PLATAFORMA LMS
            ---------------------------------------------------------------------- */}
-        <section className="relative border-b-2 border-foreground bg-primary/5 py-16 sm:py-24 overflow-hidden font-sans">
+        <section className="relative border-b-2 border-foreground bg-primary/5 py-12 sm:py-24 overflow-hidden font-sans">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_70%_20%,var(--primary)/0.06,transparent_40%)]" />
 
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -304,7 +310,7 @@ export default function LandingPage() {
                 >
                   SISTEMA LMS PROPIO
                 </Badge>
-                <h2 className="text-2xl font-black leading-tight sm:text-3xl md:text-4xl text-foreground tracking-tight">
+                <h2 className="text-xl font-black leading-tight sm:text-3xl md:text-4xl text-foreground tracking-tight">
                   Una academia custom, no un curso suelto en una plataforma genérica
                 </h2>
               </div>
@@ -332,7 +338,7 @@ export default function LandingPage() {
                 return (
                   <div
                     key={idx}
-                    className="rounded-2xl border-2 border-foreground bg-card p-6 sm:p-8 shadow-[6px_6px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[4px_4px_0px_0px_var(--foreground)] transition-all select-none"
+                    className="rounded-2xl border-2 border-foreground bg-card p-5 shadow-[6px_6px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[4px_4px_0px_0px_var(--foreground)] transition-all select-none sm:p-8"
                   >
                     <div className="inline-flex p-3 rounded-xl border-2 border-foreground bg-secondary text-foreground shadow-[2.5px_2.5px_0px_0px_var(--foreground)] mb-5">
                       <CardIcon className="h-5 w-5 stroke-[2.5]" />
@@ -358,8 +364,8 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             9. CTA FINAL (EMOTIONAL BANNER)
            ---------------------------------------------------------------------- */}
-        <section className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24 lg:px-8 font-sans">
-          <div className="relative overflow-hidden rounded-3xl border-4 border-foreground bg-card p-8 text-center shadow-[12px_12px_0px_0px_var(--foreground)] sm:p-14 md:p-16 select-none">
+        <section className="relative mx-auto max-w-6xl px-4 py-12 sm:py-24 lg:px-8 font-sans">
+          <div className="relative overflow-hidden rounded-3xl border-2 border-foreground bg-card p-5 text-center shadow-[6px_6px_0px_0px_var(--foreground)] sm:border-4 sm:p-14 sm:shadow-[12px_12px_0px_0px_var(--foreground)] md:p-16 select-none">
             {/* High opacity glowing background gradient */}
             <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_30%_0%,var(--primary)/0.25,transparent_50%)]" />
             {/* Soft grid lines inside the banner */}
@@ -373,7 +379,7 @@ export default function LandingPage() {
                 ÚLTIMO PASO
               </Badge>
 
-              <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl max-w-4xl mx-auto tracking-tight">
+              <h2 className="text-xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl max-w-4xl mx-auto tracking-tight">
                 Si quieres vender servicios en Upwork, empieza por{" "}
                 <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-500 underline decoration-foreground decoration-wavy decoration-3 underline-offset-4">
                   aprender a competir con criterio.
@@ -415,3 +421,4 @@ function LinkButton({ children, className, ...props }: LinkButtonProps) {
     </Link>
   );
 }
+

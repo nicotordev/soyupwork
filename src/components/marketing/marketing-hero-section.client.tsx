@@ -13,7 +13,7 @@ import { Motion } from "@/components/common/motion";
 
 export function MarketingHeroSectionClient() {
   return (
-    <section className="mx-auto max-w-7xl overflow-x-hidden px-4 pb-14 pt-10 sm:px-6 sm:pb-20 sm:pt-12 lg:grid lg:grid-cols-12 lg:gap-12 lg:items-center lg:px-8 lg:pt-20">
+    <section className="mx-auto max-w-7xl overflow-x-hidden px-4 pb-14 py-24 sm:px-6 sm:pb-20 lg:grid lg:grid-cols-12 lg:gap-12 lg:items-center lg:px-8">
       <div className="space-y-8 text-center lg:col-span-6 lg:text-left">
         <div className="space-y-4">
           <Motion
@@ -23,13 +23,11 @@ export function MarketingHeroSectionClient() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl"
           >
-            Aprende Upwork con{" "}
-            <span className="text-primary drop-shadow-sm">
-              gente que lo trabaja
-            </span>{" "}
-            y gana dinero{" "}
-            <span className="text-green-600 drop-shadow-sm">$$</span>
+            Convierte tu talento en{" "}
+            <span className="text-green-600 drop-shadow-sm">ingresos $$</span>
           </Motion>
+
+
 
           <Motion
             as="p"
