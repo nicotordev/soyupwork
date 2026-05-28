@@ -29,6 +29,23 @@ export async function getCoursePageForAdminPreview(
   });
 }
 
+/** Public marketing demo — published courses only, full access like admin preview. */
+export async function getCoursePageForPublicDemo(
+  courseSlug: string,
+): Promise<CoursePageData | null> {
+  const course = await prisma.course.findUnique({
+    where: { slug: courseSlug, status: CourseStatus.PUBLISHED },
+    include: coursePageInclude,
+  });
+
+  if (!course) return null;
+
+  return buildCoursePageData(course, {
+    mode: "publicDemo",
+    hasFullAccess: true,
+  });
+}
+
 export async function getCoursePageForStudent(
   courseSlug: string,
 ): Promise<CoursePageData | null> {

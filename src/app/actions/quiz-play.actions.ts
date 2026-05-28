@@ -1,5 +1,12 @@
 "use server";
 
+import { CourseStatus } from "@/generated/prisma/client";
+import {
+  getDummyQuizPlayData,
+  gradeDummyQuizAnswer,
+  isDummyDemoCourse,
+  submitDummyQuizAttempt,
+} from "@/lib/demo/dummy-quiz-data";
 import { requireAdmin } from "@/lib/auth/admin";
 import { requireStudent } from "@/lib/auth/student";
 import { userHasActiveEnrollment } from "@/lib/course/get-course-page-data";
@@ -16,10 +23,15 @@ import type {
   SubmitQuizAttemptResult,
 } from "@/types/quiz-play.types";
 
+type QuizPlayAccessOptions = {
+  adminPreview?: boolean;
+  publicDemo?: boolean;
+};
+
 async function assertLessonQuizAccess(
   lessonId: string,
   courseId: string,
-  options: { adminPreview: boolean },
+  options: QuizPlayAccessOptions,
 ) {
   const lesson = await prisma.lesson.findFirst({
     where: {
@@ -60,6 +72,17 @@ async function assertLessonQuizAccess(
 
   if (options.adminPreview) {
     await requireAdmin();
+    return { ok: true as const, lesson, saveAttempts: false };
+  }
+
+  if (options.publicDemo) {
+    const published = await prisma.course.findFirst({
+      where: { id: courseId, status: CourseStatus.PUBLISHED },
+      select: { id: true },
+    });
+    if (!published) {
+      return { ok: false as const, error: "Curso no disponible en la demo." };
+    }
     return { ok: true as const, lesson, saveAttempts: false };
   }
 
@@ -122,7 +145,7 @@ function gradeAnswer(correctIds: string[], selectedIds: string[]): boolean {
 export async function getQuizPlayData(
   lessonId: string,
   courseId: string,
-  adminPreview = false,
+  preview: QuizPlayAccessOptions = {},
 ): Promise<GetQuizPlayDataResult> {
   try {
     const parsed = quizPlayLessonSchema.safeParse({ lessonId, courseId });
@@ -130,10 +153,14 @@ export async function getQuizPlayData(
       return { ok: false, error: "Datos inválidos." };
     }
 
+    if (preview.publicDemo && isDummyDemoCourse(parsed.data.courseId)) {
+      return getDummyQuizPlayData(parsed.data.lessonId);
+    }
+
     const access = await assertLessonQuizAccess(
       parsed.data.lessonId,
       parsed.data.courseId,
-      { adminPreview },
+      preview,
     );
 
     if (!access.ok) {
@@ -184,6 +211,7 @@ export async function gradeQuizAnswer(input: {
   optionIds: string[];
   timedOut?: boolean;
   adminPreview?: boolean;
+  publicDemo?: boolean;
 }): Promise<GradeQuizAnswerResult> {
   try {
     const parsed = gradeQuizAnswerSchema.safeParse(input);
@@ -194,10 +222,21 @@ export async function gradeQuizAnswer(input: {
       };
     }
 
+    if (input.publicDemo && isDummyDemoCourse(parsed.data.courseId)) {
+      return gradeDummyQuizAnswer({
+        questionId: parsed.data.questionId,
+        optionIds: parsed.data.optionIds,
+        timedOut: parsed.data.timedOut,
+      });
+    }
+
     const access = await assertLessonQuizAccess(
       parsed.data.lessonId,
       parsed.data.courseId,
-      { adminPreview: input.adminPreview ?? false },
+      {
+        adminPreview: input.adminPreview ?? false,
+        publicDemo: input.publicDemo ?? false,
+      },
     );
 
     if (!access.ok) {
@@ -254,6 +293,7 @@ export async function submitQuizAttempt(input: {
   courseId: string;
   answers: { questionId: string; optionIds: string[] }[];
   adminPreview?: boolean;
+  publicDemo?: boolean;
 }): Promise<SubmitQuizAttemptResult> {
   try {
     const parsed = submitQuizAttemptSchema.safeParse(input);
@@ -264,10 +304,17 @@ export async function submitQuizAttempt(input: {
       };
     }
 
+    if (input.publicDemo && isDummyDemoCourse(parsed.data.courseId)) {
+      return submitDummyQuizAttempt(parsed.data.answers);
+    }
+
     const access = await assertLessonQuizAccess(
       parsed.data.lessonId,
       parsed.data.courseId,
-      { adminPreview: input.adminPreview ?? false },
+      {
+        adminPreview: input.adminPreview ?? false,
+        publicDemo: input.publicDemo ?? false,
+      },
     );
 
     if (!access.ok) {

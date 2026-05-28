@@ -10,10 +10,15 @@ import { QuizIntroScreen } from "@/components/course/quiz/quiz-intro-screen";
 import { QuizQuestionScreen } from "@/components/course/quiz/quiz-question-screen";
 import { QuizResultsScreen } from "@/components/course/quiz/quiz-results-screen";
 import { QUIZ_PLAY } from "@/constants/quiz-play.constants";
+import {
+  isAdminPreviewMode,
+  isPreviewMode,
+  isPublicDemoMode,
+} from "@/lib/course/course-page-mode";
 import type { CoursePageMode } from "@/types/course-page.types";
 import type { QuizAnswerInput, QuizPlayData } from "@/types/quiz-play.types";
 import { AnimatePresence } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "@/lib/toast";
 
 type GamePhase = "loading" | "intro" | "question" | "feedback" | "results";
@@ -31,7 +36,14 @@ export function CourseQuizPlayer({
   lessonTitle,
   mode,
 }: CourseQuizPlayerProps) {
-  const adminPreview = mode === "adminPreview";
+  const previewAccess = useMemo(
+    () => ({
+      adminPreview: isAdminPreviewMode(mode),
+      publicDemo: isPublicDemoMode(mode),
+    }),
+    [mode],
+  );
+  const previewMode = isPreviewMode(mode);
 
   const [phase, setPhase] = useState<GamePhase>("loading");
   const [quiz, setQuiz] = useState<QuizPlayData | null>(null);
@@ -65,7 +77,7 @@ export function CourseQuizPlayer({
 
   const loadQuiz = useCallback(async () => {
     setPhase("loading");
-    const result = await getQuizPlayData(lessonId, courseId, adminPreview);
+    const result = await getQuizPlayData(lessonId, courseId, previewAccess);
 
     if (!result.ok) {
       toast.error(result.error);
@@ -81,7 +93,7 @@ export function CourseQuizPlayer({
     setPreviousAttempt(result.previousAttempt);
     setSaveAttempts(result.saveAttempts);
     setPhase("intro");
-  }, [lessonId, courseId, adminPreview]);
+  }, [lessonId, courseId, previewAccess]);
 
   useEffect(() => {
     void loadQuiz();
@@ -115,7 +127,7 @@ export function CourseQuizPlayer({
           lessonId,
           courseId,
           answers,
-          adminPreview,
+          ...previewAccess,
         });
         setIsSubmitting(false);
 
@@ -140,7 +152,7 @@ export function CourseQuizPlayer({
     setSecondsLeft(QUIZ_PLAY.timerSeconds);
     timedOutHandledRef.current = false;
     setPhase("question");
-  }, [quiz, questionIndex, answers, lessonId, courseId, adminPreview]);
+  }, [quiz, questionIndex, answers, lessonId, courseId, previewAccess]);
 
   const confirmAnswer = useCallback(
     async (timedOut = false) => {
@@ -159,7 +171,7 @@ export function CourseQuizPlayer({
         questionId: currentQuestion.id,
         optionIds: selectedOptionIds,
         timedOut,
-        adminPreview,
+        ...previewAccess,
       });
 
       setIsSubmitting(false);
@@ -190,7 +202,7 @@ export function CourseQuizPlayer({
       answers,
       lessonId,
       courseId,
-      adminPreview,
+      previewAccess,
     ],
   );
 
@@ -248,9 +260,11 @@ export function CourseQuizPlayer({
         <h1 className="text-xl font-extrabold tracking-tight sm:text-2xl">
           {lessonTitle}
         </h1>
-        {adminPreview || !saveAttempts ? (
+        {previewMode || !saveAttempts ? (
           <p className="mt-1 font-mono text-[10px] uppercase text-amber-600 dark:text-amber-400">
-            Vista previa — los intentos no se guardan en la base de datos
+            {previewAccess.publicDemo
+              ? "Demo — los intentos no se guardan"
+              : "Vista previa — los intentos no se guardan en la base de datos"}
           </p>
         ) : (
           <p className="mt-1 font-mono text-[10px] uppercase text-muted-foreground">

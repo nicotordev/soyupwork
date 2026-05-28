@@ -1,4 +1,10 @@
+import { CourseDemoBanner } from "@/components/course/course-demo-banner";
 import { CoursePreviewBanner } from "@/components/course/course-preview-banner";
+import {
+  isAdminPreviewMode,
+  isPreviewMode,
+  isPublicDemoMode,
+} from "@/lib/course/course-page-mode";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
@@ -13,11 +19,13 @@ type CourseLandingViewProps = {
   data: CoursePageData;
   buildLessonHref: (lessonSlug: string) => string;
   courseLandingHref: string;
+  showModeBanner?: boolean;
 };
 
 export function CourseLandingView({
   data,
   buildLessonHref,
+  showModeBanner = true,
 }: CourseLandingViewProps) {
   const { view, mode } = data;
   const continueHref = view.firstLessonSlug
@@ -26,9 +34,10 @@ export function CourseLandingView({
 
   return (
     <div className="flex min-h-svh flex-col">
-      {mode === "adminPreview" ? (
+      {isAdminPreviewMode(mode) ? (
         <CoursePreviewBanner courseId={view.id} />
       ) : null}
+      {showModeBanner && isPublicDemoMode(mode) ? <CourseDemoBanner /> : null}
 
       <div className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-8 sm:px-6">
         <header className="space-y-6">
@@ -98,7 +107,7 @@ export function CourseLandingView({
           {continueHref ? (
             <Button asChild className={adminBrutalButtonClass}>
               <Link href={continueHref}>
-                {view.hasFullAccess || mode === "adminPreview"
+                {view.hasFullAccess || isPreviewMode(mode)
                   ? COURSE_PAGE.continueLabel
                   : COURSE_PAGE.startLabel}
               </Link>

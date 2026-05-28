@@ -5,7 +5,7 @@ import type {
   LessonVideoStatus,
 } from "@/generated/prisma/client";
 
-export type CoursePageMode = "student" | "adminPreview";
+export type CoursePageMode = "student" | "adminPreview" | "publicDemo";
 
 export type CoursePageQuizSummary = {
   id: string;

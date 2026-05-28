@@ -32,6 +32,14 @@ export const ADMIN_COURSE_PREVIEW_PAGE = {
   backToEditor: "Volver al editor",
 } as const;
 
+export const PUBLIC_DEMO_PAGE = {
+  bannerTitle: "Demostración en vivo",
+  bannerDescription:
+    "Explorá el curso como lo verías en producción. Los quizzes no guardan intentos. Puede ser contenido de ejemplo.",
+  backToHome: "Volver al inicio",
+  waitlistCta: "Unirme a la lista",
+} as const;
+
 export const LESSON_TYPE_ICONS_LABEL: Record<LessonType, string> = {
   VIDEO: "Vídeo",
   TEXT: "Texto",

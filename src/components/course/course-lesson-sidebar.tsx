@@ -22,6 +22,7 @@ type CourseLessonSidebarProps = {
   activeLessonSlug: string;
   lessonBasePath: string;
   courseLandingHref: string;
+  buildLessonHref?: (lessonSlug: string) => string;
 };
 
 function LessonTypeIcon({ type }: { type: CoursePageLesson["type"] }) {
@@ -40,7 +41,10 @@ export function CourseLessonSidebar({
   activeLessonSlug,
   lessonBasePath,
   courseLandingHref,
+  buildLessonHref,
 }: CourseLessonSidebarProps) {
+  const lessonHref = (slug: string) =>
+    buildLessonHref?.(slug) ?? `${lessonBasePath}/${slug}`;
   return (
     <aside className="flex h-full flex-col border-r-2 border-foreground bg-muted/20">
       <div className="border-b-2 border-foreground px-3 py-3">
@@ -105,10 +109,7 @@ export function CourseLessonSidebar({
 
                 return (
                   <li key={lesson.id}>
-                    <Link
-                      href={`${lessonBasePath}/${lesson.slug}`}
-                      className={itemClass}
-                    >
+                    <Link href={lessonHref(lesson.slug)} className={itemClass}>
                       {content}
                       <span className="sr-only">
                         {LESSON_TYPE_ICONS_LABEL[lesson.type]}
