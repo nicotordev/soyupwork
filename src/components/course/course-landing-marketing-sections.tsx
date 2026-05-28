@@ -5,8 +5,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Flame, Zap } from "lucide-react";
+import {
+  FaCloudUploadAlt,
+  FaCertificate,
+  FaStream,
+  FaDatabase,
+} from "react-icons/fa";
+import { FiShield, FiZap } from "react-icons/fi";
 import Link from "next/link";
+
+// These color classes should match the ones defined in @src/app/globals.css
+// e.g., 'text-primary', 'text-secondary', 'bg-primary', etc.
 
 type FaqItem = {
   q: string;
@@ -21,6 +30,75 @@ type CourseLandingMarketingSectionsProps = {
   faqItems: readonly FaqItem[];
 };
 
+const features = [
+  {
+    icon: (
+      <FaCloudUploadAlt
+        className="absolute top-1 left-1 size-5 text-primary"
+        aria-hidden="true"
+      />
+    ),
+    title: "Aprende con sistema, no con atajos.",
+    description:
+      "Si buscas upwork como funciona, aqui no te vendemos teoria vacia: trabajas con flujo real de perfil, propuesta, entrevista y cierre.",
+  },
+  {
+    icon: (
+      <FaCertificate
+        className="absolute top-1 left-1 size-5 text-primary"
+        aria-hidden="true"
+      />
+    ),
+    title: "Ruta clara para principiantes.",
+    description:
+      "Desde upwork para principiantes hasta propuestas que convierten: contenido guiado para avanzar con criterio, incluso si hoy estas sin experiencia.",
+  },
+  {
+    icon: (
+      <FaStream
+        className="absolute top-1 left-1 size-5 text-primary"
+        aria-hidden="true"
+      />
+    ),
+    title: "Economia de Connects con estrategia.",
+    description:
+      "Aprende cuando aplicar, cuanto pujar y como proteger presupuesto. Ideal para quien busca buy connects upwork sin desperdiciar intentos.",
+  },
+  {
+    icon: (
+      <FiShield
+        className="absolute top-1 left-1 size-5 text-primary"
+        aria-hidden="true"
+      />
+    ),
+    title: "Enfoque real para LATAM.",
+    description:
+      "Resolvemos dudas comunes como upwork es confiable y aterrizamos operacion freelance para trabajar remoto desde Chile y toda LATAM.",
+  },
+  {
+    icon: (
+      <FiZap
+        className="absolute top-1 left-1 size-5 text-primary"
+        aria-hidden="true"
+      />
+    ),
+    title: "Aplicable por nicho.",
+    description:
+      "Ya seas upwork asistente virtual, upwork web developer o perfil creativo, adaptas frameworks de propuestas y pricing a tu servicio.",
+  },
+  {
+    icon: (
+      <FaDatabase
+        className="absolute top-1 left-1 size-5 text-primary"
+        aria-hidden="true"
+      />
+    ),
+    title: "Plataforma propia y progreso real.",
+    description:
+      "No es un PDF suelto: es software con lecciones, quizzes y seguimiento para convertir aprendizaje en resultados medibles en Upwork.",
+  },
+];
+
 export function CourseLandingMarketingSections({
   continueHref,
   ctaLabel,
@@ -29,154 +107,50 @@ export function CourseLandingMarketingSections({
   faqItems,
 }: CourseLandingMarketingSectionsProps) {
   return (
-    <>
-      <section className="rounded-3xl border border-foreground/10 bg-card p-6">
-        <h2 className="mb-4 text-2xl font-black">
-          Ecosistema freelancer moderno
-        </h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-          {ecosystemTools.map((tool) => (
-            <div
-              key={tool}
-              className="rounded-xl border border-foreground/10 bg-background px-3 py-2 text-center text-xs text-muted-foreground"
-            >
-              {tool}
+    <div className="bg-background py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl sm:text-center">
+          <h2 className="text-base font-semibold text-primary">
+            Academia práctica para Upwork
+          </h2>
+          <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty text-foreground sm:text-5xl">
+            De entender Upwork a competir con criterio comercial.
+          </p>
+          <p className="mt-6 text-lg text-muted-foreground">
+            SoyUpwork es una plataforma para freelancers que quieren resultados
+            reales: perfil, nicho, propuestas, entrevistas, pricing y operación.
+            Si hoy estás buscando upwork chile, upwork opiniones o cómo
+            conseguir trabajo en Upwork, este es el punto de partida correcto.
+          </p>
+        </div>
+      </div>
+      <div className="relative overflow-hidden pt-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <img
+            width={2432}
+            height={1442}
+            src="/img/home/hero.webp"
+            alt="Software de SoyUpwork para aprender y ejecutar estrategias de Upwork"
+            className="mb-[-12%] rounded-xl shadow-2xl ring-1 ring-border"
+          />
+          <div aria-hidden="true" className="relative">
+            <div className="absolute -inset-x-20 bottom-0 bg-linear-to-t from-background pt-[7%]" />
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8">
+        <dl className="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base text-muted-foreground sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
+          {features.map((feature, idx) => (
+            <div className="relative pl-9" key={idx}>
+              <dt className="inline font-semibold text-foreground">
+                {feature.icon}
+                {feature.title}
+              </dt>
+              <dd className="inline">{feature.description}</dd>
             </div>
           ))}
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-2xl font-black sm:text-3xl">Comparativa clara</h2>
-        <div className="overflow-x-auto rounded-2xl border border-foreground/10 bg-card">
-          <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-foreground/10 bg-muted/40">
-              <tr>
-                <th className="px-4 py-3">Característica</th>
-                <th className="px-4 py-3 text-emerald-600">soyup.work</th>
-                <th className="px-4 py-3">Curso freelance genérico</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ["Estrategia real de Upwork", "Sí", "Parcial"],
-                ["Workflows con IA", "Sí", "No"],
-                ["Sistemas de propuestas", "Sí", "Básico"],
-                ["Pagos internacionales LATAM", "Sí", "No"],
-                ["Sistema fiscal para freelancers", "Sí", "No"],
-                ["Preparación de entrevistas", "Sí", "Poco"],
-                ["Templates descargables", "Sí", "Limitado"],
-                ["Actualizaciones continuas", "Sí", "No"],
-                ["Enfoque práctico-operativo", "Total", "Teórico"],
-              ].map((row) => (
-                <tr key={row[0]} className="border-b border-foreground/5">
-                  <td className="px-4 py-3">{row[0]}</td>
-                  <td className="px-4 py-3 font-semibold text-emerald-600 dark:text-emerald-400">
-                    {row[1]}
-                  </td>
-                  <td className="px-4 py-3 text-muted-foreground">{row[2]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-2xl font-black sm:text-3xl">FAQ</h2>
-        <Accordion
-          type="single"
-          collapsible
-          className="border-0 bg-transparent"
-        >
-          {faqItems.map((item, idx) => (
-            <AccordionItem
-              key={item.q}
-              value={`faq-${idx}`}
-              className="mb-2 rounded-2xl border border-foreground/10 bg-card px-3"
-            >
-              <AccordionTrigger className="no-underline hover:no-underline">
-                <span className="text-sm font-semibold">{item.q}</span>
-              </AccordionTrigger>
-              <AccordionContent className="text-sm text-muted-foreground">
-                {item.a}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </section>
-
-      <section className="rounded-3xl bg-zinc-950 p-8 text-zinc-100">
-        <p className="mb-2 inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-1 font-mono text-[10px] uppercase text-emerald-300">
-          <Flame className="size-3.5" />
-          Cohorte activa
-        </p>
-        <h2 className="max-w-3xl text-3xl font-black leading-tight sm:text-4xl">
-          Tu competencia ya está automatizando propuestas. No te quedes atrás.
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm text-zinc-300">
-          Aprende a construir un negocio freelance global con sistemas, no con
-          hacks. Garantía de 7 días y pago seguro por Stripe.
-        </p>
-        <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full">
-          {continueHref ? (
-            <Button
-              asChild
-              className="h-11 w-full sm:w-auto bg-emerald-500 px-5 text-zinc-900 hover:bg-emerald-400 flex items-center justify-center shrink-0"
-            >
-              <Link href={continueHref}>
-                {ctaLabel}
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          ) : null}
-          <p className="text-xs text-zinc-400 text-center sm:text-left">
-            {enrolledStudentCount} estudiantes · Checkout seguro · Acceso
-            lifetime
-          </p>
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-foreground/10 bg-card p-6">
-        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
-          {[
-            ["Courses", "Upwork Mastery", "Proposal OS", "AI Freelance Stack"],
-            ["Resources", "Guías", "Plantillas", "Blog"],
-            ["Community", "Discord privado", "Eventos", "Office hours"],
-            ["Legal", "Términos", "Privacidad", "Reembolsos"],
-            [
-              "Support",
-              "help@soyup.work",
-              "Centro de ayuda",
-              "Estado de plataforma",
-            ],
-            ["Socials", "X", "YouTube", "LinkedIn"],
-          ].map((column) => (
-            <div key={column[0]}>
-              <p className="mb-2 font-mono text-[10px] uppercase text-muted-foreground">
-                {column[0]}
-              </p>
-              <ul className="space-y-1 text-sm">
-                {column.slice(1).map((item) => (
-                  <li key={item} className="text-muted-foreground">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className="mt-6 flex flex-col justify-between gap-3 border-t border-foreground/10 pt-4 text-xs text-muted-foreground sm:flex-row">
-          <p>
-            © {new Date().getFullYear()} soyup.work. Todos los derechos
-            reservados.
-          </p>
-          <p className="inline-flex items-center gap-1">
-            <Zap className="size-3.5 text-emerald-500" />
-            Newsletter semanal + comunidad privada para estudiantes.
-          </p>
-        </div>
-      </section>
-    </>
+        </dl>
+      </div>
+    </div>
   );
 }

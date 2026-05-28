@@ -105,8 +105,6 @@ export function CourseLandingView({
             buildLessonHref={buildLessonHref}
           />
 
-          <CourseLandingReviews reviews={reviews} />
-
           <CourseLandingMarketingSections
             continueHref={continueHref}
             ctaLabel={ctaLabel}
