@@ -1,6 +1,6 @@
 import { getCoursePageForAdminPreview } from "@/app/actions/course-page.actions";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
-import { findLessonInView } from "@/lib/course/get-course-page-data";
+import { findLessonInView } from "@/lib/course/course-page-view";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 

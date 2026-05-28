@@ -1,6 +1,6 @@
 import { CourseLandingView } from "@/components/course/course-landing-view";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
-import { findLessonInView } from "@/lib/course/get-course-page-data";
+import { findLessonInView } from "@/lib/course/course-page-view";
 import type { CoursePageData } from "@/types/course-page.types";
 import type { CatalogSection } from "@/types/marketing-nav.types";
 

@@ -48,7 +48,7 @@ export function CourseLessonSidebar({
       ? `${lessonBasePath}?leccion=${encodeURIComponent(slug)}`
       : `${lessonBasePath}/${slug}`;
   return (
-    <aside className="flex h-full flex-col border-r-2 border-foreground bg-muted/20">
+    <aside className="flex h-full flex-col lg:border-r-2 border-foreground bg-muted/20">
       <div className="border-b-2 border-foreground px-3 py-3">
         <Link
           href={courseLandingHref}

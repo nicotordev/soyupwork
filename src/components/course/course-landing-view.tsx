@@ -1,10 +1,6 @@
 import { CourseDemoBanner } from "@/components/course/course-demo-banner";
 import { CourseLandingHero } from "@/components/course/course-landing-hero";
-import {
-  ecosystemTools,
-  faqItems,
-  syllabusPlan,
-} from "@/constants/course-landing.constants";
+import { ecosystemTools, faqItems } from "@/constants/course-landing.constants";
 import { CourseLandingMarketingSections } from "@/components/course/course-landing-marketing-sections";
 import { CourseLandingReviews } from "@/components/course/course-landing-reviews";
 import { CourseLandingSyllabus } from "@/components/course/course-landing-syllabus";
@@ -92,22 +88,20 @@ export function CourseLandingView({
         {showModeBanner && isPublicDemoMode(mode) ? <CourseDemoBanner /> : null}
 
         <CourseLandingHero
-            view={view}
-            continueHref={continueHref}
-            ctaLabel={ctaLabel}
-            estimatedHoursLabel={estimatedHoursLabel}
-            dynamicFeatureItems={dynamicFeatureItems}
-            averageRating={averageRating}
-            reviewCount={reviewCount}
-            enrolledStudentCount={enrolledStudentCount}
-          />
+          view={view}
+          continueHref={continueHref}
+          ctaLabel={ctaLabel}
+          estimatedHoursLabel={estimatedHoursLabel}
+          dynamicFeatureItems={dynamicFeatureItems}
+          averageRating={averageRating}
+          reviewCount={reviewCount}
+          enrolledStudentCount={enrolledStudentCount}
+        />
 
-        <div className="mx-auto w-full max-w-7xl space-y-16 px-4 py-8 sm:px-6 lg:px-8 lg:py-14">
-
+        <div className="mx-auto w-full max-w-7xl space-y-16 px-4 py-8 pt-8 sm:px-6 lg:px-8 lg:py-14 lg:pt-24">
           <CourseLandingSyllabus
             view={view}
             hasAnyLessons={hasAnyLessons}
-            syllabusPlan={syllabusPlan}
             buildLessonHref={buildLessonHref}
           />
 

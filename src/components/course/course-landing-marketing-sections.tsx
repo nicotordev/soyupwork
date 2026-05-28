@@ -118,11 +118,11 @@ export function CourseLandingMarketingSections({
           Aprende a construir un negocio freelance global con sistemas, no con
           hacks. Garantía de 7 días y pago seguro por Stripe.
         </p>
-        <div className="mt-6 flex flex-wrap items-center gap-3">
+        <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 w-full">
           {continueHref ? (
             <Button
               asChild
-              className="h-11 bg-emerald-500 px-5 text-zinc-900 hover:bg-emerald-400"
+              className="h-11 w-full sm:w-auto bg-emerald-500 px-5 text-zinc-900 hover:bg-emerald-400 flex items-center justify-center shrink-0"
             >
               <Link href={continueHref}>
                 {ctaLabel}
@@ -130,7 +130,7 @@ export function CourseLandingMarketingSections({
               </Link>
             </Button>
           ) : null}
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-zinc-400 text-center sm:text-left">
             {enrolledStudentCount} estudiantes · Checkout seguro · Acceso
             lifetime
           </p>
@@ -138,7 +138,7 @@ export function CourseLandingMarketingSections({
       </section>
 
       <section className="rounded-3xl border border-foreground/10 bg-card p-6">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
           {[
             ["Courses", "Upwork Mastery", "Proposal OS", "AI Freelance Stack"],
             ["Resources", "Guías", "Plantillas", "Blog"],

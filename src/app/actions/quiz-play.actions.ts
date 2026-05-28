@@ -148,13 +148,16 @@ export async function getQuizPlayData(
   preview: QuizPlayAccessOptions = {},
 ): Promise<GetQuizPlayDataResult> {
   try {
+    if (preview.publicDemo && isDummyDemoCourse(courseId)) {
+      if (!lessonId) {
+        return { ok: false, error: "Datos inválidos." };
+      }
+      return getDummyQuizPlayData(lessonId);
+    }
+
     const parsed = quizPlayLessonSchema.safeParse({ lessonId, courseId });
     if (!parsed.success) {
       return { ok: false, error: "Datos inválidos." };
-    }
-
-    if (preview.publicDemo && isDummyDemoCourse(parsed.data.courseId)) {
-      return getDummyQuizPlayData(parsed.data.lessonId);
     }
 
     const access = await assertLessonQuizAccess(
@@ -214,20 +217,24 @@ export async function gradeQuizAnswer(input: {
   publicDemo?: boolean;
 }): Promise<GradeQuizAnswerResult> {
   try {
+    if (input.publicDemo && isDummyDemoCourse(input.courseId)) {
+      if (!input.questionId || !Array.isArray(input.optionIds)) {
+        return { ok: false, error: "Datos inválidos." };
+      }
+
+      return gradeDummyQuizAnswer({
+        questionId: input.questionId,
+        optionIds: input.optionIds,
+        timedOut: input.timedOut,
+      });
+    }
+
     const parsed = gradeQuizAnswerSchema.safeParse(input);
     if (!parsed.success) {
       return {
         ok: false,
         error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
       };
-    }
-
-    if (input.publicDemo && isDummyDemoCourse(parsed.data.courseId)) {
-      return gradeDummyQuizAnswer({
-        questionId: parsed.data.questionId,
-        optionIds: parsed.data.optionIds,
-        timedOut: parsed.data.timedOut,
-      });
     }
 
     const access = await assertLessonQuizAccess(
@@ -296,16 +303,20 @@ export async function submitQuizAttempt(input: {
   publicDemo?: boolean;
 }): Promise<SubmitQuizAttemptResult> {
   try {
+    if (input.publicDemo && isDummyDemoCourse(input.courseId)) {
+      if (!input.lessonId || !Array.isArray(input.answers)) {
+        return { ok: false, error: "Datos inválidos." };
+      }
+
+      return submitDummyQuizAttempt(input.lessonId, input.answers);
+    }
+
     const parsed = submitQuizAttemptSchema.safeParse(input);
     if (!parsed.success) {
       return {
         ok: false,
         error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
       };
-    }
-
-    if (input.publicDemo && isDummyDemoCourse(parsed.data.courseId)) {
-      return submitDummyQuizAttempt(parsed.data.answers);
     }
 
     const access = await assertLessonQuizAccess(

@@ -1,6 +1,6 @@
 import { DemoPresentation } from "@/components/demo/demo-presentation";
 import { loadDemoCoursePage } from "@/lib/demo/load-demo-course";
-import { findLessonInView } from "@/lib/course/get-course-page-data";
+import { findLessonInView } from "@/lib/course/course-page-view";
 import type { Metadata } from "next";
 import { getCatalogNavSections } from "../actions/catalog.actions";
 import { getClerkSession } from "@/lib/clerk/session";

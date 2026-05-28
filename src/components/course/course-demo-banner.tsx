@@ -4,17 +4,17 @@ import Link from "next/link";
 
 export function CourseDemoBanner() {
   return (
-    <div className="border-b-2 border-primary bg-primary/10 px-4 py-2.5">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="font-mono text-[10px] font-bold uppercase text-primary">
+    <div className="border-b-2 border-primary bg-primary/10 px-4 py-3">
+      <div className="mx-auto flex max-w-6xl flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="space-y-0.5">
+          <p className="font-mono text-[10px] font-bold uppercase text-primary leading-none">
             {PUBLIC_DEMO_PAGE.bannerTitle}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground leading-normal">
             {PUBLIC_DEMO_PAGE.bannerDescription}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3.5 shrink-0">
           <Link
             href="/waitlist"
             className="font-mono text-[10px] font-bold uppercase text-primary underline-offset-4 hover:underline"

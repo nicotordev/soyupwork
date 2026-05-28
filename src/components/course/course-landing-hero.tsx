@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
   CardContent,
@@ -20,7 +19,6 @@ import {
   Play,
   Users,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 type CourseLandingHeroProps = {
@@ -45,7 +43,7 @@ export function CourseLandingHero({
   enrolledStudentCount,
 }: CourseLandingHeroProps) {
   return (
-    <section className="relative isolate overflow-y-visible rounded-[2rem] border border-foreground/20 p-3 sm:p-8">
+    <section className="relative isolate border border-foreground/20 p-3 sm:p-8">
       <div
         aria-hidden
         className="absolute inset-0 -z-10 opacity-75"
@@ -61,29 +59,29 @@ export function CourseLandingHero({
           backgroundSize: "auto, auto, auto, 26px 26px, 26px 26px",
         }}
       />
-      <div className="absolute inset-x-8 top-0 -z-10 h-20 rounded-full bg-emerald-500/10 blur-2xl" />
+      <div className="absolute inset-x-8 top-0 -z-10 h-20 bg-primary/10 blur-2xl" />
 
-      <Card className="mb-12 mt-5 w-full mx-auto max-w-4xl flex flex-col items-center space-y-8 rounded-[1.6rem] border-2 border-foreground bg-card/85 p-5 pb-6 text-center shadow-[8px_8px_0px_0px_var(--foreground)] backdrop-blur-md sm:p-8">
+      <Card className="mb-12 mt-5 w-full mx-auto max-w-4xl flex flex-col items-center space-y-8 rounded-[1.6rem] border-2 border-foreground bg-card/85 p-4 pb-5 text-center shadow-[8px_8px_0px_0px_var(--foreground)] backdrop-blur-md sm:p-8">
         {/* 1. Category, level & Rating Badge row */}
         <div className="flex flex-wrap items-center justify-center gap-2.5">
           {view.categoryName ? (
             <Badge
               variant="default"
-              className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary text-primary-foreground border-2 border-foreground rounded-full font-mono text-[9px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_var(--foreground)]"
+              className="h-7 gap-1.5 border border-foreground/30 px-3.5 text-[0.65rem] font-semibold uppercase tracking-wide"
             >
               <Layers className="size-3" /> {view.categoryName}
             </Badge>
           ) : null}
           <Badge
             variant="secondary"
-            className="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary text-secondary-foreground border-2 border-foreground rounded-full font-mono text-[9px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_var(--foreground)]"
+            className="h-7 gap-1.5 border border-foreground/30 px-3.5 text-[0.65rem] font-semibold uppercase tracking-wide"
           >
             <TrendingUp className="size-3 text-emerald-500" />
             {view.levelLabel}
           </Badge>
           <Badge
             variant="outline"
-            className="inline-flex items-center gap-1.5 px-3 py-1 bg-card text-foreground border-2 border-foreground rounded-full font-mono text-[9px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_var(--foreground)]"
+            className="h-7 gap-1.5 border border-foreground/30 px-3.5 text-[0.65rem] font-semibold uppercase tracking-wide"
           >
             <Star className="size-3 fill-yellow-400 text-yellow-400" />
             {averageRating
@@ -95,7 +93,7 @@ export function CourseLandingHero({
         {/* 2. Headline and description */}
         <div className="space-y-4 max-w-3xl">
           <CardHeader className="p-0">
-            <CardTitle className="text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl leading-tight">
+            <CardTitle className="text-3xl font-black tracking-tight sm:text-5xl lg:text-6xl leading-tight">
               {view.title}
             </CardTitle>
           </CardHeader>
@@ -107,31 +105,29 @@ export function CourseLandingHero({
               </p>
             </CardDescription>
           </CardContent>
+          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+            <Badge className="h-8 border border-emerald-700/20 bg-emerald-500/15 px-4 text-[0.68rem] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+              Inversion
+            </Badge>
+            <p className="rounded-lg border border-foreground/30 bg-background/85 px-4 py-1.5 text-xl font-black text-emerald-600 shadow-sm dark:text-emerald-400">
+              {view.priceLabel}
+            </p>
+          </div>
         </div>
 
-        {/* 3. Horizontal Cohesive Action & Investment Bar */}
-        <div className="flex flex-wrap items-center justify-center gap-4 w-full">
-          {/* Investment block tag */}
-          <Card className="inline-flex flex-col items-start px-4 py-2 bg-emerald-500/10 border-2 border-foreground rounded-xl shadow-[3px_3px_0px_0px_var(--foreground)] select-none">
-            <span className="font-mono text-[8px] uppercase tracking-wider text-emerald-700 dark:text-emerald-300 font-bold">
-              Inversión
-            </span>
-            <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 leading-none mt-0.5">
-              {view.priceLabel}
-            </span>
-          </Card>
-
+        {/* 3. Horizontal actions */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 w-full sm:w-auto">
           {/* Start / Continue Button */}
           {continueHref ? (
-            <div className="transition-transform hover:scale-[1.02] active:scale-[0.98]">
+            <div className="w-full sm:w-auto transition-transform hover:scale-[1.02] active:scale-[0.98]">
               <Button
                 asChild
                 className={cn(
                   adminBrutalButtonClass,
-                  "h-12 bg-primary px-6 text-xs font-black uppercase tracking-wider text-primary-foreground border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none",
+                  "h-12 w-full sm:w-auto bg-primary px-6 text-xs font-black uppercase tracking-wider text-primary-foreground border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none",
                 )}
               >
-                <Link href={continueHref} className="flex items-center gap-2">
+                <Link href={continueHref} className="flex items-center justify-center gap-2">
                   {ctaLabel}
                   <ArrowRight className="size-4 stroke-3" />
                 </Link>
@@ -140,20 +136,20 @@ export function CourseLandingHero({
           ) : null}
 
           {/* View syllabus button */}
-          <div className="transition-transform hover:scale-[1.02] active:scale-[0.98]">
+          <div className="w-full sm:w-auto transition-transform hover:scale-[1.02] active:scale-[0.98]">
             <Button
               asChild
               variant="outline"
-              className="h-12 px-6 border-2 border-foreground hover:bg-muted text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none"
+              className="h-12 w-full sm:w-auto px-6 border-2 border-foreground hover:bg-muted text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none"
             >
-              <Link href="#curriculum">Ver temario completo</Link>
+              <Link href="#curriculum" className="flex items-center justify-center">Ver temario completo</Link>
             </Button>
           </div>
         </div>
       </Card>
 
       {/* 5. Neobrutalist Highlights Stats Grid */}
-      <div className="absolute translate-y-1/2 bottom-0 left-0 right-0 grid gap-4 w-full grid-cols-2 sm:grid-cols-4 pt-4 max-w-7xl mx-auto">
+      <div className="relative mt-8 lg:absolute lg:translate-y-1/2 lg:bottom-0 lg:left-0 lg:right-0 lg:mt-0 grid gap-4 w-full grid-cols-2 sm:grid-cols-4 pt-4 max-w-7xl mx-auto px-4">
         {[
           {
             label: "Alumnos",

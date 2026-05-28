@@ -128,17 +128,6 @@ function findFirstAccessibleLessonSlug(
   return null;
 }
 
-export function findLessonInView(
-  view: CoursePageView,
-  lessonSlug: string,
-): CoursePageLesson | null {
-  for (const module of view.modules) {
-    const lesson = module.lessons.find((item) => item.slug === lessonSlug);
-    if (lesson) return lesson;
-  }
-  return null;
-}
-
 export async function mapDbCourseToCoursePageView(
   dbCourse: DbCoursePage,
   options: {

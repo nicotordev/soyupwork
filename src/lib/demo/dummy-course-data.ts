@@ -4,6 +4,7 @@ import type { CoursePageData } from "@/types/course-page.types";
 const DUMMY_LESSON_VIDEO = "bienvenida";
 const DUMMY_LESSON_TEXT = "lectura-job";
 const DUMMY_LESSON_QUIZ = "quiz-connects";
+const DUMMY_LESSON_QUIZ_RETAINERS = "mini-quiz-retainers";
 
 export function getDummyCoursePageData(): CoursePageData {
   const modules = [
@@ -107,8 +108,263 @@ Abre un job post de tu nicho y anota 3 señales verdes y 2 rojas antes de aplica
           durationSec: null,
           videoPlaybackId: null,
           videoStatus: null,
+          content: `## Caso 1: Proyecto con alcance claro
+
+**Contexto:** cliente con historial, brief detallado y presupuesto medio.
+
+### Apertura sugerida
+
+Hola, revisé que necesitas [resultado específico].
+Ya implementé algo similar en [nicho/proyecto], y en 2 fases podemos tener una primera entrega en 72 horas.
+
+### Qué funciona en esta propuesta
+
+- Menciona el resultado, no tu bio.
+- Propone un plan corto (fases + tiempos).
+- Reduce incertidumbre con un siguiente paso claro.
+
+### Error común
+
+Hablar demasiado de "años de experiencia" sin conectarlo al problema actual.
+
+---
+
+## Caso 2: Proyecto urgente con poca info
+
+**Contexto:** cliente necesita resolver hoy, pero el brief es ambiguo.
+
+### Estrategia
+
+1. Confirma el objetivo principal.
+2. Pide 2 datos críticos para estimar.
+3. Ofrece una versión inicial de alcance acotado.
+
+### Plantilla rápida
+
+Para no hacerte perder tiempo, te propongo resolver primero **[bloque crítico]** hoy, y luego iteramos sobre **[bloque secundario]**.
+
+---
+
+## Caso 3: Proyecto de largo plazo
+
+**Contexto:** cliente busca soporte continuo y no solo una tarea.
+
+### Enfoque recomendado
+
+- Presenta un mini roadmap de 30 días.
+- Define métricas de éxito (velocidad, calidad, impacto).
+- Abre la conversación hacia retainer sin forzar cierre.
+
+### Ejercicio
+
+Toma un job real y escribe 3 versiones de apertura:
+
+- una orientada a urgencia,
+- una orientada a calidad,
+- una orientada a continuidad.`,
+          quiz: null,
+          isAccessible: true,
+        },
+      ],
+    },
+    {
+      id: "demo-mod-3",
+      title: "Entrevistas y cierre",
+      description: "",
+      position: 2,
+      lessons: [
+        {
+          id: "demo-lesson-interview-1",
+          slug: "guion-entrevista",
+          title: "Guion base para entrevistas",
+          description:
+            "Cómo conducir la llamada para vender sin sonar robótico.",
+          type: "VIDEO" as const,
+          position: 0,
+          isPreview: false,
+          durationSec: 720,
+          videoPlaybackId: null,
+          videoStatus: null,
           content: "",
           quiz: null,
+          isAccessible: true,
+        },
+        {
+          id: "demo-lesson-interview-2",
+          slug: "objeciones-frecuentes",
+          title: "Objeciones frecuentes y respuestas",
+          description:
+            "Responde dudas de precio, tiempos y experiencia con claridad.",
+          type: "TEXT" as const,
+          position: 1,
+          isPreview: false,
+          durationSec: null,
+          videoPlaybackId: null,
+          videoStatus: null,
+          content: `## Objeciones frecuentes en entrevistas
+
+Cuando un cliente objeta, normalmente no rechaza tu servicio: **está reduciendo riesgo**.
+
+## 1) "Está fuera de presupuesto"
+
+### Respuesta marco
+
+Entiendo. Para mantener impacto sin comprometer calidad, podemos priorizar **[fase crítica]** ahora y mover **[fase opcional]** a una segunda etapa.
+
+### Clave
+
+- No regales precio de inmediato.
+- Reencuadra por valor y alcance.
+
+## 2) "No sé si eres el perfil correcto"
+
+### Respuesta marco
+
+Totalmente válido. Para que lo evalúes con evidencia, te propongo un primer entregable pequeño en 48h con criterios claros de éxito.
+
+### Clave
+
+- Usa prueba de trabajo.
+- Acorta tiempo de decisión.
+
+## 3) "Necesito pensarlo"
+
+### Respuesta marco
+
+Perfecto. Te dejo por escrito alcance, tiempos y riesgos para que compares con claridad.
+Si te sirve, mañana revisamos 10 minutos solo para resolver dudas.
+
+## Checklist antes de responder objeciones
+
+- ¿Entendí la objeción real o solo la superficial?
+- ¿Estoy defendiendo precio o explicando impacto?
+- ¿Estoy dando una salida fácil al cliente?
+
+## Mini práctica
+
+Escribe 1 respuesta por cada objeción con tu nicho real y léelas en voz alta para mejorar naturalidad.`,
+          quiz: null,
+          isAccessible: true,
+        },
+        {
+          id: "demo-lesson-interview-3",
+          slug: "checklist-cierre",
+          title: "Checklist de cierre y siguiente paso",
+          description:
+            "Plantilla para cerrar acuerdos y activar onboarding rápido.",
+          type: "DOWNLOAD" as const,
+          position: 2,
+          isPreview: false,
+          durationSec: null,
+          videoPlaybackId: null,
+          videoStatus: null,
+          content: "",
+          quiz: null,
+          isAccessible: true,
+        },
+      ],
+    },
+    {
+      id: "demo-mod-4",
+      title: "Entrega y retención",
+      description: "",
+      position: 3,
+      lessons: [
+        {
+          id: "demo-lesson-retention-1",
+          slug: "onboarding-cliente",
+          title: "Onboarding del cliente en 15 minutos",
+          description: "Define expectativas desde el primer mensaje.",
+          type: "VIDEO" as const,
+          position: 0,
+          isPreview: false,
+          durationSec: 540,
+          videoPlaybackId: null,
+          videoStatus: null,
+          content: "",
+          quiz: null,
+          isAccessible: true,
+        },
+        {
+          id: "demo-lesson-retention-2",
+          slug: "sistema-seguimiento",
+          title: "Sistema semanal de seguimiento",
+          description:
+            "Formato simple para avances, bloqueos y próximos pasos.",
+          type: "TEXT" as const,
+          position: 1,
+          isPreview: false,
+          durationSec: null,
+          videoPlaybackId: null,
+          videoStatus: null,
+          content: `## Sistema semanal de seguimiento (simple y efectivo)
+
+Objetivo: mantener al cliente alineado, reducir fricción y detectar oportunidades de expansión.
+
+## Estructura recomendada (cada semana)
+
+### 1. Avances
+
+- Qué se completó.
+- Qué impacto tuvo (métrica o evidencia).
+
+### 2. Bloqueos
+
+- Qué está frenando progreso.
+- Qué decisión necesitas del cliente.
+
+### 3. Próximos pasos
+
+- 2 a 4 acciones concretas.
+- Fechas y responsables.
+
+### 4. Riesgos y mitigación
+
+- Riesgo principal de la semana.
+- Acción preventiva propuesta.
+
+## Plantilla rápida para enviar
+
+Hola [Nombre], te comparto update semanal:
+
+- **Avances:** ...
+- **Impacto observado:** ...
+- **Bloqueos:** ...
+- **Próximos pasos:** ...
+- **Riesgo principal:** ...
+
+Si estás de acuerdo, ejecuto este plan y te envío corte el [día].
+
+## Señales de que ya puedes proponer retainer
+
+- El cliente depende de tu continuidad.
+- Hay backlog recurrente.
+- Ya existe confianza por resultados medibles.
+
+## Ejercicio aplicado
+
+Prepara tu próximo update semanal con esta plantilla y añade una propuesta de mejora para la siguiente semana.`,
+          quiz: null,
+          isAccessible: true,
+        },
+        {
+          id: "demo-lesson-retention-3",
+          slug: DUMMY_LESSON_QUIZ_RETAINERS,
+          title: "Mini quiz: pasar a retainers",
+          description: "Evalúa cuándo y cómo ofrecer continuidad mensual.",
+          type: "QUIZ" as const,
+          position: 2,
+          isPreview: false,
+          durationSec: null,
+          videoPlaybackId: null,
+          videoStatus: null,
+          content: "",
+          quiz: {
+            id: "demo-quiz-2",
+            title: "Retainers y expansión de cuenta",
+            passingScore: 70,
+            questionCount: 4,
+          },
           isAccessible: true,
         },
       ],
@@ -186,5 +442,6 @@ export function getDummyDemoLessonIds() {
     video: "demo-lesson-video",
     text: "demo-lesson-text",
     quiz: "demo-lesson-quiz",
+    quizRetainers: "demo-lesson-retention-3",
   } as const;
 }
