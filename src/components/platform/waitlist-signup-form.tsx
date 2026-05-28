@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import type { PhoneInputField as PhoneInputFieldComponent } from "@/components/platform/phone-input-field";
 import {
   confirmWaitlistVerification,
   requestWaitlistVerification,
@@ -33,7 +34,7 @@ const PhoneInputField = dynamic(
       (module) => module.PhoneInputField,
     ),
   { ssr: false },
-);
+) as typeof PhoneInputFieldComponent;
 
 const waitlistSchema = z
   .object({
