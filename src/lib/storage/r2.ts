@@ -1,8 +1,17 @@
 import "server-only";
 
 import { getResolvedStoragePublicUrl } from "@/lib/platform/settings/resolve";
+import {
+  IMAGE_UPLOAD_CONTENT_TYPES,
+  type ImageUploadContentType,
+} from "@/lib/storage/image-upload.constants";
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
+export {
+  IMAGE_UPLOAD_CONTENT_TYPES,
+  type ImageUploadContentType,
+} from "@/lib/storage/image-upload.constants";
 
 export class StorageConfigError extends Error {
   constructor(message: string) {
@@ -12,15 +21,13 @@ export class StorageConfigError extends Error {
 }
 
 const COURSE_THUMBNAIL_PREFIX = "courses/";
+const USER_AVATAR_PREFIX = "users/avatars/";
 
-export const COURSE_THUMBNAIL_CONTENT_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-] as const;
+/** @deprecated Use IMAGE_UPLOAD_CONTENT_TYPES */
+export const COURSE_THUMBNAIL_CONTENT_TYPES = IMAGE_UPLOAD_CONTENT_TYPES;
 
-export type CourseThumbnailContentType =
-  (typeof COURSE_THUMBNAIL_CONTENT_TYPES)[number];
+/** @deprecated Use ImageUploadContentType */
+export type CourseThumbnailContentType = ImageUploadContentType;
 
 export function isR2Configured(): boolean {
   return Boolean(
@@ -62,9 +69,7 @@ function getR2Client(): S3Client {
   });
 }
 
-function contentTypeToExtension(
-  contentType: CourseThumbnailContentType,
-): string {
+function contentTypeToExtension(contentType: ImageUploadContentType): string {
   switch (contentType) {
     case "image/jpeg":
       return "jpg";
@@ -79,7 +84,7 @@ function contentTypeToExtension(
 
 export function buildCourseThumbnailObjectKey(
   courseId: string,
-  contentType: CourseThumbnailContentType,
+  contentType: ImageUploadContentType,
 ): string {
   const extension = contentTypeToExtension(contentType);
   return `${COURSE_THUMBNAIL_PREFIX}${courseId}/thumbnail-${Date.now()}.${extension}`;
@@ -150,6 +155,73 @@ export async function assertThumbnailUrlAllowed(
 
   const objectKey = thumbnailUrl.slice(normalizedBase.length + 1);
   if (!objectKey.startsWith(COURSE_THUMBNAIL_PREFIX)) {
+    throw new StorageConfigError("La ruta de la imagen no es válida.");
+  }
+}
+
+export function buildUserAvatarObjectKey(
+  userId: string,
+  contentType: ImageUploadContentType,
+): string {
+  const extension = contentTypeToExtension(contentType);
+  return `${USER_AVATAR_PREFIX}${userId}/avatar-${Date.now()}.${extension}`;
+}
+
+export async function createUserAvatarUploadUrl(input: {
+  userId: string;
+  contentType: ImageUploadContentType;
+  contentLength: number;
+}): Promise<{ uploadUrl: string; imageUrl: string; objectKey: string }> {
+  const bucket = process.env.R2_BUCKET?.trim();
+  if (!bucket) {
+    throw new StorageConfigError("R2_BUCKET debe estar configurado.");
+  }
+
+  const publicBaseUrl = await getResolvedStoragePublicUrl();
+  if (!publicBaseUrl) {
+    throw new StorageConfigError(
+      "Configura la URL pública del bucket (R2_PUBLIC_URL o ajustes de almacenamiento).",
+    );
+  }
+
+  const objectKey = buildUserAvatarObjectKey(input.userId, input.contentType);
+  const imageUrl = buildPublicObjectUrl(publicBaseUrl, objectKey);
+
+  const client = getR2Client();
+  const command = new PutObjectCommand({
+    Bucket: bucket,
+    Key: objectKey,
+    ContentType: input.contentType,
+    ContentLength: input.contentLength,
+  });
+
+  const uploadUrl = await getSignedUrl(client, command, { expiresIn: 600 });
+
+  return { uploadUrl, imageUrl, objectKey };
+}
+
+export async function assertUserAvatarUrlAllowed(
+  imageUrl: string,
+  userId: string,
+): Promise<void> {
+  const publicBaseUrl = await getResolvedStoragePublicUrl();
+  if (!publicBaseUrl) {
+    throw new StorageConfigError(
+      "No hay URL pública de almacenamiento configurada.",
+    );
+  }
+
+  const normalizedBase = publicBaseUrl.replace(/\/$/, "");
+  if (
+    !imageUrl.startsWith(`${normalizedBase}/`) &&
+    imageUrl !== normalizedBase
+  ) {
+    throw new StorageConfigError("La URL de la imagen no es válida.");
+  }
+
+  const objectKey = imageUrl.slice(normalizedBase.length + 1);
+  const expectedPrefix = `${USER_AVATAR_PREFIX}${userId}/`;
+  if (!objectKey.startsWith(expectedPrefix)) {
     throw new StorageConfigError("La ruta de la imagen no es válida.");
   }
 }
