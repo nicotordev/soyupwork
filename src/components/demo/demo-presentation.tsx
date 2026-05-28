@@ -2,15 +2,20 @@ import { CourseLandingView } from "@/components/course/course-landing-view";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
 import { findLessonInView } from "@/lib/course/get-course-page-data";
 import type { CoursePageData } from "@/types/course-page.types";
+import type { CatalogSection } from "@/types/marketing-nav.types";
 
 type DemoPresentationProps = {
   data: CoursePageData;
   activeLessonSlug: string | null;
+  isSignedIn: boolean;
+  catalogSections: CatalogSection[];
 };
 
 export function DemoPresentation({
   data,
   activeLessonSlug,
+  isSignedIn,
+  catalogSections,
 }: DemoPresentationProps) {
   const { view } = data;
   const lesson =
@@ -27,7 +32,7 @@ export function DemoPresentation({
       lessonSlug={lesson.slug}
       lessonBasePath="/demo"
       courseLandingHref={courseLandingHref}
-      buildLessonHref={buildLessonHref}
+      lessonHrefMode="query"
       showModeBanner={false}
     />
   ) : (
@@ -36,6 +41,8 @@ export function DemoPresentation({
       buildLessonHref={buildLessonHref}
       courseLandingHref={courseLandingHref}
       showModeBanner={false}
+      isSignedIn={isSignedIn}
+      catalogSections={catalogSections}
     />
   );
 }

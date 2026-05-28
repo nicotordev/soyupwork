@@ -1,211 +1,144 @@
 import { CourseDemoBanner } from "@/components/course/course-demo-banner";
+import { CourseLandingHero } from "@/components/course/course-landing-hero";
+import {
+  ecosystemTools,
+  faqItems,
+  syllabusPlan,
+} from "@/constants/course-landing.constants";
+import { CourseLandingMarketingSections } from "@/components/course/course-landing-marketing-sections";
+import { CourseLandingReviews } from "@/components/course/course-landing-reviews";
+import { CourseLandingSyllabus } from "@/components/course/course-landing-syllabus";
 import { CoursePreviewBanner } from "@/components/course/course-preview-banner";
+import { Button } from "@/components/ui/button";
+import { COURSE_PAGE } from "@/constants/course-page.constants";
+import { adminGridBackgroundClass } from "@/lib/admin/styles";
 import {
   isAdminPreviewMode,
   isPreviewMode,
   isPublicDemoMode,
 } from "@/lib/course/course-page-mode";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { COURSE_PAGE } from "@/constants/course-page.constants";
-import { adminBrutalButtonClass, adminPanelClass } from "@/lib/admin/styles";
-import { cn } from "@/lib/utils";
 import type { CoursePageData } from "@/types/course-page.types";
-import { IconBook, IconCertificate, IconLock } from "@tabler/icons-react";
-import Image from "next/image";
+import type { CatalogSection } from "@/types/marketing-nav.types";
 import Link from "next/link";
+import { MarketingFooter } from "../marketing-footer";
+import { MarketingNav } from "../marketing-nav";
 
 type CourseLandingViewProps = {
   data: CoursePageData;
   buildLessonHref: (lessonSlug: string) => string;
   courseLandingHref: string;
   showModeBanner?: boolean;
+  isSignedIn?: boolean;
+  catalogSections?: CatalogSection[];
 };
 
 export function CourseLandingView({
   data,
   buildLessonHref,
   showModeBanner = true,
+  isSignedIn = false,
+  catalogSections = [],
 }: CourseLandingViewProps) {
   const { view, mode } = data;
+  const reviews = view.reviews ?? [];
+  const averageRating = view.averageRating ?? null;
+  const reviewCount = view.reviewCount ?? reviews.length;
+  const enrolledStudentCount = view.enrolledStudentCount ?? 0;
+  const estimatedDurationHours = view.estimatedDurationHours ?? null;
   const continueHref = view.firstLessonSlug
     ? buildLessonHref(view.firstLessonSlug)
     : null;
+  const totalModuleLessons = view.modules.reduce(
+    (acc, module) => acc + module.lessons.length,
+    0,
+  );
+  const totalDurationSeconds = view.modules.reduce(
+    (moduleAcc, module) =>
+      moduleAcc +
+      module.lessons.reduce(
+        (lessonAcc, lesson) => lessonAcc + (lesson.durationSec ?? 0),
+        0,
+      ),
+    0,
+  );
+  const estimatedHoursLabel =
+    estimatedDurationHours && estimatedDurationHours > 0
+      ? `${estimatedDurationHours} horas`
+      : totalDurationSeconds > 0
+        ? `${Math.max(1, Math.round(totalDurationSeconds / 3600))} horas`
+        : "Duración por definir";
+  const hasAnyLessons = totalModuleLessons > 0;
+  const dynamicFeatureItems =
+    view.modules
+      .flatMap((module) => module.lessons)
+      .slice(0, 4)
+      .map((lesson) => lesson.title) ?? [];
+  const ctaLabel =
+    view.hasFullAccess || isPreviewMode(mode)
+      ? COURSE_PAGE.continueLabel
+      : "Inscribirme ahora";
 
   return (
-    <div className="flex min-h-svh flex-col">
-      {isAdminPreviewMode(mode) ? (
-        <CoursePreviewBanner courseId={view.id} />
-      ) : null}
-      {showModeBanner && isPublicDemoMode(mode) ? <CourseDemoBanner /> : null}
+    <>
+      <MarketingNav isSignedIn={isSignedIn} catalogSections={catalogSections} />
+      <div className="relative min-h-svh overflow-hidden bg-background pb-24 font-sans text-foreground antialiased">
+        <div className={adminGridBackgroundClass} />
+        <div className="pointer-events-none absolute -left-24 top-24 -z-20 size-104 rounded-full bg-primary/15 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 top-72 -z-20 size-112 rounded-full bg-emerald-500/10 blur-3xl" />
 
-      <div className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-8 sm:px-6">
-        <header className="space-y-6">
-          {view.thumbnailUrl ? (
-            <div className="relative aspect-video w-full overflow-hidden rounded-lg border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)]">
-              <Image
-                src={view.thumbnailUrl}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="(max-width: 896px) 100vw, 896px"
-                priority
-                unoptimized
-              />
-            </div>
-          ) : null}
+        {isAdminPreviewMode(mode) ? (
+          <CoursePreviewBanner courseId={view.id} />
+        ) : null}
+        {showModeBanner && isPublicDemoMode(mode) ? <CourseDemoBanner /> : null}
 
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              {view.categoryName ? (
-                <Badge
-                  variant="outline"
-                  className="font-mono text-[9px] uppercase"
-                >
-                  {view.categoryName}
-                </Badge>
-              ) : null}
-              <Badge
-                variant="secondary"
-                className="font-mono text-[9px] uppercase"
-              >
-                {view.levelLabel}
-              </Badge>
-              <span className="font-mono text-xs font-bold">
-                {view.priceLabel}
-              </span>
-            </div>
-            <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-              {view.title}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {view.instructorName}
-            </p>
-            {view.description ? (
-              <p className="text-sm leading-relaxed text-foreground/90">
-                {view.description}
-              </p>
-            ) : null}
-          </div>
+        <CourseLandingHero
+            view={view}
+            continueHref={continueHref}
+            ctaLabel={ctaLabel}
+            estimatedHoursLabel={estimatedHoursLabel}
+            dynamicFeatureItems={dynamicFeatureItems}
+            averageRating={averageRating}
+            reviewCount={reviewCount}
+            enrolledStudentCount={enrolledStudentCount}
+          />
 
-          <div className="flex flex-wrap items-center gap-4 font-mono text-[10px] font-bold uppercase text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <IconBook className="size-3.5 text-primary" stroke={2.25} />
-              {view.moduleCount} módulos · {view.lessonCount} lecciones
-            </span>
-            {view.offersCertificate ? (
-              <span className="inline-flex items-center gap-1">
-                <IconCertificate
-                  className="size-3.5 text-primary"
-                  stroke={2.25}
-                />
-                Certificado
-              </span>
-            ) : null}
-          </div>
+        <div className="mx-auto w-full max-w-7xl space-y-16 px-4 py-8 sm:px-6 lg:px-8 lg:py-14">
 
-          {continueHref ? (
-            <Button asChild className={adminBrutalButtonClass}>
-              <Link href={continueHref}>
-                {view.hasFullAccess || isPreviewMode(mode)
-                  ? COURSE_PAGE.continueLabel
-                  : COURSE_PAGE.startLabel}
-              </Link>
-            </Button>
-          ) : (
-            <p className="font-mono text-xs text-muted-foreground">
-              {COURSE_PAGE.noLessonsYet}
-            </p>
-          )}
+          <CourseLandingSyllabus
+            view={view}
+            hasAnyLessons={hasAnyLessons}
+            syllabusPlan={syllabusPlan}
+            buildLessonHref={buildLessonHref}
+          />
 
-          {mode === "student" && !view.hasFullAccess && !view.isFree ? (
-            <p className="text-sm text-muted-foreground">
-              {COURSE_PAGE.enrollCta}
-            </p>
-          ) : null}
-        </header>
+          <CourseLandingReviews reviews={reviews} />
 
-        <section
-          className={cn(
-            adminPanelClass,
-            "border-2 border-foreground p-4 sm:p-6",
-          )}
-        >
-          <h2 className="mb-4 font-mono text-xs font-bold uppercase">
-            {COURSE_PAGE.syllabusTitle}
-          </h2>
-          <div className="space-y-4">
-            {view.modules.map((module, moduleIndex) => (
-              <div key={module.id}>
-                <h3 className="mb-2 font-semibold">
-                  <span className="font-mono text-[10px] text-muted-foreground">
-                    {moduleIndex + 1}.{" "}
-                  </span>
-                  {module.title}
-                </h3>
-                <ul className="space-y-1">
-                  {module.lessons.map((lesson, lessonIndex) => {
-                    const href = lesson.isAccessible
-                      ? buildLessonHref(lesson.slug)
-                      : null;
-
-                    const row = (
-                      <span className="flex flex-1 items-center gap-2 text-sm">
-                        <span className="font-mono text-[10px] text-muted-foreground">
-                          {lessonIndex + 1}.
-                        </span>
-                        <span
-                          className={
-                            lesson.isAccessible ? "" : "text-muted-foreground"
-                          }
-                        >
-                          {lesson.title}
-                        </span>
-                        {lesson.isPreview && !view.hasFullAccess ? (
-                          <Badge
-                            variant="outline"
-                            className="font-mono text-[8px] uppercase"
-                          >
-                            {COURSE_PAGE.previewLessonBadge}
-                          </Badge>
-                        ) : null}
-                        {!lesson.isAccessible ? (
-                          <IconLock
-                            className="size-3.5 text-muted-foreground"
-                            stroke={2.25}
-                          />
-                        ) : null}
-                      </span>
-                    );
-
-                    if (!href) {
-                      return (
-                        <li
-                          key={lesson.id}
-                          className="flex items-center rounded px-2 py-1.5 opacity-60"
-                        >
-                          {row}
-                        </li>
-                      );
-                    }
-
-                    return (
-                      <li key={lesson.id}>
-                        <Link
-                          href={href}
-                          className="flex items-center rounded border border-transparent px-2 py-1.5 transition-colors hover:border-foreground/25 hover:bg-muted/50"
-                        >
-                          {row}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
+          <CourseLandingMarketingSections
+            continueHref={continueHref}
+            ctaLabel={ctaLabel}
+            enrolledStudentCount={enrolledStudentCount}
+            ecosystemTools={ecosystemTools}
+            faqItems={faqItems}
+          />
+        </div>
       </div>
-    </div>
+
+      {continueHref ? (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-foreground/10 bg-background/95 p-3 backdrop-blur md:hidden">
+          <div className="mx-auto flex max-w-7xl items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs font-semibold">{view.title}</p>
+              <p className="text-xs text-muted-foreground">
+                {view.priceLabel} · pago seguro
+              </p>
+            </div>
+            <Button asChild size="sm" className="shrink-0">
+              <Link href={continueHref}>{ctaLabel}</Link>
+            </Button>
+          </div>
+        </div>
+      ) : null}
+      <MarketingFooter />
+    </>
   );
 }

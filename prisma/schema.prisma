@@ -145,9 +145,10 @@ model Course {
   instructorId String? @db.Uuid
   instructor   User?   @relation("CourseInstructor", fields: [instructorId], references: [id], onDelete: SetNull)
 
-  level             CourseLevel @default(BEGINNER)
-  isFeatured        Boolean     @default(false)
-  offersCertificate Boolean     @default(false)
+  level                  CourseLevel @default(BEGINNER)
+  isFeatured             Boolean     @default(false)
+  offersCertificate      Boolean     @default(false)
+  estimatedDurationHours Int?
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -172,8 +173,15 @@ model CourseReview {
   courseId String @db.Uuid
   userId   String @db.Uuid
 
-  rating  Int
-  comment String?
+  rating       Int
+  headline     String?
+  comment      String?
+  displayName  String?
+  niche        String?
+  countryCode  String?
+  metricBefore String?
+  metricAfter  String?
+  isPublished  Boolean @default(false)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)

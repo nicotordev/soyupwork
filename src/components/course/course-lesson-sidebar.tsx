@@ -22,7 +22,7 @@ type CourseLessonSidebarProps = {
   activeLessonSlug: string;
   lessonBasePath: string;
   courseLandingHref: string;
-  buildLessonHref?: (lessonSlug: string) => string;
+  lessonHrefMode?: "path" | "query";
 };
 
 function LessonTypeIcon({ type }: { type: CoursePageLesson["type"] }) {
@@ -41,10 +41,12 @@ export function CourseLessonSidebar({
   activeLessonSlug,
   lessonBasePath,
   courseLandingHref,
-  buildLessonHref,
+  lessonHrefMode = "path",
 }: CourseLessonSidebarProps) {
   const lessonHref = (slug: string) =>
-    buildLessonHref?.(slug) ?? `${lessonBasePath}/${slug}`;
+    lessonHrefMode === "query"
+      ? `${lessonBasePath}?leccion=${encodeURIComponent(slug)}`
+      : `${lessonBasePath}/${slug}`;
   return (
     <aside className="flex h-full flex-col border-r-2 border-foreground bg-muted/20">
       <div className="border-b-2 border-foreground px-3 py-3">

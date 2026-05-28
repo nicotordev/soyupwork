@@ -14,7 +14,7 @@ type CourseLearnShellProps = {
   lessonSlug: string;
   lessonBasePath: string;
   courseLandingHref: string;
-  buildLessonHref?: (lessonSlug: string) => string;
+  lessonHrefMode?: "path" | "query";
   showModeBanner?: boolean;
 };
 
@@ -23,7 +23,7 @@ export function CourseLearnShell({
   lessonSlug,
   lessonBasePath,
   courseLandingHref,
-  buildLessonHref,
+  lessonHrefMode = "path",
   showModeBanner = true,
 }: CourseLearnShellProps) {
   const { view, mode } = data;
@@ -47,7 +47,7 @@ export function CourseLearnShell({
             activeLessonSlug={lessonSlug}
             lessonBasePath={lessonBasePath}
             courseLandingHref={courseLandingHref}
-            buildLessonHref={buildLessonHref}
+            lessonHrefMode={lessonHrefMode}
           />
         </div>
         <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">

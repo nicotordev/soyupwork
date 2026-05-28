@@ -38,6 +38,19 @@ export type CoursePageModule = {
   lessons: CoursePageLesson[];
 };
 
+export type CoursePageReview = {
+  id: string;
+  rating: number;
+  headline: string | null;
+  comment: string | null;
+  displayName: string | null;
+  niche: string | null;
+  countryCode: string | null;
+  metricBefore: string | null;
+  metricAfter: string | null;
+  createdAt: string;
+};
+
 export type CoursePageView = {
   id: string;
   slug: string;
@@ -54,9 +67,14 @@ export type CoursePageView = {
   instructorName: string;
   moduleCount: number;
   lessonCount: number;
+  estimatedDurationHours: number | null;
+  enrolledStudentCount: number;
+  reviewCount: number;
+  averageRating: number | null;
   offersCertificate: boolean;
   hasFullAccess: boolean;
   modules: CoursePageModule[];
+  reviews: CoursePageReview[];
   muxConfigured: boolean;
   muxStreamingEnabled: boolean;
   firstLessonSlug: string | null;

@@ -15,6 +15,24 @@ import type {
 export const coursePageInclude = {
   category: { select: { name: true, slug: true } },
   instructor: { select: { firstName: true, lastName: true } },
+  _count: { select: { enrollments: true, reviews: true } },
+  reviews: {
+    where: { isPublished: true },
+    orderBy: { createdAt: "desc" as const },
+    take: 6,
+    select: {
+      id: true,
+      rating: true,
+      headline: true,
+      comment: true,
+      displayName: true,
+      niche: true,
+      countryCode: true,
+      metricBefore: true,
+      metricAfter: true,
+      createdAt: true,
+    },
+  },
   modules: {
     orderBy: { position: "asc" as const },
     include: {
@@ -130,6 +148,15 @@ export async function mapDbCourseToCoursePageView(
     muxStreamingEnabled: boolean;
   },
 ): Promise<CoursePageView> {
+  const averageRating =
+    dbCourse.reviews.length > 0
+      ? Number(
+          (
+            dbCourse.reviews.reduce((acc, review) => acc + review.rating, 0) /
+            dbCourse.reviews.length
+          ).toFixed(1),
+        )
+      : null;
   const modules = mapModules(dbCourse.modules, options.hasFullAccess);
   const lessonCount = modules.reduce(
     (total, module) => total + module.lessons.length,
@@ -152,9 +179,25 @@ export async function mapDbCourseToCoursePageView(
     instructorName: instructorDisplayName(dbCourse.instructor),
     moduleCount: modules.length,
     lessonCount,
+    estimatedDurationHours: dbCourse.estimatedDurationHours,
+    enrolledStudentCount: dbCourse._count.enrollments,
+    reviewCount: dbCourse._count.reviews,
+    averageRating,
     offersCertificate: dbCourse.offersCertificate,
     hasFullAccess: options.hasFullAccess,
     modules,
+    reviews: dbCourse.reviews.map((review) => ({
+      id: review.id,
+      rating: review.rating,
+      headline: review.headline,
+      comment: review.comment,
+      displayName: review.displayName,
+      niche: review.niche,
+      countryCode: review.countryCode,
+      metricBefore: review.metricBefore,
+      metricAfter: review.metricAfter,
+      createdAt: review.createdAt.toISOString(),
+    })),
     muxConfigured: options.muxConfigured,
     muxStreamingEnabled: options.muxStreamingEnabled,
     firstLessonSlug: findFirstAccessibleLessonSlug(modules),
