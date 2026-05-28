@@ -8,6 +8,7 @@ const TURNSTILE_SCRIPT =
   "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 
 const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+const enableInDev = process.env.NEXT_PUBLIC_TURNSTILE_ENABLE_DEV === "true";
 
 type TurnstileFieldProps = {
   onToken: (token: string) => void;
@@ -18,7 +19,9 @@ type TurnstileFieldProps = {
 };
 
 export function isTurnstileEnabled(): boolean {
-  return Boolean(siteKey);
+  if (!siteKey) return false;
+  if (process.env.NODE_ENV !== "production" && !enableInDev) return false;
+  return true;
 }
 
 export function TurnstileField({
@@ -70,7 +73,7 @@ export function TurnstileField({
     return clearWidget;
   }, [renderWidget, resetKey, clearWidget]);
 
-  if (!siteKey) {
+  if (!isTurnstileEnabled()) {
     return null;
   }
 

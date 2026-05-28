@@ -2,11 +2,11 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   confirmWaitlistVerification,
   requestWaitlistVerification,
 } from "@/app/actions/settings.actions";
-import { PhoneInputField } from "@/components/platform/phone-input-field";
 import {
   isTurnstileEnabled,
   TurnstileField,
@@ -26,6 +26,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { CountryCode } from "libphonenumber-js";
 
 const turnstileRequired = isTurnstileEnabled();
+
+const PhoneInputField = dynamic(
+  () =>
+    import("@/components/platform/phone-input-field").then(
+      (module) => module.PhoneInputField,
+    ),
+  { ssr: false },
+);
 
 const waitlistSchema = z
   .object({

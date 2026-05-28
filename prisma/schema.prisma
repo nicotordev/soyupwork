@@ -412,6 +412,7 @@ model QuizAttempt {
   answers Json
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   quiz Quiz @relation(fields: [quizId], references: [id], onDelete: Cascade)
@@ -507,6 +508,7 @@ model WaitlistEntry {
   source String? @default("waitlist-page")
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
 
   @@index([createdAt])
 }
@@ -521,6 +523,34 @@ model WaitlistVerification {
   attempts  Int      @default(0)
   expiresAt DateTime @db.Timestamp(6)
   createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  @@index([expiresAt])
+}
+
+model NewsletterSubscriber {
+  id     String  @id @default(uuid()) @db.Uuid
+  email  String  @unique
+  name   String?
+  phone  String?
+  source String? @default("newsletter-page")
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+}
+
+/// Pending newsletter signup until email OTP is verified.
+model NewsletterVerification {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  codeHash  String
+  name      String?
+  phone     String?
+  source    String?  @default("newsletter-page")
+  attempts  Int      @default(0)
+  expiresAt DateTime @db.Timestamp(6)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
 
   @@index([expiresAt])
 }
