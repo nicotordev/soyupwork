@@ -64,7 +64,7 @@ export default function LandingPage() {
            ---------------------------------------------------------------------- */}
           <section
             id="social-proof"
-            className="absolute -bottom-58 left-1/2 -translate-x-1/2 border-foreground bg-secondary/15 py-12 sm:py-20 overflow-hidden font-sans"
+            className="md:absolute md:-bottom-58 md:left-1/2 md:-translate-x-1/2 border-foreground bg-secondary/15 py-12 sm:py-20 overflow-hidden font-sans w-full"
           >
             {/* Subtle grid pattern background */}
             <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-45" />
@@ -112,7 +112,7 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             3. INTERACTIVE PROPOSAL SIMULATOR
            ---------------------------------------------------------------------- */}
-        <div className="pt-32">
+        <div className="md:pt-32">
           <MarketingProposalSimulatorClient />
         </div>
 
