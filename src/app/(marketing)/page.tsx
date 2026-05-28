@@ -1,6 +1,20 @@
 import Link from "next/link";
 import React from "react";
-import { Star, Zap, Clock, Shield, Lock } from "lucide-react";
+import {
+  Star,
+  Zap,
+  Clock,
+  Shield,
+  Lock,
+  ArrowRight,
+  CheckCircle2,
+  AlertTriangle,
+  BookOpen,
+  Send,
+  Award,
+  DollarSign,
+  ArrowUpRight,
+} from "lucide-react";
 import { MarketingHeroSectionClient } from "@/components/marketing/marketing-hero-section.client";
 import { MarketingProposalSimulatorClient } from "@/components/marketing/marketing-proposal-simulator.client";
 import { MarketingTrackSelectorClient } from "@/components/marketing/marketing-track-selector.client";
@@ -47,31 +61,43 @@ export default function LandingPage() {
            ---------------------------------------------------------------------- */}
         <section
           id="social-proof"
-          className="border-y border-border bg-card/40 py-10 sm:py-14"
+          className="relative border-y-2 border-foreground bg-secondary/15 py-16 sm:py-20 overflow-hidden font-sans"
         >
+          {/* Subtle grid pattern background */}
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-45" />
+
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
-              <div className="min-w-0 rounded-xl border border-border bg-card p-4 text-center transition-colors hover:border-primary/20 sm:p-6">
-                <p className="text-2xl font-black text-foreground sm:text-3xl">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
+              <div className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-6 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none">
+                <div className="mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                  <BookOpen className="size-6 stroke-[2.5]" />
+                </div>
+                <h3 className="text-2xl font-black text-foreground sm:text-3xl tracking-tight">
                   Cursos
-                </p>
-                <p className="mt-2 text-pretty text-[10px] font-mono font-bold uppercase tracking-wide text-muted-foreground sm:text-xs sm:tracking-wider">
+                </h3>
+                <p className="mt-3 text-pretty text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs leading-none">
                   PAGADOS POR TEMA Y ENFOCADOS EN UPWORK
                 </p>
               </div>
-              <div className="min-w-0 rounded-xl border border-border bg-card p-4 text-center transition-colors hover:border-primary/20 sm:p-6">
-                <p className="text-2xl font-black text-foreground sm:text-3xl">
+              <div className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-6 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none">
+                <div className="mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground bg-secondary text-foreground group-hover:scale-110 transition-transform shadow-[2px_2px_0px_0px_var(--foreground)]">
+                  <Send className="size-6 stroke-[2.5]" />
+                </div>
+                <h3 className="text-2xl font-black text-foreground sm:text-3xl tracking-tight">
                   Contenido
-                </p>
-                <p className="mt-2 text-pretty text-[10px] font-mono font-bold uppercase tracking-wide text-muted-foreground sm:text-xs sm:tracking-wider">
+                </h3>
+                <p className="mt-3 text-pretty text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs leading-none">
                   VIDEO, TEXTO, EJERCICIOS Y CUESTIONARIOS
                 </p>
               </div>
-              <div className="min-w-0 rounded-xl border border-border bg-card p-4 text-center transition-colors hover:border-primary/20 sm:p-6">
-                <p className="text-2xl font-black text-foreground sm:text-3xl">
+              <div className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-6 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none">
+                <div className="mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground bg-accent text-accent-foreground group-hover:scale-110 transition-transform">
+                  <Award className="size-6 stroke-[2.5]" />
+                </div>
+                <h3 className="text-2xl font-black text-foreground sm:text-3xl tracking-tight">
                   Enfoque
-                </p>
-                <p className="mt-2 text-pretty text-[10px] font-mono font-bold uppercase tracking-wide text-muted-foreground sm:text-xs sm:tracking-wider">
+                </h3>
+                <p className="mt-3 text-pretty text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:text-xs leading-none">
                   PROPUESTAS, NICHOS, PRICING Y OPERACION
                 </p>
               </div>
@@ -87,43 +113,49 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             4. COMPARA MATRIX (SOYUPWORK VS CURSO DE GURÚ)
            ---------------------------------------------------------------------- */}
-        <section className="border-t border-border bg-card/20 py-14 sm:py-20">
+        <section className="relative border-y-2 border-foreground bg-muted py-16 sm:py-24 overflow-hidden font-sans">
+          {/* Subtle grid pattern background */}
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-35" />
+          <div className="pointer-events-none absolute -left-20 top-0 -z-10 size-96 rounded-full bg-primary/5 blur-3xl" />
+          <div className="pointer-events-none absolute -right-20 bottom-0 -z-10 size-96 rounded-full bg-primary/5 blur-3xl" />
+
           <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <div className="mx-auto mb-8 max-w-3xl text-center sm:mb-14">
+            <div className="mx-auto mb-12 max-w-3xl text-center sm:mb-16">
               <Badge
                 variant="outline"
-                className="border-primary/30 text-primary font-mono"
+                className="border-primary/40 bg-primary/15 text-primary font-mono px-3 py-1 font-bold uppercase tracking-wider text-[10px]"
               >
                 COMPAREMOS ESTRATEGIAS
               </Badge>
-              <h2 className="mt-2 text-2xl font-black sm:text-3xl">
+              <h2 className="mt-4 text-3xl font-black sm:text-4xl lg:text-5xl leading-tight text-foreground tracking-tight">
                 No vendemos atajos. Enseñamos criterio para competir mejor.
               </h2>
             </div>
 
-            <div className="space-y-3 md:hidden">
+            {/* Mobile View */}
+            <div className="space-y-4 md:hidden">
               {STRATEGY_COMPARISON_ROWS.map((row) => (
                 <article
                   key={row.aspect}
-                  className="overflow-hidden rounded-xl border border-border bg-card shadow-lg"
+                  className="overflow-hidden rounded-2xl border-2 border-foreground bg-card shadow-[4px_4px_0px_0px_var(--foreground)]"
                 >
-                  <h3 className="border-b border-border bg-muted/30 p-3 text-sm font-bold text-foreground">
+                  <h3 className="border-b-2 border-foreground bg-secondary/80 px-4 py-3 text-sm font-black text-foreground uppercase tracking-wider font-mono">
                     {row.aspect}
                   </h3>
-                  <div className="space-y-3 p-3">
-                    <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3">
-                      <p className="mb-1 font-mono text-[9px] font-bold uppercase tracking-wide text-destructive">
-                        Cursos superficiales
+                  <div className="space-y-3.5 p-4">
+                    <div className="rounded-xl border-2 border-foreground bg-destructive/10 p-3.5">
+                      <p className="mb-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-destructive flex items-center gap-1.5">
+                        <AlertTriangle className="size-3.5" /> Cursos superficiales
                       </p>
-                      <p className="text-xs font-medium leading-relaxed text-destructive/80">
+                      <p className="text-xs font-semibold leading-relaxed text-foreground">
                         {row.superficial}
                       </p>
                     </div>
-                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-3">
-                      <p className="mb-1 font-mono text-[9px] font-bold uppercase tracking-wide text-primary">
-                        El sistema soyup.work
+                    <div className="rounded-xl border-2 border-foreground bg-primary/10 p-3.5">
+                      <p className="mb-1.5 font-mono text-[9px] font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                        <CheckCircle2 className="size-3.5" /> El sistema soyup.work
                       </p>
-                      <p className="text-xs font-semibold leading-relaxed text-primary">
+                      <p className="text-xs font-semibold leading-relaxed text-foreground">
                         {row.sistema}
                       </p>
                     </div>
@@ -132,29 +164,30 @@ export default function LandingPage() {
               ))}
             </div>
 
-            <div className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-lg md:block">
+            {/* Desktop Table View */}
+            <div className="hidden overflow-hidden rounded-2xl border-2 border-foreground bg-card shadow-[8px_8px_0px_0px_var(--foreground)] md:block select-none">
               <table className="w-full text-left text-xs font-medium sm:text-sm">
                 <thead>
-                  <tr className="border-b border-border bg-muted/30 font-mono text-[10px] text-muted-foreground">
-                    <th className="p-4 uppercase">MÉTRICA / ASPECTO</th>
-                    <th className="p-4 uppercase text-destructive">
+                  <tr className="border-b-2 border-foreground bg-secondary/80 font-mono text-[10px] text-muted-foreground tracking-wider">
+                    <th className="p-5 uppercase font-bold">MÉTRICA / ASPECTO</th>
+                    <th className="p-5 uppercase font-bold text-destructive border-l-2 border-foreground">
                       CURSOS SUPERFICIALES
                     </th>
-                    <th className="p-4 uppercase text-primary">
+                    <th className="p-5 uppercase font-bold text-primary border-l-2 border-foreground">
                       EL SISTEMA SOYUP.WORK
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y-2 divide-foreground">
                   {STRATEGY_COMPARISON_ROWS.map((row) => (
-                    <tr key={row.aspect}>
-                      <td className="p-4 font-bold text-foreground">
+                    <tr key={row.aspect} className="hover:bg-muted/50 transition-colors">
+                      <td className="p-5 font-black text-foreground tracking-wide">
                         {row.aspect}
                       </td>
-                      <td className="bg-destructive/5 p-4 text-destructive/80">
+                      <td className="bg-destructive/5 p-5 text-foreground/85 border-l-2 border-foreground leading-relaxed font-medium">
                         {row.superficial}
                       </td>
-                      <td className="bg-primary/5 p-4 font-semibold text-primary">
+                      <td className="bg-primary/5 p-5 font-bold text-primary border-l-2 border-foreground leading-relaxed">
                         {row.sistema}
                       </td>
                     </tr>
@@ -168,83 +201,82 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             5. CURRICULUM SUGERIDO
            ---------------------------------------------------------------------- */}
-        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-24 lg:px-8">
-          <div className="mx-auto mb-8 max-w-3xl space-y-3 text-center sm:mb-14">
-            <Badge
-              variant="outline"
-              className="border-primary/30 text-primary font-mono"
-            >
-              CURRICULUM SUGERIDO
-            </Badge>
-            <h2 className="text-2xl font-black leading-tight text-foreground sm:text-3xl md:text-4xl">
-              De entender Upwork a operar como freelancer internacional
-            </h2>
-            <p className="mx-auto max-w-xl text-sm font-medium text-muted-foreground">
-              La idea no es enseñar solo a crear una cuenta. El contenido se
-              ordena alrededor de competir mejor: nicho, perfil, Connects,
-              propuestas, entrevistas, pricing, entrega y operación.
-            </p>
-          </div>
+        <section className="relative overflow-hidden py-16 sm:py-24 font-sans border-b-2 border-foreground">
+          {/* Engineering grid lines background */}
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_6%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_6%)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35" />
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-            <div className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/20 sm:p-6">
-              <div className="space-y-4">
-                <span className="font-mono text-3xl font-black text-muted-foreground/30 group-hover:text-primary transition-colors">
-                  01
-                </span>
-                <h3 className="text-base font-bold text-foreground">
-                  Perfil y nicho
-                </h3>
-                <p className="text-xs text-muted-foreground font-medium leading-relaxed">
-                  Fundamentos reales de Upwork, especialización, nichos
-                  rentables y perfil optimizado para búsqueda.
-                </p>
-              </div>
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto mb-12 max-w-3xl space-y-4 text-center sm:mb-16">
+              <Badge
+                variant="outline"
+                className="border-primary/40 bg-primary/10 text-primary font-mono px-3 py-1 font-bold uppercase tracking-wider text-[10px]"
+              >
+                CURRICULUM SUGERIDO
+              </Badge>
+              <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl tracking-tight">
+                De entender Upwork a operar como freelancer internacional
+              </h2>
+              <p className="mx-auto max-w-2xl text-sm sm:text-base font-medium text-muted-foreground leading-relaxed">
+                La idea no es enseñar solo a crear una cuenta. El contenido se
+                ordena alrededor de competir mejor: nicho, perfil, Connects,
+                propuestas, entrevistas, pricing, entrega y operación.
+              </p>
             </div>
 
-            <div className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/20 sm:p-6">
-              <div className="space-y-4">
-                <span className="font-mono text-3xl font-black text-muted-foreground/30 group-hover:text-primary transition-colors">
-                  02
-                </span>
-                <h3 className="text-base font-bold text-foreground">
-                  Connects y propuestas
-                </h3>
-                <p className="text-xs text-muted-foreground font-medium leading-relaxed">
-                  Economía de Connects, bidding con criterio y propuestas cortas
-                  que responden al problema del cliente.
-                </p>
-              </div>
-            </div>
-
-            <div className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/20 sm:p-6">
-              <div className="space-y-4">
-                <span className="font-mono text-3xl font-black text-muted-foreground/30 group-hover:text-primary transition-colors">
-                  03
-                </span>
-                <h3 className="text-base font-bold text-foreground">
-                  Entrevistas y pricing
-                </h3>
-                <p className="text-xs text-muted-foreground font-medium leading-relaxed">
-                  Inglés para entrevistas, pricing, paquetes y retainers para
-                  vender alcance y valor sin improvisar.
-                </p>
-              </div>
-            </div>
-
-            <div className="group flex flex-col justify-between rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/20 sm:p-6">
-              <div className="space-y-4">
-                <span className="font-mono text-3xl font-black text-muted-foreground/30 group-hover:text-primary transition-colors">
-                  04
-                </span>
-                <h3 className="text-base font-bold text-foreground">
-                  Entrega y operación
-                </h3>
-                <p className="text-xs text-muted-foreground font-medium leading-relaxed">
-                  Entrega profesional, JSS, nociones legales/fiscales para LATAM
-                  y automatización con IA cuando aporte al flujo de trabajo.
-                </p>
-              </div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                {
+                  num: "01",
+                  title: "Perfil y nicho",
+                  desc: "Fundamentos reales de Upwork, especialización, nichos rentables y perfil optimizado para búsqueda.",
+                  icon: BookOpen,
+                },
+                {
+                  num: "02",
+                  title: "Connects y propuestas",
+                  desc: "Economía de Connects, bidding con criterio y propuestas cortas que responden al problema del cliente.",
+                  icon: Zap,
+                },
+                {
+                  num: "03",
+                  title: "Entrevistas y pricing",
+                  desc: "Inglés para entrevistas, pricing, paquetes y retainers para vender alcance y valor sin improvisar.",
+                  icon: DollarSign,
+                },
+                {
+                  num: "04",
+                  title: "Entrega y operación",
+                  desc: "Entrega profesional, JSS, nociones legales/fiscales para LATAM y automatización con IA cuando aporte al flujo de trabajo.",
+                  icon: Award,
+                },
+              ].map((step) => {
+                const StepIcon = step.icon;
+                return (
+                  <div
+                    key={step.num}
+                    className="group relative flex flex-col justify-between rounded-2xl border-2 border-foreground bg-card p-6 shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--foreground)] transition-all select-none"
+                  >
+                    <div className="space-y-5">
+                      <div className="flex items-center justify-between">
+                        <span className="font-mono text-4xl font-black text-muted-foreground/35 group-hover:text-primary transition-colors">
+                          {step.num}
+                        </span>
+                        <div className="p-2.5 rounded-lg border-2 border-foreground bg-secondary text-foreground shadow-[2px_2px_0px_0px_var(--foreground)] group-hover:scale-110 transition-transform">
+                          <StepIcon className="size-4.5 stroke-[2.25]" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-black text-foreground tracking-tight">
+                          {step.title}
+                        </h3>
+                        <p className="text-xs text-muted-foreground font-semibold leading-relaxed">
+                          {step.desc}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -257,50 +289,63 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             7. PLATAFORMA LMS
            ---------------------------------------------------------------------- */}
-        <section className="border-t border-border bg-card/30 py-14 sm:py-20">
+        <section className="relative border-b-2 border-foreground bg-primary/5 py-16 sm:py-24 overflow-hidden font-sans">
+          <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_70%_20%,var(--primary)/0.06,transparent_40%)]" />
+
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="mb-8 flex max-w-2xl flex-col gap-3 sm:mb-14 sm:flex-row sm:items-start">
-              <Star className="h-5 w-5 shrink-0 text-primary" />
-              <h2 className="text-xl font-black leading-tight sm:text-2xl md:text-3xl">
-                Una academia custom, no un curso suelto en una plataforma
-                genérica
-              </h2>
+            <div className="mb-10 flex max-w-3xl flex-col gap-4 sm:mb-16 sm:flex-row sm:items-start select-none">
+              <div className="inline-flex p-3 shrink-0 rounded-2xl border-2 border-foreground bg-secondary text-foreground shadow-[3px_3px_0px_0px_var(--foreground)] w-fit">
+                <Star className="h-6 w-6 stroke-[2.5]" />
+              </div>
+              <div>
+                <Badge
+                  variant="outline"
+                  className="border-primary/40 bg-primary/10 text-primary font-mono px-2 py-0.5 font-bold uppercase tracking-wider text-[9px] mb-2"
+                >
+                  SISTEMA LMS PROPIO
+                </Badge>
+                <h2 className="text-2xl font-black leading-tight sm:text-3xl md:text-4xl text-foreground tracking-tight">
+                  Una academia custom, no un curso suelto en una plataforma genérica
+                </h2>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
-              <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-                <Lock className="h-5 w-5 text-primary" />
-                <h3 className="mt-4 text-sm font-black text-foreground">
-                  Acceso por compra
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground font-medium">
-                  Compra de curso con Stripe, acceso protegido y contenido
-                  disponible solo para estudiantes inscritos.
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-                <Clock className="h-5 w-5 text-primary" />
-                <h3 className="mt-4 text-sm font-black text-foreground">
-                  Progreso y drip content
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground font-medium">
-                  Lecciones organizadas por módulos, seguimiento de avance,
-                  quizzes simples y liberación gradual cuando el curso lo
-                  requiera.
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
-                <Shield className="h-5 w-5 text-primary" />
-                <h3 className="mt-4 text-sm font-black text-foreground">
-                  Base para escalar
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground font-medium">
-                  Primero se valida contenido, ventas y retención. Comunidad,
-                  gamificación, afiliados y cohortes pueden venir después.
-                </p>
-              </div>
+            <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-3">
+              {[
+                {
+                  title: "Acceso por compra",
+                  desc: "Compra de curso con Stripe, acceso protegido y contenido disponible solo para estudiantes inscritos.",
+                  icon: Lock,
+                },
+                {
+                  title: "Progreso y drip content",
+                  desc: "Lecciones organizadas por módulos, seguimiento de avance, quizzes simples y liberación gradual cuando el curso lo requiera.",
+                  icon: Clock,
+                },
+                {
+                  title: "Base para escalar",
+                  desc: "Primero se valida contenido, ventas y retención. Comunidad, gamificación, afiliados y cohortes pueden venir después.",
+                  icon: Shield,
+                },
+              ].map((card, idx) => {
+                const CardIcon = card.icon;
+                return (
+                  <div
+                    key={idx}
+                    className="rounded-2xl border-2 border-foreground bg-card p-6 sm:p-8 shadow-[6px_6px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[4px_4px_0px_0px_var(--foreground)] transition-all select-none"
+                  >
+                    <div className="inline-flex p-3 rounded-xl border-2 border-foreground bg-secondary text-foreground shadow-[2.5px_2.5px_0px_0px_var(--foreground)] mb-5">
+                      <CardIcon className="h-5 w-5 stroke-[2.5]" />
+                    </div>
+                    <h3 className="text-base font-black text-foreground tracking-tight">
+                      {card.title}
+                    </h3>
+                    <p className="mt-3 text-xs leading-relaxed text-muted-foreground font-semibold">
+                      {card.desc}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -313,38 +358,44 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             9. CTA FINAL (EMOTIONAL BANNER)
            ---------------------------------------------------------------------- */}
-        <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl border-2 border-border bg-card p-6 text-center shadow-2xl sm:p-10 md:p-14">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_30%_0%,var(--primary)/0.18,transparent_45%)]" />
+        <section className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24 lg:px-8 font-sans">
+          <div className="relative overflow-hidden rounded-3xl border-4 border-foreground bg-card p-8 text-center shadow-[12px_12px_0px_0px_var(--foreground)] sm:p-14 md:p-16 select-none">
+            {/* High opacity glowing background gradient */}
+            <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_30%_0%,var(--primary)/0.25,transparent_50%)]" />
+            {/* Soft grid lines inside the banner */}
+            <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_4%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_4%)_1px,transparent_1px)] bg-[size:2rem_2rem] opacity-30" />
 
-            <div className="relative space-y-5 sm:space-y-6">
+            <div className="relative space-y-6 sm:space-y-8">
               <Badge
                 variant="outline"
-                className="border-primary/30 text-primary font-mono"
+                className="border-primary/40 bg-primary/10 text-primary font-mono px-3.5 py-1 font-bold uppercase tracking-wider text-[10px]"
               >
                 ÚLTIMO PASO
               </Badge>
 
-              <h2 className="text-2xl font-black leading-tight text-foreground sm:text-3xl md:text-5xl">
+              <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl md:text-5xl max-w-4xl mx-auto tracking-tight">
                 Si quieres vender servicios en Upwork, empieza por{" "}
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-primary/80">
+                <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-500 underline decoration-foreground decoration-wavy decoration-3 underline-offset-4">
                   aprender a competir con criterio.
                 </span>
               </h2>
 
-              <p className="mx-auto max-w-2xl text-sm font-medium text-muted-foreground sm:text-base">
+              <p className="mx-auto max-w-2xl text-sm sm:text-base font-semibold text-muted-foreground leading-relaxed">
                 Explora cursos por tema y avanza desde fundamentos reales hacia
                 propuestas, entrevistas, pricing, entrega y operación freelance
                 internacional.
               </p>
 
-              <LinkButton
-                href="/catalog"
-                className="mx-auto inline-flex w-full max-w-sm items-center justify-center gap-2 rounded border-2 border-foreground bg-primary px-8 py-3.5 text-xs font-black uppercase tracking-wider text-primary-foreground shadow-[4px_4px_0px_0px_var(--foreground)] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[3px] active:shadow-none sm:w-auto sm:max-w-none sm:px-10 sm:py-4"
-              >
-                Ver catálogo de cursos
-                <Zap className="h-4 w-4 stroke-[3]" />
-              </LinkButton>
+              <div className="pt-2 flex justify-center">
+                <LinkButton
+                  href="/catalog"
+                  className="group relative inline-flex w-full max-w-sm items-center justify-center gap-2.5 rounded-xl border-2 border-foreground bg-primary px-8 py-4 text-xs font-black uppercase tracking-widest text-primary-foreground shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[3.5px] active:shadow-none transition-all sm:w-auto sm:px-10"
+                >
+                  Ver catálogo de cursos
+                  <Zap className="h-4 w-4 stroke-[3] group-hover:scale-125 transition-transform" />
+                  <ArrowUpRight className="h-3.5 w-3.5 absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </LinkButton>
+              </div>
             </div>
           </div>
         </section>
