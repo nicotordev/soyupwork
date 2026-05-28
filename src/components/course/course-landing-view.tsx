@@ -18,6 +18,7 @@ import type { CatalogSection } from "@/types/marketing-nav.types";
 import Link from "next/link";
 import { MarketingFooter } from "../marketing-footer";
 import { MarketingNav } from "../marketing-nav";
+import { CourseMarketingBento } from "./course-marketing-bento";
 
 type CourseLandingViewProps = {
   data: CoursePageData;
@@ -104,16 +105,18 @@ export function CourseLandingView({
             hasAnyLessons={hasAnyLessons}
             buildLessonHref={buildLessonHref}
           />
-
-          <CourseLandingMarketingSections
-            continueHref={continueHref}
-            ctaLabel={ctaLabel}
-            enrolledStudentCount={enrolledStudentCount}
-            ecosystemTools={ecosystemTools}
-            faqItems={faqItems}
-          />
         </div>
       </div>
+
+      <CourseLandingMarketingSections
+        continueHref={continueHref}
+        ctaLabel={ctaLabel}
+        enrolledStudentCount={enrolledStudentCount}
+        ecosystemTools={ecosystemTools}
+        faqItems={faqItems}
+      />
+
+      <CourseMarketingBento />
 
       {continueHref ? (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-foreground/10 bg-background/95 p-3 backdrop-blur md:hidden">

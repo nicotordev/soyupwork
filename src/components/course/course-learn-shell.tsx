@@ -39,7 +39,7 @@ export function CourseLearnShell({
   }
 
   return (
-    <div className="flex min-h-svh flex-col">
+    <div className="flex min-h-svh flex-col font-sans">
       {isAdminPreviewMode(mode) ? (
         <CoursePreviewBanner courseId={view.id} />
       ) : null}
@@ -48,7 +48,7 @@ export function CourseLearnShell({
       {/* Mobile Learning Header */}
       <div className="flex items-center justify-between border-b-2 border-foreground bg-muted/20 px-4 py-2.5 lg:hidden shrink-0">
         <div className="min-w-0 flex-1 pr-4">
-          <p className="font-mono text-[9px] font-bold uppercase text-muted-foreground truncate leading-none">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground truncate leading-none">
             {view.title}
           </p>
           <h2 className="text-xs font-extrabold text-foreground truncate mt-1 leading-none">
@@ -60,7 +60,7 @@ export function CourseLearnShell({
             <Button
               variant="outline"
               size="sm"
-              className="h-8 border-2 border-foreground text-[10px] font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_var(--foreground)] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none"
+              className="h-8 border-2 border-foreground text-[10px] font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_var(--foreground)] hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none"
             >
               <IconMenu2 className="size-3.5 mr-1.5 shrink-0" stroke={2.25} />
               Temario

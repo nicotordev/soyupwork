@@ -48,11 +48,11 @@ export function CourseLessonSidebar({
       ? `${lessonBasePath}?leccion=${encodeURIComponent(slug)}`
       : `${lessonBasePath}/${slug}`;
   return (
-    <aside className="flex h-full flex-col lg:border-r-2 border-foreground bg-muted/20">
+    <aside className="flex h-full flex-col border-foreground bg-muted/20 font-sans lg:border-r-2">
       <div className="border-b-2 border-foreground px-3 py-3">
         <Link
           href={courseLandingHref}
-          className="font-mono text-[10px] font-bold uppercase text-muted-foreground hover:text-foreground"
+          className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
         >
           ← {view.title}
         </Link>
@@ -60,7 +60,7 @@ export function CourseLessonSidebar({
       <nav className="flex-1 overflow-y-auto p-2">
         {view.modules.map((module, moduleIndex) => (
           <div key={module.id} className="mb-3">
-            <p className="mb-1.5 px-2 font-mono text-[9px] font-bold uppercase text-muted-foreground">
+            <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
               Módulo {moduleIndex + 1}: {module.title}
             </p>
             <ul className="space-y-0.5">
@@ -79,7 +79,7 @@ export function CourseLessonSidebar({
 
                 const content = (
                   <>
-                    <span className="font-mono text-[9px] opacity-70">
+                    <span className="text-[10px] font-medium opacity-70">
                       {lessonIndex + 1}.
                     </span>
                     <LessonTypeIcon type={lesson.type} />
@@ -87,7 +87,7 @@ export function CourseLessonSidebar({
                       {lesson.title}
                     </span>
                     {lesson.isPreview && !view.hasFullAccess ? (
-                      <span className="shrink-0 font-mono text-[8px] font-bold uppercase">
+                      <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide">
                         {COURSE_PAGE.previewLessonBadge}
                       </span>
                     ) : null}

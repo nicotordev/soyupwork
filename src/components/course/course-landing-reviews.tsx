@@ -8,7 +8,7 @@ type CourseLandingReviewsProps = {
 
 export function CourseLandingReviews({ reviews }: CourseLandingReviewsProps) {
   return (
-    <section className="space-y-5">
+    <section className="space-y-5 font-sans">
       <h2 className="text-2xl font-black sm:text-3xl">
         Resultados de freelancers reales
       </h2>

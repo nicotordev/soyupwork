@@ -37,7 +37,7 @@ export function CourseLandingSyllabus({
     <section
       id="curriculum"
       aria-labelledby="curriculum-title"
-      className="space-y-5 pt-12"
+      className="space-y-5 pt-12 font-sans"
     >
       <h2 id="curriculum-title" className="text-2xl font-black sm:text-3xl">
         Curriculum estratégico
@@ -56,7 +56,7 @@ export function CourseLandingSyllabus({
             >
               <div className="flex items-center justify-between border-b border-foreground/10 bg-muted/40 px-4 py-3">
                 <div>
-                  <p className="font-mono text-[10px] uppercase text-muted-foreground">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Módulo {moduleIndex + 1}
                   </p>
                   <p className="text-sm font-semibold">{module.title}</p>
@@ -75,15 +75,15 @@ export function CourseLandingSyllabus({
                   const row = (
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
-                        <span className="font-mono text-[10px] text-muted-foreground">
+                        <span className="text-[10px] font-medium text-muted-foreground">
                           {lessonIndex + 1}.
                         </span>
                         <LessonIcon className="size-4 text-muted-foreground" />
                         <div className="min-w-0">
-                          <p className="text-sm font-medium whitespace-normal break-words">
+                          <p className="text-sm font-medium whitespace-normal wrap-break-word">
                             {lesson.title}
                           </p>
-                          <p className="text-xs text-muted-foreground whitespace-normal break-words">
+                          <p className="text-xs text-muted-foreground whitespace-normal wrap-break-word">
                             {lesson.description ||
                               "Lección práctica orientada a ejecución."}
                           </p>

@@ -31,7 +31,7 @@ export function CourseLessonContent({
       lesson.videoStatus === "READY";
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 font-sans">
         <div>
           <h1 className="text-xl font-extrabold tracking-tight sm:text-2xl">
             {lesson.title}
@@ -58,7 +58,7 @@ export function CourseLessonContent({
               "flex aspect-video items-center justify-center border-2 border-dashed border-foreground/40 p-6 text-center",
             )}
           >
-            <p className="font-mono text-xs font-bold uppercase text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {!view.muxConfigured || !view.muxStreamingEnabled
                 ? COURSE_PAGE.muxDisabled
                 : lesson.videoStatus === "PENDING"
@@ -75,7 +75,7 @@ export function CourseLessonContent({
 
   if (lesson.type === "TEXT") {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 font-sans">
         <div>
           <h1 className="text-xl font-extrabold tracking-tight sm:text-2xl">
             {lesson.title}
@@ -110,7 +110,7 @@ export function CourseLessonContent({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 font-sans">
       <h1 className="text-xl font-extrabold">{lesson.title}</h1>
       <p className="text-sm text-muted-foreground">
         Contenido no disponible para este tipo de lección.

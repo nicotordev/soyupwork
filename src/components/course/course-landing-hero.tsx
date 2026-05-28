@@ -43,7 +43,7 @@ export function CourseLandingHero({
   enrolledStudentCount,
 }: CourseLandingHeroProps) {
   return (
-    <section className="relative isolate border border-foreground/20 p-3 sm:p-8">
+    <section className="relative isolate border border-foreground/20 p-3 font-sans sm:p-8">
       <div
         aria-hidden
         className="absolute inset-0 -z-10 opacity-75"
@@ -127,7 +127,10 @@ export function CourseLandingHero({
                   "h-12 w-full sm:w-auto bg-primary px-6 text-xs font-black uppercase tracking-wider text-primary-foreground border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none",
                 )}
               >
-                <Link href={continueHref} className="flex items-center justify-center gap-2">
+                <Link
+                  href={continueHref}
+                  className="flex items-center justify-center gap-2"
+                >
                   {ctaLabel}
                   <ArrowRight className="size-4 stroke-3" />
                 </Link>
@@ -142,7 +145,12 @@ export function CourseLandingHero({
               variant="outline"
               className="h-12 w-full sm:w-auto px-6 border-2 border-foreground hover:bg-muted text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none"
             >
-              <Link href="#curriculum" className="flex items-center justify-center">Ver temario completo</Link>
+              <Link
+                href="#curriculum"
+                className="flex items-center justify-center"
+              >
+                Ver temario completo
+              </Link>
             </Button>
           </div>
         </div>
@@ -179,7 +187,7 @@ export function CourseLandingHero({
             >
               <Icon className="size-4 text-primary stroke-[2.5] mb-2" />
               <div>
-                <p className="font-mono text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-muted-foreground leading-none">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground leading-none">
                   {stat.label}
                 </p>
                 <p className="text-xs sm:text-sm font-black text-foreground mt-1.5 leading-none">
