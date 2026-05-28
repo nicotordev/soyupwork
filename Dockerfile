@@ -101,10 +101,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # By default, runs `prisma migrate deploy` before app start.
 # Set RUN_MIGRATIONS=false to skip it.
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
+COPY --from=builder /app/bun.lock ./bun.lock
+RUN bun install --frozen-lockfile --production
 
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
