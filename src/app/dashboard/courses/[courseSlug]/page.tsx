@@ -30,7 +30,7 @@ export default async function DashboardCourseLandingPage({
   }
 
   const buildLessonHref = (lessonSlug: string) =>
-    `/dashboard/courses/${data.view.slug}/lecciones/${lessonSlug}`;
+    `/dashboard/courses/${data.view.slug}/lessons/${lessonSlug}`;
 
   return (
     <CourseLandingView

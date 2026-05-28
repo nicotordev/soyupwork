@@ -1,7 +1,11 @@
+"use client"
+
 import { AppEmptyState } from "@/components/app-state/app-empty-state";
 import MarketingFooter from "@/components/marketing-footer";
 import { MarketingNavServer } from "@/components/marketing-nav";
 import type { Metadata } from "next";
+import { useClerk } from "@clerk/nextjs";
+import useCatalogSections from "@/hooks/use-catalog-sections";
 
 export const metadata: Metadata = {
   title: "Página no encontrada | SoyUpwork",
@@ -10,10 +14,14 @@ export const metadata: Metadata = {
 };
 
 export default function NotFound() {
+  const { isSignedIn } = useClerk();
+  const catalogSectionsQuery = useCatalogSections();
+  const catalogSections = catalogSectionsQuery.data ?? [];
+
   return (
     <div className="w-full min-w-0 flex-1 overflow-x-hidden bg-background">
       <div className="flex min-h-screen min-w-0 flex-col">
-        <MarketingNavServer isSignedIn={false} catalogSections={[]} />
+        <MarketingNavServer isSignedIn={isSignedIn} catalogSections={catalogSections} />
         <main className="min-w-0 flex-1">
           <AppEmptyState
             title="No encontramos esta página"

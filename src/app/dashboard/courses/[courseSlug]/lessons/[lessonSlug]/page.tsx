@@ -41,7 +41,7 @@ export default async function DashboardCourseLessonPage({ params }: PageProps) {
     <CourseLearnShell
       data={data}
       lessonSlug={lessonSlug}
-      lessonBasePath={`/dashboard/courses/${data.view.slug}/lecciones`}
+      lessonBasePath={`/dashboard/courses/${data.view.slug}/lessons`}
       courseLandingHref={`/dashboard/courses/${data.view.slug}`}
     />
   );

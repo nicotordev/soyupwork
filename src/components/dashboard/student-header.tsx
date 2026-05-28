@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { UserProfileDropdown } from "@/components/dashboard/user-profile-dropdown";
 import { IconBell, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
+import { getStudentBreadcrumbLabel } from "@/lib/dashboard/student-nav";
 import { usePathname } from "next/navigation";
 
 import {
@@ -19,19 +20,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-
-function getStudentBreadcrumbLabel(pathname: string): string {
-  const segments: Record<string, string> = {
-    dashboard: "Mi Panel",
-    courses: "Cursos",
-    lecciones: "Lecciones",
-  };
-
-  const parts = pathname.split("/").filter(Boolean);
-  const slug = parts.at(-1) ?? parts[0];
-  if (!slug || slug === "dashboard") return "Mi Panel";
-  return segments[slug] ?? "Área Estudiante";
-}
 
 export function StudentHeader() {
   const pathname = usePathname();

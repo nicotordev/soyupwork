@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 
 export async function GET(
   _req: NextRequest,
-  ctx: RouteContext<"/api/clerk/user/[clerkId]">,
+  ctx: { params: Promise<{ clerkId: string }> },
 ) {
   const { clerkId } = await ctx.params;
 

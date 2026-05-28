@@ -204,4 +204,7 @@ export async function updateStudentProfile(
 function revalidateStudentPaths() {
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/courses");
+  revalidatePath("/dashboard/progress");
+  revalidatePath("/dashboard/certificates");
+  revalidatePath("/dashboard/profile");
 }

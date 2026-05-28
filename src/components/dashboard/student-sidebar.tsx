@@ -1,33 +1,25 @@
 "use client";
 
+import { StudentSidebarNavGroup } from "@/components/dashboard/student-sidebar-nav-group";
+import {
+  STUDENT_ACCOUNT_NAV,
+  STUDENT_EXPLORE_NAV,
+  STUDENT_LEARNING_NAV,
+} from "@/constants/student-nav.constants";
 import {
   adminBrutalButtonClass,
   adminSidebarBrandClass,
 } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
-import {
-  IconArrowLeft,
-  IconBook,
-  IconBooks,
-  IconCompass,
-  IconExternalLink,
-  IconMail,
-} from "@tabler/icons-react";
+import { IconArrowLeft, IconExternalLink, IconMail } from "@tabler/icons-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
@@ -38,27 +30,13 @@ const STUDENT_BRAND = {
   panelLabel: "Área de Estudiante",
 };
 
-const STUDENT_NAV_ITEMS = [
-  {
-    label: "Mi Panel",
-    href: "/dashboard",
-    icon: IconBook,
-  },
-  {
-    label: "Mis Cursos",
-    href: "/dashboard/courses",
-    icon: IconBooks,
-  },
-  {
-    label: "Catálogo",
-    href: "/catalog",
-    icon: IconCompass,
-  },
-];
+const NAV_GROUPS = [
+  { label: "Mi Aprendizaje", items: STUDENT_LEARNING_NAV },
+  { label: "Explorar", items: STUDENT_EXPLORE_NAV },
+  { label: "Cuenta", items: STUDENT_ACCOUNT_NAV },
+] as const;
 
 export function StudentSidebar() {
-  const pathname = usePathname();
-
   return (
     <Sidebar
       collapsible="icon"
@@ -85,42 +63,9 @@ export function StudentSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-2 group-data-[collapsible=icon]:px-1">
-        <SidebarGroup>
-          <SidebarGroupLabel className="font-mono text-[10px] font-bold uppercase tracking-wider">
-            Mi Aprendizaje
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {STUDENT_NAV_ITEMS.map((item) => {
-                const isActive =
-                  item.href === "/dashboard"
-                    ? pathname === "/dashboard"
-                    : pathname.startsWith(item.href);
-
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      tooltip={item.label}
-                      className={cn(
-                        "border border-transparent font-mono text-xs font-bold uppercase tracking-wide",
-                        "group-data-[collapsible=icon]:size-7! group-data-[collapsible=icon]:p-1.5! group-data-[collapsible=icon]:[&_svg]:size-3.5!",
-                        isActive &&
-                          "border-foreground bg-secondary shadow-[2px_2px_0px_0px_var(--foreground)]",
-                      )}
-                    >
-                      <Link href={item.href}>
-                        <item.icon stroke={2.25} />
-                        <span>{item.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {NAV_GROUPS.map((group) => (
+          <StudentSidebarNavGroup key={group.label} group={group} />
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="gap-2 p-3 group-data-[collapsible=icon]:gap-1.5 group-data-[collapsible=icon]:p-2">

@@ -42,7 +42,7 @@ export default async function AdminCoursePreviewLessonPage({
     <CourseLearnShell
       data={data}
       lessonSlug={lessonSlug}
-      lessonBasePath={`/admin/courses/${courseId}/preview/lecciones`}
+      lessonBasePath={`/admin/courses/${courseId}/preview/lessons`}
       courseLandingHref={`/admin/courses/${courseId}/preview`}
     />
   );

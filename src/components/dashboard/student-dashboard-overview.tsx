@@ -359,7 +359,7 @@ export function StudentDashboardOverview({
                       )}
                     >
                       <Link
-                        href={`/dashboard/courses/${continueLearning.courseSlug}/lecciones/${continueLearning.lessonSlug}`}
+                        href={`/dashboard/courses/${continueLearning.courseSlug}/lessons/${continueLearning.lessonSlug}`}
                         className="inline-flex items-center justify-center gap-2"
                       >
                         Continuar Aprendiendo

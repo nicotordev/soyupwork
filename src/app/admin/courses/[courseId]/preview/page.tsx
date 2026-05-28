@@ -29,7 +29,7 @@ export default async function AdminCoursePreviewLandingPage({
   }
 
   const buildLessonHref = (lessonSlug: string) =>
-    `/admin/courses/${courseId}/preview/lecciones/${lessonSlug}`;
+    `/admin/courses/${courseId}/preview/lessons/${lessonSlug}`;
 
   return (
     <CourseLandingView
