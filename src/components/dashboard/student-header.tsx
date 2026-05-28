@@ -1,6 +1,5 @@
 "use client";
 
-import { ADMIN_BASE_PATH } from "@/constants/dashboard.constants";
 import { adminBrutalButtonClass, adminInputClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { UserProfileDropdown } from "@/components/dashboard/user-profile-dropdown";
@@ -21,40 +20,27 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
-function getBreadcrumbLabel(pathname: string): string {
+function getStudentBreadcrumbLabel(pathname: string): string {
   const segments: Record<string, string> = {
+    dashboard: "Mi Panel",
     courses: "Cursos",
-    categories: "Categorías",
-    users: "Usuarios",
-    sales: "Ventas",
-    cohorts: "Cohortes",
-    metrics: "Métricas",
-    settings: "Configuración",
-    general: "General",
-    auth: "Autenticación",
-    payments: "Pagos",
-    email: "Correo",
-    storage: "Almacenamiento",
-    video: "Video",
-    notifications: "Notificaciones",
+    lecciones: "Lecciones",
   };
 
-  const parts = pathname
-    .replace(ADMIN_BASE_PATH, "")
-    .split("/")
-    .filter(Boolean);
+  const parts = pathname.split("/").filter(Boolean);
   const slug = parts.at(-1) ?? parts[0];
-  if (!slug) return "Resumen";
-  return segments[slug] ?? "Admin";
+  if (!slug || slug === "dashboard") return "Mi Panel";
+  return segments[slug] ?? "Área Estudiante";
 }
-export function AdminHeader() {
+
+export function StudentHeader() {
   const pathname = usePathname();
-  const pageLabel = getBreadcrumbLabel(pathname);
+  const pageLabel = getStudentBreadcrumbLabel(pathname);
 
   return (
     <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-3 border-b-2 border-foreground bg-background px-4">
       <SidebarTrigger
-        className={cn(adminBrutalButtonClass, "size-8 shrink-0")}
+        className={cn(adminBrutalButtonClass, "size-8 shrink-0 bg-background")}
       />
 
       <Separator
@@ -66,11 +52,8 @@ export function AdminHeader() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link
-                href={ADMIN_BASE_PATH}
-                className="font-mono text-xs uppercase"
-              >
-                Admin
+              <Link href="/dashboard" className="font-mono text-xs uppercase">
+                Panel
               </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -83,29 +66,29 @@ export function AdminHeader() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="relative ml-auto flex max-w-md flex-1 items-center">
+      <div className="relative ml-auto flex max-w-xs flex-1 items-center md:max-w-md">
         <IconSearch
           className="pointer-events-none absolute left-2.5 size-4 text-muted-foreground"
           stroke={2.25}
         />
         <Input
           type="search"
-          placeholder="Buscar cursos, pedidos, usuarios..."
+          placeholder="Buscar lecciones, apuntes..."
           className={cn(adminInputClass, "h-8 w-full pl-8 font-mono text-xs")}
-          aria-label="Buscar en el panel"
+          aria-label="Buscar en tus cursos"
         />
       </div>
 
       <Button
         variant="outline"
         size="icon-sm"
-        className={adminBrutalButtonClass}
+        className={cn(adminBrutalButtonClass, "bg-background")}
         aria-label="Notificaciones"
       >
         <IconBell stroke={2.25} />
       </Button>
 
-      <UserProfileDropdown role="admin" />
+      <UserProfileDropdown />
     </header>
   );
 }

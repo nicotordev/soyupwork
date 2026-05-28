@@ -5,16 +5,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   adminBrutalButtonClass,
-  adminEyebrowClass,
-  adminGridBackgroundClass,
   adminPanelClass,
   adminPanelHeaderClass,
   adminPanelTitleClass,
   adminStatCardClass,
 } from "@/lib/admin/styles";
-import { courseLevelLabel } from "@/lib/catalog/course-level";
+import { DashboardContainer } from "@/components/dashboard/dashboard-container";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
+import {
+  courseLevelLabel,
+  isCourseLevelValue,
+} from "@/lib/catalog/course-level";
 import { cn } from "@/lib/utils";
-import type { CourseLevel } from "@/generated/prisma/client";
 import {
   IconAward,
   IconBook,
@@ -25,7 +27,7 @@ import {
   IconMail,
   IconPlayerPlay,
 } from "@tabler/icons-react";
-import { motion, Variant } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -33,13 +35,15 @@ type StudentDashboardOverviewProps = {
   data: StudentDashboardData;
 };
 
-export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps) {
+export function StudentDashboardOverview({
+  data,
+}: StudentDashboardOverviewProps) {
   const { user, stats, continueLearning, enrolledCourses, certificates } = data;
 
   const userDisplayName =
     user.firstName || user.lastName
       ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
-      : user.email?.split("@")[0] ?? "Estudiante";
+      : (user.email?.split("@")[0] ?? "Estudiante");
 
   const statsItems = [
     {
@@ -69,7 +73,7 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
   ];
 
   // Container motion variant
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -79,15 +83,17 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
-  } as Variant;
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+    },
+  };
 
   return (
-    <div className="relative min-h-svh overflow-hidden bg-background py-8 px-4 font-sans text-foreground antialiased md:px-8">
-      {/* Decorative Grid Background */}
-      <div className={adminGridBackgroundClass} />
+    <DashboardContainer>
       <div className="pointer-events-none absolute -left-24 top-24 -z-20 size-96 rounded-full bg-primary/10 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 top-72 -z-20 size-96 rounded-full bg-emerald-500/5 blur-3xl" />
 
@@ -95,59 +101,67 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="mx-auto max-w-6xl space-y-8"
+        className="space-y-8"
       >
         {/* Welcome Section */}
-        <motion.div variants={itemVariants} className="space-y-4">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-2">
-              <span className={adminEyebrowClass}>Panel de Estudiante</span>
-              <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">
-                ¡Hola, {userDisplayName}! 👋
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Qué gusto tenerte de vuelta en SoyUpwork. Sigue aprendiendo y dominando el mercado freelance.
-              </p>
-            </div>
-            
-            {/* Simple User profile badge */}
-            <div className={cn(adminPanelClass, "flex items-center gap-3 bg-card px-4 py-2 shadow-[2px_2px_0px_0px_var(--foreground)] shrink-0 self-start md:self-auto")}>
-              {user.imageUrl ? (
-                <div className="relative size-9 overflow-hidden rounded-full border-2 border-foreground bg-muted">
-                  <Image
-                    src={user.imageUrl}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
+        <motion.div variants={itemVariants}>
+          <DashboardPageHeader
+            eyebrow="Panel de Estudiante"
+            icon={<IconBook className="size-4" stroke={2.5} />}
+            title={`¡Hola, ${userDisplayName}! 👋`}
+            description="Qué gusto tenerte de vuelta en SoyUpwork. Sigue aprendiendo y dominando el mercado freelance."
+            actions={
+              <div
+                className={cn(
+                  adminPanelClass,
+                  "flex items-center gap-3 bg-card px-4 py-2 shadow-[2px_2px_0px_0px_var(--foreground)] shrink-0"
+                )}
+              >
+                {user.imageUrl ? (
+                  <div className="relative size-9 overflow-hidden rounded-full border-2 border-foreground bg-muted">
+                    <Image
+                      src={user.imageUrl}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                ) : (
+                  <div className="flex size-9 items-center justify-center rounded-full border-2 border-foreground bg-primary/20 font-mono text-sm font-bold">
+                    {userDisplayName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="text-left">
+                  <p className="font-mono text-[9px] font-bold uppercase text-muted-foreground">
+                    Estudiante
+                  </p>
+                  <p className="max-w-[150px] truncate text-xs font-bold leading-none">
+                    {userDisplayName}
+                  </p>
                 </div>
-              ) : (
-                <div className="flex size-9 items-center justify-center rounded-full border-2 border-foreground bg-primary/20 font-mono text-sm font-bold">
-                  {userDisplayName.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="text-left">
-                <p className="font-mono text-[9px] font-bold uppercase text-muted-foreground">
-                  Estudiante
-                </p>
-                <p className="max-w-[150px] truncate text-xs font-bold leading-none">
-                  {userDisplayName}
-                </p>
               </div>
-            </div>
-          </div>
+            }
+          />
         </motion.div>
 
         {/* Stats Grid */}
-        <motion.div variants={itemVariants} className="grid gap-4 sm:grid-cols-3">
+        <motion.div
+          variants={itemVariants}
+          className="grid gap-4 sm:grid-cols-3"
+        >
           {statsItems.map((stat) => {
             const Icon = stat.icon;
             return (
               <article key={stat.id} className={adminStatCardClass}>
                 <div className="flex items-start justify-between gap-2">
                   <p className={adminPanelTitleClass}>{stat.label}</p>
-                  <div className={cn("rounded-md border-2 border-foreground p-1 shadow-[1px_1px_0px_0px_var(--foreground)]", stat.color)}>
+                  <div
+                    className={cn(
+                      "rounded-md border-2 border-foreground p-1 shadow-[1px_1px_0px_0px_var(--foreground)]",
+                      stat.color,
+                    )}
+                  >
                     <Icon className="size-4" stroke={2.5} />
                   </div>
                 </div>
@@ -164,9 +178,11 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
 
         {/* Main Content Grid: Left side Courses / Progress, Right side Continue Learning / Certificates */}
         <div className="grid gap-6 lg:grid-cols-3">
-          
           {/* Left Column: Courses list */}
-          <motion.div variants={itemVariants} className="space-y-6 lg:col-span-2">
+          <motion.div
+            variants={itemVariants}
+            className="space-y-6 lg:col-span-2"
+          >
             <div className={adminPanelClass}>
               <div className={adminPanelHeaderClass}>
                 <h3 className="font-heading font-extrabold text-foreground flex items-center gap-2">
@@ -174,17 +190,24 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
                   Mis Cursos
                 </h3>
                 <span className="font-mono text-[10px] font-bold uppercase text-muted-foreground">
-                  {enrolledCourses.length} {enrolledCourses.length === 1 ? "curso inscrito" : "cursos inscritos"}
+                  {enrolledCourses.length}{" "}
+                  {enrolledCourses.length === 1
+                    ? "curso inscrito"
+                    : "cursos inscritos"}
                 </span>
               </div>
               <div className="p-6">
                 {enrolledCourses.length === 0 ? (
                   <div className="border-2 border-dashed border-foreground/30 p-8 text-center rounded-lg bg-muted/10">
                     <p className="text-sm text-muted-foreground mb-4">
-                      Aún no estás inscrito en ningún curso. ¡Explora nuestro catálogo para comenzar a aprender!
+                      Aún no estás inscrito en ningún curso. ¡Explora nuestro
+                      catálogo para comenzar a aprender!
                     </p>
                     <Button asChild className={adminBrutalButtonClass}>
-                      <Link href="/catalog" className="inline-flex items-center gap-2">
+                      <Link
+                        href="/catalog"
+                        className="inline-flex items-center gap-2"
+                      >
                         <IconCompass className="size-4" stroke={2.5} />
                         Explorar Catálogo
                       </Link>
@@ -193,7 +216,13 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
                 ) : (
                   <ul className="divide-y-2 divide-foreground/10 space-y-4">
                     {enrolledCourses.map((course, index) => (
-                      <li key={course.id} className={cn("pt-4 first:pt-0", index > 0 && "border-t-2 border-foreground/10")}>
+                      <li
+                        key={course.id}
+                        className={cn(
+                          "pt-4 first:pt-0",
+                          index > 0 && "border-t-2 border-foreground/10",
+                        )}
+                      >
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex gap-4">
                             <div className="relative size-16 shrink-0 overflow-hidden rounded border-2 border-foreground bg-muted shadow-[2px_2px_0px_0px_var(--foreground)]">
@@ -220,11 +249,17 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
                                 {course.title}
                               </Link>
                               <div className="flex flex-wrap items-center gap-2">
-                                <Badge variant="outline" className="font-mono text-[9px] uppercase border-foreground/40">
-                                  {courseLevelLabel(course.level as CourseLevel)}
+                                <Badge
+                                  variant="outline"
+                                  className="font-mono text-[9px] uppercase border-foreground/40"
+                                >
+                                  {isCourseLevelValue(course.level)
+                                    ? courseLevelLabel(course.level)
+                                    : course.level}
                                 </Badge>
                                 <span className="font-mono text-[10px] text-muted-foreground font-bold">
-                                  {course.completedLessons}/{course.totalLessons} lecciones
+                                  {course.completedLessons}/
+                                  {course.totalLessons} lecciones
                                 </span>
                               </div>
                             </div>
@@ -240,14 +275,30 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
                               <div className="h-3 w-full border-2 border-foreground rounded bg-muted overflow-hidden">
                                 <div
                                   className="h-full bg-primary border-r-2 border-foreground transition-all duration-300"
-                                  style={{ width: `${course.progressPercent}%` }}
+                                  style={{
+                                    width: `${course.progressPercent}%`,
+                                  }}
                                 />
                               </div>
                             </div>
-                            <Button asChild size="sm" variant="outline" className={cn(adminBrutalButtonClass, "bg-background")}>
-                              <Link href={`/dashboard/courses/${course.slug}`} className="inline-flex items-center gap-1 font-mono text-[10px] font-extrabold uppercase">
+                            <Button
+                              asChild
+                              size="sm"
+                              variant="outline"
+                              className={cn(
+                                adminBrutalButtonClass,
+                                "bg-background",
+                              )}
+                            >
+                              <Link
+                                href={`/dashboard/courses/${course.slug}`}
+                                className="inline-flex items-center gap-1 font-mono text-[10px] font-extrabold uppercase"
+                              >
                                 Entrar
-                                <IconChevronRight className="size-3" stroke={2.5} />
+                                <IconChevronRight
+                                  className="size-3"
+                                  stroke={2.5}
+                                />
                               </Link>
                             </Button>
                           </div>
@@ -262,20 +313,27 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
 
           {/* Right Column: Continue Learning widget & Certificates */}
           <div className="space-y-6">
-            
             {/* Widget: Continue learning */}
             <motion.div variants={itemVariants}>
               {continueLearning ? (
-                <div className={cn(adminPanelClass, "bg-secondary/10 relative overflow-hidden transition-all hover:shadow-[6px_6px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5")}>
+                <div
+                  className={cn(
+                    adminPanelClass,
+                    "bg-secondary/10 relative overflow-hidden transition-all hover:shadow-[6px_6px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5",
+                  )}
+                >
                   {/* Decorative glowing background accent */}
                   <div className="absolute -right-8 -top-8 size-24 rounded-full bg-primary/20 blur-2xl" />
-                  
+
                   <div className={adminPanelHeaderClass}>
                     <h3 className="font-heading font-extrabold text-foreground flex items-center gap-2">
                       <IconPlayerPlay className="size-4" fill="currentColor" />
                       Siguiente Lección
                     </h3>
-                    <Badge variant="default" className="font-mono text-[9px] uppercase bg-primary text-primary-foreground border-foreground">
+                    <Badge
+                      variant="default"
+                      className="font-mono text-[9px] uppercase bg-primary text-primary-foreground border-foreground"
+                    >
                       Activo
                     </Badge>
                   </div>
@@ -288,12 +346,22 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
                         {continueLearning.lessonTitle}
                       </h4>
                       <p className="text-xs text-muted-foreground">
-                        Tu progreso global en el curso es del {continueLearning.progressPercent}%.
+                        Tu progreso global en el curso es del{" "}
+                        {continueLearning.progressPercent}%.
                       </p>
                     </div>
 
-                    <Button asChild className={cn(adminBrutalButtonClass, "w-full bg-primary text-primary-foreground font-mono text-xs font-bold uppercase")}>
-                      <Link href={`/dashboard/courses/${continueLearning.courseSlug}/lecciones/${continueLearning.lessonSlug}`} className="inline-flex items-center justify-center gap-2">
+                    <Button
+                      asChild
+                      className={cn(
+                        adminBrutalButtonClass,
+                        "w-full bg-primary text-primary-foreground font-mono text-xs font-bold uppercase",
+                      )}
+                    >
+                      <Link
+                        href={`/dashboard/courses/${continueLearning.courseSlug}/lecciones/${continueLearning.lessonSlug}`}
+                        className="inline-flex items-center justify-center gap-2"
+                      >
                         Continuar Aprendiendo
                         <IconChevronRight className="size-4" stroke={3} />
                       </Link>
@@ -301,18 +369,34 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
                   </div>
                 </div>
               ) : enrolledCourses.length > 0 ? (
-                <div className={cn(adminPanelClass, "bg-emerald-500/5 p-6 text-center space-y-3")}>
+                <div
+                  className={cn(
+                    adminPanelClass,
+                    "bg-emerald-500/5 p-6 text-center space-y-3",
+                  )}
+                >
                   <div className="inline-flex items-center justify-center rounded-full border-2 border-foreground bg-emerald-500/10 p-3 shadow-[2px_2px_0px_0px_var(--foreground)]">
-                    <IconAward className="size-6 text-emerald-600 animate-bounce" stroke={2.5} />
+                    <IconAward
+                      className="size-6 text-emerald-600 animate-bounce"
+                      stroke={2.5}
+                    />
                   </div>
                   <h4 className="font-heading font-extrabold text-base">
                     ¡Completaste todo! 🎉
                   </h4>
                   <p className="text-xs text-muted-foreground">
-                    Has completado con éxito todas las lecciones disponibles en tus cursos. ¡Excelente trabajo freelance!
+                    Has completado con éxito todas las lecciones disponibles en
+                    tus cursos. ¡Excelente trabajo freelance!
                   </p>
-                  <Button asChild variant="outline" className={adminBrutalButtonClass}>
-                    <Link href="/catalog" className="inline-flex items-center gap-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className={adminBrutalButtonClass}
+                  >
+                    <Link
+                      href="/catalog"
+                      className="inline-flex items-center gap-2"
+                    >
                       <IconCompass className="size-4" stroke={2.5} />
                       Buscar Nuevos Retos
                     </Link>
@@ -358,13 +442,24 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
                             Código: {cert.code}
                           </p>
                         </div>
-                        <Button asChild size="sm" variant="outline" className={cn(adminBrutalButtonClass, "bg-background py-0.5 px-2 h-7 shrink-0")}>
+                        <Button
+                          asChild
+                          size="sm"
+                          variant="outline"
+                          className={cn(
+                            adminBrutalButtonClass,
+                            "bg-background py-0.5 px-2 h-7 shrink-0",
+                          )}
+                        >
                           <Link
                             href={`/dashboard/courses/${cert.courseSlug}`}
                             className="font-mono text-[9px] font-extrabold uppercase inline-flex items-center gap-0.5"
                           >
                             Ver
-                            <IconChevronRight className="size-2.5" stroke={2.5} />
+                            <IconChevronRight
+                              className="size-2.5"
+                              stroke={2.5}
+                            />
                           </Link>
                         </Button>
                       </li>
@@ -390,8 +485,13 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
                     "flex flex-col items-center justify-center p-3 text-center transition-all bg-card hover:bg-secondary/5 hover:translate-x-px hover:translate-y-px shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[1px_1px_0px_0px_var(--foreground)]",
                   )}
                 >
-                  <IconCompass className="size-5 mb-1 text-primary" stroke={2.5} />
-                  <span className="font-bold text-[11px] leading-tight">Ver Catálogo</span>
+                  <IconCompass
+                    className="size-5 mb-1 text-primary"
+                    stroke={2.5}
+                  />
+                  <span className="font-bold text-[11px] leading-tight">
+                    Ver Catálogo
+                  </span>
                 </Link>
                 <a
                   href={`mailto:${user.email ?? "soporte@soyup.work"}`}
@@ -400,16 +500,19 @@ export function StudentDashboardOverview({ data }: StudentDashboardOverviewProps
                     "flex flex-col items-center justify-center p-3 text-center transition-all bg-card hover:bg-secondary/5 hover:translate-x-px hover:translate-y-px shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[1px_1px_0px_0px_var(--foreground)]",
                   )}
                 >
-                  <IconMail className="size-5 mb-1 text-emerald-500" stroke={2.5} />
-                  <span className="font-bold text-[11px] leading-tight">Soporte técnico</span>
+                  <IconMail
+                    className="size-5 mb-1 text-emerald-500"
+                    stroke={2.5}
+                  />
+                  <span className="font-bold text-[11px] leading-tight">
+                    Soporte técnico
+                  </span>
                 </a>
               </div>
             </motion.div>
-
           </div>
-
         </div>
       </motion.div>
-    </div>
+    </DashboardContainer>
   );
 }

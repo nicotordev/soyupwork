@@ -5,13 +5,13 @@ import {
   ADMIN_COURSES_MAX_PAGE_SIZE,
   ADMIN_COURSES_PAGE_SIZE_OPTIONS,
 } from "@/constants/courses.constants";
-import {
-  CourseLevel,
-  CourseStatus,
-  type Prisma,
-} from "@/generated/prisma/client";
+import { CourseStatus, type Prisma } from "@/generated/prisma/client";
 import { formatAdminCoursePrice } from "@/lib/admin/formatters";
-import { courseLevelLabel } from "@/lib/catalog/course-level";
+import {
+  courseLevelLabel,
+  isCourseLevelValue,
+  type CourseLevelValue,
+} from "@/lib/catalog/course-level";
 import type {
   AdminCourseRow,
   ParsedAdminCoursesParams,
@@ -95,8 +95,8 @@ function parseLevel(
   raw: string | undefined,
 ): ParsedAdminCoursesParams["level"] {
   if (!raw || raw === ADMIN_COURSES_FILTER_ALL) return ADMIN_COURSES_FILTER_ALL;
-  if (Object.values(CourseLevel).includes(raw as CourseLevel)) {
-    return raw as CourseLevel;
+  if (isCourseLevelValue(raw)) {
+    return raw as CourseLevelValue;
   }
   return ADMIN_COURSES_FILTER_ALL;
 }

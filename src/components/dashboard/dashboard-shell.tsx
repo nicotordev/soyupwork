@@ -1,34 +1,64 @@
+"use client";
+
+import { StudentHeader } from "@/components/dashboard/student-header";
+import { StudentSidebar } from "@/components/dashboard/student-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
-import { IconArrowLeft, IconBooks } from "@tabler/icons-react";
-import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 type DashboardShellProps = {
   children: React.ReactNode;
 };
 
 export function DashboardShell({ children }: DashboardShellProps) {
+  const pathname = usePathname();
+  const [loading, setLoading] = useState(false);
+
+  // Trigger a brief premium top progress loading indicator on route change
+  useEffect(() => {
+    setLoading(true);
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
   return (
-    <div className="flex min-h-svh flex-col bg-background">
-      <header className="border-b-2 border-foreground bg-card">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4">
-          <Link
-            href="/dashboard/courses"
-            className="inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wide"
+    <SidebarProvider defaultOpen>
+      {/* Top indicator glowing bar for page changes */}
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            initial={{ scaleX: 0, opacity: 1 }}
+            animate={{ scaleX: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="fixed top-0 left-0 right-0 z-50 h-[3px] bg-gradient-to-r from-primary via-emerald-400 to-primary origin-left shadow-[0_1px_10px_rgba(var(--primary),0.8)]"
+          />
+        )}
+      </AnimatePresence>
+
+      <StudentSidebar />
+      <SidebarInset className="min-h-svh flex flex-col">
+        <StudentHeader />
+
+        {/* Animated layout route transition */}
+        <AnimatePresence mode="wait">
+          <motion.main
+            key={pathname}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="flex-1 flex flex-col"
           >
-            <IconBooks className="size-4 text-primary" stroke={2.5} />
-            SoyUpwork
-          </Link>
-          <Link
-            href="/catalog"
-            className="inline-flex items-center gap-1 font-mono text-[10px] font-bold uppercase text-muted-foreground hover:text-foreground"
-          >
-            <IconArrowLeft className="size-3.5" stroke={2.25} />
-            Catálogo
-          </Link>
-        </div>
-      </header>
-      <main className="flex-1">{children}</main>
-    </div>
+            {children}
+          </motion.main>
+        </AnimatePresence>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
 
@@ -53,3 +83,4 @@ export function DashboardPageHeader({
     </div>
   );
 }
+

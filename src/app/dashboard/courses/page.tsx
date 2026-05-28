@@ -1,9 +1,11 @@
 import { getStudentEnrolledCourses } from "@/app/actions/course-page.actions";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-shell";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
-import type { CourseLevel } from "@/generated/prisma/client";
 import { adminPanelClass } from "@/lib/admin/styles";
-import { courseLevelLabel } from "@/lib/catalog/course-level";
+import {
+  courseLevelLabel,
+  isCourseLevelValue,
+} from "@/lib/catalog/course-level";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -71,7 +73,9 @@ export default async function DashboardCoursesPage() {
                   <div className="min-w-0 space-y-1">
                     <p className="truncate font-semibold">{course.title}</p>
                     <p className="font-mono text-[10px] uppercase text-muted-foreground">
-                      {courseLevelLabel(course.level as CourseLevel)}
+                      {isCourseLevelValue(course.level)
+                        ? courseLevelLabel(course.level)
+                        : course.level}
                     </p>
                   </div>
                 </Link>

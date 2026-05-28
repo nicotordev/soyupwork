@@ -114,7 +114,9 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     ).length;
 
     const progressPercent =
-      totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+      totalLessons > 0
+        ? Math.round((completedLessons / totalLessons) * 100)
+        : 0;
 
     return {
       id: course.id,
@@ -157,10 +159,27 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
   // 6. Find "Continue learning" course and lesson
   let continueLearning: StudentDashboardData["continueLearning"] = null;
 
-  // Let's find the last accessed lesson
+  const enrolledCourseIds = new Set(enrolledCourses.map((course) => course.id));
+
+  const activeEnrollmentFilter = {
+    userId: student.id,
+    status: {
+      in: [EnrollmentStatus.ACTIVE, EnrollmentStatus.COMPLETED],
+    },
+  };
+
+  // Last accessed lesson, only within current enrollments (published courses)
   const lastProgress = await prisma.lessonProgress.findFirst({
     where: {
       userId: student.id,
+      lesson: {
+        module: {
+          course: {
+            status: CourseStatus.PUBLISHED,
+            enrollments: { some: activeEnrollmentFilter },
+          },
+        },
+      },
     },
     orderBy: {
       lastSeenAt: "desc",
@@ -195,26 +214,30 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     return lessons.find((l: any) => !completedLessonIds.has(l.id)) ?? null;
   };
 
-  if (lastProgress && lastProgress.lesson.module.course.status === CourseStatus.PUBLISHED) {
+  if (lastProgress) {
     const currentCourse = lastProgress.lesson.module.course;
-    const nextPendingLesson = tryFindNextLesson(currentCourse);
-
-    if (nextPendingLesson) {
+    if (enrolledCourseIds.has(currentCourse.id)) {
+      const nextPendingLesson = tryFindNextLesson(currentCourse);
       const courseStat = enrolledCourses.find((c) => c.id === currentCourse.id);
-      continueLearning = {
-        courseTitle: currentCourse.title,
-        courseSlug: currentCourse.slug,
-        lessonTitle: nextPendingLesson.title,
-        lessonSlug: nextPendingLesson.slug,
-        progressPercent: courseStat?.progressPercent ?? 0,
-      };
+
+      if (nextPendingLesson && courseStat) {
+        continueLearning = {
+          courseTitle: currentCourse.title,
+          courseSlug: currentCourse.slug,
+          lessonTitle: nextPendingLesson.title,
+          lessonSlug: nextPendingLesson.slug,
+          progressPercent: courseStat.progressPercent,
+        };
+      }
     }
   }
 
   // If we couldn't find a next lesson in the last accessed course, try other courses
   if (!continueLearning && enrolledCourses.length > 0) {
     for (const enrolled of enrolledCourses) {
-      const fullCourse = enrollments.find((e) => e.course.id === enrolled.id)?.course;
+      const fullCourse = enrollments.find(
+        (e) => e.course.id === enrolled.id,
+      )?.course;
       if (fullCourse) {
         const nextPendingLesson = tryFindNextLesson(fullCourse);
         if (nextPendingLesson) {

@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Mi Panel",
-  description: "Área de estudiante de SoyUpwork. Sigue tu progreso, lecciones y certificados freelance.",
+  description:
+    "Área de estudiante de SoyUpwork. Sigue tu progreso, lecciones y certificados freelance.",
 };
 
 export default async function DashboardPage() {
