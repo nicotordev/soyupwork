@@ -149,7 +149,7 @@ export function CatalogShell({
             <span className="font-mono text-[9px] font-bold bg-primary text-primary-foreground px-2.5 py-1 border-2 border-foreground rounded shadow-[1px_1px_0px_0px_var(--foreground)] uppercase tracking-wider">
               {CATALOG_PAGE.valueEyebrow}
             </span>
-            <h2 className="text-2xl md:text-3xl font-heading font-black tracking-tight text-balance text-foreground leading-none">
+            <h2 className="mt-2 text-2xl md:text-3xl font-heading font-black tracking-tight text-balance text-foreground leading-none">
               {CATALOG_PAGE.valueTitle}
             </h2>
             <p className="text-xs md:text-sm text-muted-foreground leading-relaxed font-semibold">

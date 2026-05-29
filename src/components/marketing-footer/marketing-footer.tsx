@@ -15,6 +15,7 @@ import {
   IconCheck,
   IconSparkles,
 } from "@tabler/icons-react";
+import { MARKETING_PAGE } from "@/constants/marketing.constants";
 
 // NEW: import react-hook-form and zod
 import { useForm } from "react-hook-form";
@@ -100,14 +101,14 @@ export function MarketingFooter() {
                 className="h-4 w-4 text-primary animate-spin"
                 style={{ animationDuration: "3s" }}
               />
-              ¿Listo para dar el salto freelance internacional?
+              {MARKETING_PAGE.footer.banner}
             </p>
           </div>
           <Link
             href="/catalog"
             className="group flex items-center gap-2 border-2 border-foreground bg-background px-4 py-2 font-mono text-xs md:text-sm font-black uppercase shadow-[3px_3px_0px_0px_var(--foreground)] rounded transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_var(--foreground)] active:translate-y-[3px] active:shadow-none"
           >
-            Explorar Cursos
+            {MARKETING_PAGE.footer.bannerCta}
             <IconArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
@@ -125,8 +126,7 @@ export function MarketingFooter() {
                 SoyUpwork
               </Link>
               <p className="text-sm text-muted-foreground max-w-xs font-medium">
-                Formación práctica y comunidad para freelancers de habla hispana
-                que quieren vender en Upwork y cerrar clientes en inglés.
+                {MARKETING_PAGE.footer.tagline}
               </p>
             </div>
 

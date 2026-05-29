@@ -5,6 +5,9 @@ import { AnimatePresence } from "framer-motion";
 import { AlertCircle, Check, CheckCircle } from "lucide-react";
 import { Motion } from "@/components/common/motion";
 import { Badge } from "@/components/ui/badge";
+import { MARKETING_PAGE } from "@/constants/marketing.constants";
+
+const sim = MARKETING_PAGE.proposalSimulator;
 
 export function MarketingProposalSimulatorClient() {
   const [simulatorMode, setSimulatorMode] = useState<"generic" | "algorithmic">(
@@ -19,30 +22,22 @@ export function MarketingProposalSimulatorClient() {
             variant="outline"
             className="border-primary/30 text-primary font-mono uppercase"
           >
-            Simulador del Sistema
+            {sim.badge}
           </Badge>
           <h2 className="text-2xl font-black leading-tight text-foreground sm:text-3xl md:text-4xl">
-            La diferencia entre copiar una plantilla y entender al cliente
+            {sim.title}
           </h2>
           <p className="text-muted-foreground text-sm leading-relaxed font-medium">
-            En Upwork no basta con abrir una cuenta. Un curso de soyup.work te
-            ensena a leer la oportunidad, detectar el problema real y escribir
-            una propuesta que suene especifica, no automatica.
+            {sim.description}
           </p>
 
           <div className="space-y-4 font-medium text-xs">
-            <div className="flex gap-2">
-              <Check className="h-4.5 w-4.5 text-primary shrink-0" />
-              <span>Aprendes a separar proyectos viables de ruido.</span>
-            </div>
-            <div className="flex gap-2">
-              <Check className="h-4.5 w-4.5 text-primary shrink-0" />
-              <span>Evitas copy-paste generico y mensajes sin contexto.</span>
-            </div>
-            <div className="flex gap-2">
-              <Check className="h-4.5 w-4.5 text-primary shrink-0" />
-              <span>Practicas ejemplos con texto, video y cuestionarios.</span>
-            </div>
+            {sim.bullets.map((bullet) => (
+              <div key={bullet} className="flex gap-2">
+                <Check className="h-4.5 w-4.5 text-primary shrink-0" />
+                <span>{bullet}</span>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -69,7 +64,7 @@ export function MarketingProposalSimulatorClient() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Propuesta generica
+                {sim.genericTab}
               </button>
               <button
                 type="button"
@@ -80,7 +75,7 @@ export function MarketingProposalSimulatorClient() {
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Propuesta con contexto
+                {sim.contextTab}
               </button>
             </div>
           </div>
@@ -88,10 +83,9 @@ export function MarketingProposalSimulatorClient() {
           <div className="p-3 sm:p-5 space-y-4 min-w-0">
             <div className="border border-border bg-background p-3 rounded-lg text-[11px] font-medium text-muted-foreground wrap-break-word">
               <p className="font-mono text-[9px] text-primary mb-1">
-                PROYECTO CLIENTE (EE.UU.):
+                {sim.projectLabel}
               </p>
-              "Need Node.js backend expert to optimize Shopify webhooks database
-              crashes..."
+              {sim.projectSnippet}
             </div>
 
             <AnimatePresence mode="wait">
@@ -106,18 +100,13 @@ export function MarketingProposalSimulatorClient() {
                 >
                   <div className="border border-destructive/20 bg-destructive/5 rounded-lg p-3">
                     <p className="text-[11px] font-mono text-destructive/80 leading-relaxed wrap-break-word">
-                      "Dear Hiring Manager, I am a senior fullstack engineer
-                      with 8 years of experience. I have massive skills in Node,
-                      React and AWS. I can do it very cheap. Check my
-                      profile..."
+                      {sim.genericProposal}
                     </p>
                   </div>
                   <div className="flex gap-2 items-start bg-destructive/10 p-2.5 rounded border border-destructive/20 text-[10px] text-muted-foreground">
                     <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
                     <span>
-                      <strong>Por que falla?</strong> El saludo es amplio, parte
-                      desde la experiencia del freelancer y no demuestra que
-                      entendio el problema del proyecto.
+                      <strong>¿Por qué falla?</strong> {sim.genericWhy}
                     </span>
                   </div>
                 </Motion>
@@ -132,18 +121,13 @@ export function MarketingProposalSimulatorClient() {
                 >
                   <div className="border border-primary/20 bg-primary/5 rounded-lg p-3">
                     <p className="text-[11px] font-mono text-primary leading-relaxed wrap-break-word">
-                      "Hi Sarah - I noticed your Node.js endpoint is failing
-                      because Shopify webhook batches are massive. I made a
-                      2-min Loom diagnostics audit video for your DB:
-                      loom.com/share/df92..."
+                      {sim.contextProposal}
                     </p>
                   </div>
                   <div className="flex gap-2 items-start bg-primary/10 p-2.5 rounded border border-primary/20 text-[10px] text-muted-foreground">
                     <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                     <span>
-                      <strong>Por que mejora?</strong> Parte desde el problema
-                      publicado, propone una hipotesis concreta y abre una
-                      conversacion con valor antes de hablar de precio.
+                      <strong>¿Por qué mejora?</strong> {sim.contextWhy}
                     </span>
                   </div>
                 </Motion>

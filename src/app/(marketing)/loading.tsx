@@ -2,43 +2,34 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function HeroLoading() {
   return (
-    <section className="mx-auto max-w-7xl overflow-x-hidden px-4 pb-14 pt-10 sm:px-6 sm:pb-20 sm:pt-12 lg:grid lg:grid-cols-12 lg:items-center lg:gap-12 lg:px-8 lg:pt-20">
-      <div className="space-y-8 text-center lg:col-span-6 lg:text-left">
-        <div className="space-y-4">
+    <section className="relative mx-auto w-full max-w-6xl overflow-x-hidden px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[3rem_3rem] opacity-20" />
+
+      <div className="mx-auto flex max-w-4xl flex-col items-center space-y-8 text-center">
+        <Skeleton className="h-6 w-64 max-w-full rounded-md border border-primary/20" />
+
+        <div className="w-full space-y-5">
           <div className="space-y-3">
-            <Skeleton className="mx-auto h-9 w-full max-w-md bg-muted sm:h-10 lg:mx-0 md:h-12" />
-            <Skeleton className="mx-auto h-9 w-4/5 max-w-sm bg-muted/80 sm:h-10 lg:mx-0 md:h-12" />
+            <Skeleton className="mx-auto h-10 w-full max-w-3xl sm:h-12 md:h-14" />
+            <Skeleton className="mx-auto h-10 w-11/12 max-w-2xl sm:h-12 md:h-14" />
+            <Skeleton className="mx-auto h-8 w-4/5 max-w-xl sm:h-10 md:hidden" />
           </div>
-          <Skeleton className="mx-auto h-20 w-full max-w-2xl bg-muted sm:h-24 lg:mx-0" />
+          <Skeleton className="mx-auto h-24 w-full max-w-3xl sm:h-28" />
         </div>
 
-        <div className="flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
-          <Skeleton className="h-[3.25rem] w-full rounded border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)] sm:w-56" />
-          <Skeleton className="h-[3.25rem] w-full rounded border border-border sm:w-44" />
+        <div className="flex w-full max-w-lg flex-col gap-3 sm:max-w-none sm:flex-row sm:justify-center">
+          <Skeleton className="h-[3.25rem] w-full rounded border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)] sm:w-52" />
+          <Skeleton className="h-[3.25rem] w-full rounded border-2 border-primary/40 sm:w-48" />
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-2 lg:justify-start">
-          <div className="inline-flex items-center gap-1.5">
-            <Skeleton className="h-3.5 w-3.5 shrink-0 rounded-sm" />
-            <Skeleton className="h-3.5 w-28" />
-          </div>
-          <div className="inline-flex items-center gap-1.5">
-            <Skeleton className="h-3.5 w-3.5 shrink-0 rounded-sm" />
-            <Skeleton className="h-3.5 w-36" />
-          </div>
-          <div className="inline-flex items-center gap-1.5">
-            <Skeleton className="h-3.5 w-3.5 shrink-0 rounded-sm" />
-            <Skeleton className="h-3.5 w-44" />
-          </div>
+        <div className="flex w-full max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-3 pt-2">
+          {["w-32", "w-40", "w-48"].map((widthClass) => (
+            <div key={widthClass} className="inline-flex items-center gap-1.5">
+              <Skeleton className="h-3.5 w-3.5 shrink-0 rounded-sm" />
+              <Skeleton className={`h-3.5 ${widthClass}`} />
+            </div>
+          ))}
         </div>
-      </div>
-
-      <div className="relative mt-10 min-w-0 lg:col-span-6 lg:mt-0">
-        <div className="absolute -inset-1 rounded-2xl bg-muted/40 blur-xl" />
-        <div className="relative overflow-hidden rounded-2xl border-2 border-border bg-card p-1 shadow-2xl">
-          <Skeleton className="aspect-square w-full rounded-xl" />
-        </div>
-        <Skeleton className="absolute right-2 top-2 h-6 w-28 rounded border-2 border-foreground sm:-right-4 sm:-top-4 sm:h-7 sm:w-48" />
       </div>
     </section>
   );
@@ -55,16 +46,19 @@ export default function MarketingHomeLoading() {
       <main className="relative z-10 min-w-0">
         <HeroLoading />
 
+        <hr className="border-foreground" />
+
         {/* Propuesta de valor */}
-        <section className="border-y border-border bg-card/40 py-10 sm:py-14">
+        <section className="border-y-2 border-foreground bg-secondary/15 py-10 sm:py-14">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="space-y-3 rounded-xl border border-border bg-card p-4 text-center sm:p-6"
+                  className="space-y-3 rounded-2xl border-2 border-foreground bg-card p-5 text-center shadow-[4px_4px_0px_0px_var(--foreground)] sm:p-8"
                 >
-                  <Skeleton className="mx-auto h-8 w-28 sm:h-9" />
+                  <Skeleton className="mx-auto size-12 rounded-xl border-2 border-foreground" />
+                  <Skeleton className="mx-auto h-8 w-24 sm:h-9" />
                   <Skeleton className="mx-auto h-3 w-full max-w-[12rem]" />
                 </div>
               ))}
@@ -252,9 +246,12 @@ export default function MarketingHomeLoading() {
             <Skeleton className="mx-auto h-8 w-64" />
           </div>
           <div className="w-full divide-y divide-border overflow-hidden rounded-lg border-t border-border bg-card">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="px-4 py-4">
-                <Skeleton className="h-4 w-full max-w-md" />
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="space-y-2 px-4 py-4">
+                <Skeleton className="h-4 w-full max-w-lg" />
+                {i === 1 ? (
+                  <Skeleton className="h-12 w-full max-w-2xl" />
+                ) : null}
               </div>
             ))}
           </div>
