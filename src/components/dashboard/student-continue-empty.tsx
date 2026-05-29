@@ -50,7 +50,7 @@ export function StudentContinueEmpty() {
             )}
           >
             <Link
-              href="/courses"
+              href="/dashboard/courses"
               className="inline-flex items-center justify-center gap-2"
             >
               <IconBooks className="size-4" stroke={2.5} />

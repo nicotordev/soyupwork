@@ -2,8 +2,10 @@ import { getCheckoutSuccessDetails } from "@/app/actions/checkout.actions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { adminBrutalButtonClass, adminPanelClass } from "@/lib/admin/styles";
+import { serializeError } from "@/lib/logger/serialize-error";
+import { getServerLogger } from "@/lib/logger/server";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,6 +13,8 @@ import { notFound } from "next/navigation";
 export const metadata: Metadata = {
   title: "Pago confirmado",
 };
+
+const log = getServerLogger("checkout.success");
 
 type PageProps = {
   searchParams: Promise<{ session_id?: string }>;
@@ -31,15 +35,70 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
     notFound();
   }
 
-  const details = await getCheckoutSuccessDetails(sessionId).catch(() => null);
+  let details: Awaited<ReturnType<typeof getCheckoutSuccessDetails>> = null;
+  let loadError: string | null = null;
 
-  if (!details) {
-    notFound();
+  try {
+    details = await getCheckoutSuccessDetails(sessionId);
+  } catch (error) {
+    log.error(
+      serializeError(error),
+      `Failed to load checkout success details (${sessionId})`,
+    );
+    loadError =
+      "No pudimos verificar tu pago en este momento. Si se realizó el cargo, revisa tus compras en unos minutos.";
+  }
+
+  if (!details && !loadError) {
+    loadError =
+      "No encontramos los detalles de esta sesión de pago. Si ya pagaste, el acceso puede tardar unos segundos en activarse.";
+  }
+
+  if (loadError || !details) {
+    return (
+      <main className="mx-auto flex max-w-lg flex-col items-center justify-center px-4 py-12 sm:py-20 font-sans">
+        <div
+          className={cn(
+            adminPanelClass,
+            "w-full space-y-6 p-5 sm:p-8 text-center rounded-2xl shadow-[4px_4px_0px_0px_var(--foreground)] sm:shadow-[8px_8px_0px_0px_var(--foreground)]",
+          )}
+        >
+          <div className="mx-auto flex size-16 items-center justify-center rounded-2xl border-2 border-foreground bg-destructive/10 shadow-[2px_2px_0px_0px_var(--foreground)]">
+            <AlertCircle
+              className="size-8 text-destructive"
+              strokeWidth={2.5}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="font-heading text-2xl font-black tracking-tight text-foreground sm:text-3xl">
+              No pudimos confirmar el pago
+            </h1>
+            <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+              {loadError}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 w-full pt-2">
+            <Button asChild className={cn(adminBrutalButtonClass, "w-full")}>
+              <Link href="/dashboard/purchases">Ver mis compras</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className={cn(adminBrutalButtonClass, "w-full")}
+            >
+              <Link href="/catalog">Volver al catálogo</Link>
+            </Button>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   const courseHref = details.courseSlug
     ? `/courses/${details.courseSlug}`
-    : "/courses";
+    : "/dashboard/courses";
 
   return (
     <main className="mx-auto flex max-w-lg flex-col items-center justify-center px-4 py-12 sm:py-20 font-sans">
@@ -101,7 +160,11 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
             <Link href={courseHref}>Ir al curso</Link>
           </Button>
 
-          <Button asChild variant="outline" className={cn(adminBrutalButtonClass, "w-full")}>
+          <Button
+            asChild
+            variant="outline"
+            className={cn(adminBrutalButtonClass, "w-full")}
+          >
             <Link href="/dashboard/purchases">Ver mis compras</Link>
           </Button>
         </div>
@@ -109,4 +172,3 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
     </main>
   );
 }
-

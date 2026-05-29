@@ -1,3 +1,5 @@
+"use client";
+
 import { markLessonComplete } from "@/app/actions/lesson-progress.actions";
 import { Button } from "@/components/ui/button";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
@@ -16,7 +18,7 @@ import type {
 import { IconCheck } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { toast } from "@/lib/toast";
 
 type CourseLessonProgressFooterProps = {
@@ -26,7 +28,6 @@ type CourseLessonProgressFooterProps = {
   courseSlug: string;
   lessonBasePath: string;
   lessonHrefMode?: "path" | "query";
-  nextLessonHref: string | null;
   onDemoLessonComplete?: (lessonId: string) => void;
 };
 
@@ -37,29 +38,26 @@ export function CourseLessonProgressFooter({
   courseSlug,
   lessonBasePath,
   lessonHrefMode = "path",
-  nextLessonHref,
   onDemoLessonComplete,
 }: CourseLessonProgressFooterProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [localCompleted, setLocalCompleted] = useState(false);
+  const [localCompletedLessonId, setLocalCompletedLessonId] = useState<
+    string | null
+  >(null);
+  const localCompleted = localCompletedLessonId === lesson.id;
   const isCompleted = lesson.isCompleted || localCompleted;
   const isPreviewMode = isAdminPreviewMode(mode) || isPublicDemoMode(mode);
 
-  useEffect(() => {
-    setLocalCompleted(false);
-  }, [lesson.id]);
-
   const effectiveNextLessonHref = useMemo(() => {
-    if (!localCompleted || lesson.isCompleted) {
-      return nextLessonHref;
-    }
+    const pendingCompletedLessonId =
+      localCompleted && !lesson.isCompleted ? lesson.id : undefined;
 
     return computeNextLessonHref({
       view,
       mode,
       currentLessonSlug: lesson.slug,
-      pendingCompletedLessonId: lesson.id,
+      pendingCompletedLessonId,
       lessonBasePath,
       lessonHrefMode,
     });
@@ -68,7 +66,6 @@ export function CourseLessonProgressFooter({
     lesson.isCompleted,
     lesson.id,
     lesson.slug,
-    nextLessonHref,
     view,
     mode,
     lessonBasePath,
@@ -84,7 +81,7 @@ export function CourseLessonProgressFooter({
 
     if (isPublicDemoMode(mode)) {
       onDemoLessonComplete?.(lesson.id);
-      setLocalCompleted(true);
+      setLocalCompletedLessonId(lesson.id);
       toast.success(COURSE_PAGE.lessonCompleted);
 
       const href = computeNextLessonHref({
@@ -113,7 +110,7 @@ export function CourseLessonProgressFooter({
         return;
       }
 
-      setLocalCompleted(true);
+      setLocalCompletedLessonId(lesson.id);
       toast.success(COURSE_PAGE.lessonCompleted);
       router.refresh();
     });

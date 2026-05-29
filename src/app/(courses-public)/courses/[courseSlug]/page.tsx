@@ -1,5 +1,6 @@
 import { getCoursePageForPublicLanding } from "@/app/actions/course-page.actions";
 import { CourseLandingView } from "@/components/course/course-landing-view";
+import { buildSignInRedirectUrl } from "@/lib/auth/build-sign-in-redirect";
 import { getClerkSession } from "@/lib/clerk/session";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -21,17 +22,17 @@ export async function generateMetadata({
 
 export default async function PublicCourseLandingPage({ params }: PageProps) {
   const { courseSlug } = await params;
-  const [{ isSignedIn }, data] = await Promise.all([
-    getClerkSession(),
-    getCoursePageForPublicLanding(courseSlug),
-  ]);
+  const { userId, isSignedIn } = await getClerkSession();
+  const data = await getCoursePageForPublicLanding(courseSlug, userId);
 
   if (!data) {
     notFound();
   }
 
-  const buildLessonHref = (lessonSlug: string) =>
-    `/courses/${data.view.slug}/lessons/${lessonSlug}`;
+  const buildLessonHref = (lessonSlug: string) => {
+    const lessonPath = `/courses/${data.view.slug}/lessons/${lessonSlug}`;
+    return isSignedIn ? lessonPath : buildSignInRedirectUrl(lessonPath);
+  };
 
   return (
     <CourseLandingView

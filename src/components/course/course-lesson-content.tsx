@@ -6,7 +6,6 @@ import { CourseLessonVideoEngagement } from "@/components/course/video-engagemen
 import { CourseQuizPlayer } from "@/components/course/quiz/course-quiz-player";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
 import { adminPanelClass } from "@/lib/admin/styles";
-import { computeNextLessonHref } from "@/lib/course/compute-next-lesson-href";
 import { cn } from "@/lib/utils";
 import type {
   CoursePageLesson,
@@ -33,14 +32,6 @@ export function CourseLessonContent({
   lessonHrefMode = "path",
   onDemoLessonComplete,
 }: CourseLessonContentProps) {
-  const nextLessonHref = computeNextLessonHref({
-    view,
-    mode,
-    currentLessonSlug: lesson.slug,
-    lessonBasePath,
-    lessonHrefMode,
-  });
-
   const progressFooter = (
     <CourseLessonProgressFooter
       view={view}
@@ -49,7 +40,6 @@ export function CourseLessonContent({
       courseSlug={view.slug}
       lessonBasePath={lessonBasePath}
       lessonHrefMode={lessonHrefMode}
-      nextLessonHref={nextLessonHref}
       onDemoLessonComplete={onDemoLessonComplete}
     />
   );

@@ -55,7 +55,10 @@ async function getCancelCourse(
 }
 
 export default async function CheckoutCancelPage({ searchParams }: PageProps) {
-  const { course: courseSlug } = await searchParams;
+  const { course: rawCourseSlug } = await searchParams;
+  const courseSlug = rawCourseSlug
+    ? decodeURIComponent(rawCourseSlug)
+    : undefined;
   const course = await getCancelCourse(courseSlug);
   const courseHref = course?.slug
     ? `/courses/${course.slug}`

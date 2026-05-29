@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 type SignOutViewProps = {
-  redirectUrl: string;
+  redirectUrl?: string;
 };
 
 export function SignOutView({ redirectUrl }: SignOutViewProps) {
@@ -19,7 +19,7 @@ export function SignOutView({ redirectUrl }: SignOutViewProps) {
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
-      await signOut({ redirectUrl });
+      await signOut(redirectUrl ? { redirectUrl } : undefined);
     } catch {
       setIsSigningOut(false);
     }

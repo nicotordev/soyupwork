@@ -15,31 +15,33 @@ type SignOutPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function resolveRedirectUrl(
-  params: Record<string, string | string[] | undefined>,
-): string {
-  const value = params.redirect_url;
-  const candidate = typeof value === "string" ? value : "/";
-
+function resolveRedirectUrl(candidate: string): string | null {
   if (!candidate.startsWith("/") || candidate.startsWith("//")) {
-    return "/";
+    return null;
   }
 
   return candidate;
 }
 
+function getDefaultAfterSignOutUrl(): string {
+  return process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL ?? "/";
+}
+
 export default async function SignOutPage({ searchParams }: SignOutPageProps) {
   const params = await searchParams;
-  const redirectUrl = resolveRedirectUrl(params);
+  const explicitRedirect =
+    typeof params.redirect_url === "string"
+      ? resolveRedirectUrl(params.redirect_url)
+      : null;
   const { isSignedIn } = await getClerkSession();
 
   if (!isSignedIn) {
-    redirect(redirectUrl);
+    redirect(explicitRedirect ?? getDefaultAfterSignOutUrl());
   }
 
   return (
     <AuthSplitLayout variant="sign-out">
-      <SignOutView redirectUrl={redirectUrl} />
+      <SignOutView redirectUrl={explicitRedirect ?? undefined} />
     </AuthSplitLayout>
   );
 }
