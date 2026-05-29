@@ -1,8 +1,10 @@
 export const UI_SOUND_IDS = [
   "click",
   "success",
+  "jackpot",
   "error",
   "warning",
+  "notification",
   "toggle",
   "select",
   "open",
@@ -12,16 +14,19 @@ export const UI_SOUND_IDS = [
 
 export type UiSoundId = (typeof UI_SOUND_IDS)[number];
 
+/** @deprecated Use UI_SOUND_PROFILES from ./profiles */
 export const UI_SOUND_PATHS: Record<UiSoundId, string> = {
-  click: "/sounds/click.wav",
-  success: "/sounds/success.wav",
-  error: "/sounds/error.wav",
-  warning: "/sounds/warning.wav",
-  toggle: "/sounds/toggle.wav",
+  click: "/sounds/button.wav",
+  success: "/sounds/celebration.wav",
+  jackpot: "/sounds/celebration.wav",
+  error: "/sounds/disabled.wav",
+  warning: "/sounds/caution.wav",
+  notification: "/sounds/notification.wav",
+  toggle: "/sounds/toggle_on.wav",
   select: "/sounds/select.wav",
-  open: "/sounds/open.wav",
-  close: "/sounds/close.wav",
-  navigate: "/sounds/navigate.wav",
+  open: "/sounds/transition_up.wav",
+  close: "/sounds/transition_down.wav",
+  navigate: "/sounds/swipe.wav",
 };
 
 export const UI_SOUNDS_STORAGE_KEY = "soyupwork:ui-sounds-enabled";

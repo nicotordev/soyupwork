@@ -36,6 +36,12 @@ export function useUiSounds(): UiSoundsContextValue {
   return ctx;
 }
 
+function playSoundForTarget(target: EventTarget | null): void {
+  unlockUiSounds();
+  const sound = resolveClickSound(target);
+  if (sound) playUiSound(sound);
+}
+
 export function UiSoundsProvider({ children }: { children: ReactNode }) {
   const [enabled, setEnabledState] = useState(true);
 
@@ -44,31 +50,23 @@ export function UiSoundsProvider({ children }: { children: ReactNode }) {
     setEnabledState(isUiSoundsEnabled());
     preloadUiSounds();
 
-    const unlock = () => {
-      unlockUiSounds();
-    };
-
     const onPointerDown = (event: PointerEvent) => {
-      if (event.isPrimary) unlock();
+      if (!event.isPrimary || event.button > 0) return;
+      playSoundForTarget(event.target);
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Enter" || event.key === " ") unlock();
+      if (event.key !== "Enter" && event.key !== " ") return;
+      if (event.repeat) return;
+      playSoundForTarget(event.target);
     };
 
-    const onClick = (event: MouseEvent) => {
-      const sound = resolveClickSound(event.target);
-      if (sound) playUiSound(sound);
-    };
-
-    window.addEventListener("pointerdown", onPointerDown, { once: true });
-    window.addEventListener("keydown", onKeyDown, { once: true });
-    document.addEventListener("click", onClick, true);
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("keydown", onKeyDown, true);
 
     return () => {
-      window.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("keydown", onKeyDown);
-      document.removeEventListener("click", onClick, true);
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("keydown", onKeyDown, true);
     };
   }, []);
 
@@ -78,6 +76,7 @@ export function UiSoundsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const play = useCallback((id: UiSoundId, volume?: number) => {
+    unlockUiSounds();
     playUiSound(id, volume);
   }, []);
 

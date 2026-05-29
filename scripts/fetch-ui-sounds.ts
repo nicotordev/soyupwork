@@ -1,85 +1,61 @@
 /**
- * Downloads Kenney "UI Audio" (CC0) and copies a curated subset to public/sounds/.
- * Source: https://github.com/Calinou/kenney-ui-audio
- * Credit: Kenney.nl (optional)
+ * Verifies UI sound assets referenced by src/lib/ui-sounds/profiles.ts exist.
+ * Sound files live in public/sounds/ and are committed to the repo.
  *
  * Run: bun run sounds:fetch
  */
 
-import { spawnSync } from "node:child_process";
-import { copyFile, mkdir, writeFile } from "node:fs/promises";
+import { access, readdir } from "node:fs/promises";
 import { join } from "node:path";
 
-const ZIP_URL = "https://github.com/Calinou/kenney-ui-audio/archive/master.zip";
+import {
+  UI_SOUND_PROFILES,
+  type UiSoundProfileId,
+} from "../src/lib/ui-sounds/profiles";
 
-const ROOT = process.cwd();
-const OUT_DIR = join(ROOT, "public", "sounds");
-const TMP_ZIP = join(ROOT, ".tmp", "kenney_ui_audio.zip");
-const TMP_EXTRACT = join(ROOT, ".tmp", "kenney_ui_audio");
+const SOUNDS_DIR = join(process.cwd(), "public", "sounds");
 
-/** Kenney path inside zip → public filename */
-const SOUNDS: Record<string, string> = {
-  "kenney-ui-audio-master/addons/kenney_ui_audio/click4.wav": "click.wav",
-  "kenney-ui-audio-master/addons/kenney_ui_audio/switch14.wav": "success.wav",
-  "kenney-ui-audio-master/addons/kenney_ui_audio/switch13.wav": "error.wav",
-  "kenney-ui-audio-master/addons/kenney_ui_audio/switch15.wav": "warning.wav",
-  "kenney-ui-audio-master/addons/kenney_ui_audio/switch12.wav": "toggle.wav",
-  "kenney-ui-audio-master/addons/kenney_ui_audio/rollover2.wav": "select.wav",
-  "kenney-ui-audio-master/addons/kenney_ui_audio/switch2.wav": "open.wav",
-  "kenney-ui-audio-master/addons/kenney_ui_audio/switch11.wav": "close.wav",
-  "kenney-ui-audio-master/addons/kenney_ui_audio/mouseclick1.wav":
-    "navigate.wav",
-};
-
-async function downloadZip(): Promise<void> {
-  await mkdir(join(ROOT, ".tmp"), { recursive: true });
-  const response = await fetch(ZIP_URL);
-  if (!response.ok) {
-    throw new Error(`Failed to download sounds (${response.status})`);
-  }
-  const buffer = Buffer.from(await response.arrayBuffer());
-  await writeFile(TMP_ZIP, buffer);
-}
-
-function extractZip(): void {
-  const result = spawnSync("unzip", ["-o", TMP_ZIP, "-d", TMP_EXTRACT], {
-    stdio: "inherit",
-  });
-  if (result.status !== 0) {
-    throw new Error("unzip failed — install unzip and retry");
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
   }
 }
 
-async function copySounds(): Promise<void> {
-  await mkdir(OUT_DIR, { recursive: true });
+async function verifyProfile(profileId: UiSoundProfileId): Promise<boolean> {
+  const profile = UI_SOUND_PROFILES[profileId];
+  let ok = true;
 
-  for (const [srcRelative, destName] of Object.entries(SOUNDS)) {
-    const src = join(TMP_EXTRACT, srcRelative);
-    const dest = join(OUT_DIR, destName);
-    await copyFile(src, dest);
-    console.log(`  ${destName}`);
+  for (const [id, publicPath] of Object.entries(profile.paths)) {
+    const filePath = join(
+      process.cwd(),
+      "public",
+      publicPath.replace(/^\//, ""),
+    );
+    if (!(await fileExists(filePath))) {
+      console.error(`  missing [${profileId}] ${id}: ${publicPath}`);
+      ok = false;
+    }
   }
 
-  await writeFile(
-    join(OUT_DIR, "ATTRIBUTION.txt"),
-    [
-      "UI sounds from Kenney.nl — UI Audio pack (CC0 1.0)",
-      "https://kenney.nl/assets/ui-audio",
-      "https://github.com/Calinou/kenney-ui-audio",
-      "",
-      "Fetched via: bun run sounds:fetch",
-    ].join("\n"),
-  );
+  return ok;
 }
 
 async function main() {
-  console.log("Downloading Kenney UI Audio…");
-  await downloadZip();
-  console.log("Extracting…");
-  extractZip();
-  console.log("Copying to public/sounds/:");
-  await copySounds();
-  console.log("Done.");
+  console.log("Verifying UI sound assets in public/sounds/…");
+
+  const defaultOk = await verifyProfile("default");
+  const casinoOk = await verifyProfile("casino");
+
+  if (!defaultOk || !casinoOk) {
+    console.error("\nSome sound files are missing.");
+    process.exit(1);
+  }
+
+  const files = await readdir(SOUNDS_DIR);
+  console.log(`OK — ${files.length} files in public/sounds/`);
 }
 
 main().catch((error) => {

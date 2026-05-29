@@ -1,5 +1,0 @@
-UI sounds from Kenney.nl — UI Audio pack (CC0 1.0)
-https://kenney.nl/assets/ui-audio
-https://github.com/Calinou/kenney-ui-audio
-
-Fetched via: bun run sounds:fetch

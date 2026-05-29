@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
 import { adminPanelClass } from "@/lib/admin/styles";
 import { computeNextLessonHref } from "@/lib/course/compute-next-lesson-href";
+import { playDemoLessonCompleteSound } from "@/lib/demo/demo-sounds";
 import { cn } from "@/lib/utils";
 import {
   isAdminPreviewMode,
@@ -19,6 +20,7 @@ import { IconCheck } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
+import { toast as sonnerToast } from "sonner";
 import { toast } from "@/lib/toast";
 
 type CourseLessonProgressFooterProps = {
@@ -82,7 +84,8 @@ export function CourseLessonProgressFooter({
     if (isPublicDemoMode(mode)) {
       onDemoLessonComplete?.(lesson.id);
       setLocalCompletedLessonId(lesson.id);
-      toast.success(COURSE_PAGE.lessonCompleted);
+      playDemoLessonCompleteSound();
+      sonnerToast.success(COURSE_PAGE.lessonCompleted);
 
       const href = computeNextLessonHref({
         view,

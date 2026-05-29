@@ -1,5 +1,6 @@
 "use client";
 
+import { DemoCasinoSounds } from "@/components/demo/demo-casino-sounds.client";
 import { CourseLandingView } from "@/components/course/course-landing-view";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
 import { applyCoursePageSequentialAccess } from "@/lib/course/apply-course-page-sequential";
@@ -13,6 +14,8 @@ import type { CoursePageData } from "@/types/course-page.types";
 import type { CatalogSection } from "@/types/marketing-nav.types";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { MarketingNavServer } from "../marketing-nav/marketing-nav-server";
+import { MarketingFooter } from "../marketing-footer";
 
 type DemoPresentationProps = {
   data: CoursePageData;
@@ -79,23 +82,34 @@ export function DemoPresentation({
   );
 
   return inLesson && lesson ? (
-    <CourseLearnShell
-      data={dataWithProgress}
-      lessonSlug={lesson.slug}
-      lessonBasePath="/demo"
-      courseLandingHref={courseLandingHref}
-      lessonHrefMode="query"
-      showModeBanner={false}
-      onDemoLessonComplete={handleDemoLessonComplete}
-    />
+    <>
+      <DemoCasinoSounds />
+      <CourseLearnShell
+        data={dataWithProgress}
+        lessonSlug={lesson.slug}
+        lessonBasePath="/demo"
+        courseLandingHref={courseLandingHref}
+        lessonHrefMode="query"
+        showModeBanner={false}
+        onDemoLessonComplete={handleDemoLessonComplete}
+      />
+    </>
   ) : (
-    <CourseLandingView
-      data={dataWithProgress}
-      buildLessonHref={buildLessonHref}
-      courseLandingHref={courseLandingHref}
-      showModeBanner={false}
-      isSignedIn={isSignedIn}
-      catalogSections={catalogSections}
-    />
+    <>
+      <DemoCasinoSounds />
+      <MarketingNavServer
+        isSignedIn={isSignedIn}
+        catalogSections={catalogSections}
+      />
+      <CourseLandingView
+        data={dataWithProgress}
+        buildLessonHref={buildLessonHref}
+        courseLandingHref={courseLandingHref}
+        showModeBanner={false}
+        isSignedIn={isSignedIn}
+        catalogSections={catalogSections}
+      />
+      <MarketingFooter />
+    </>
   );
 }

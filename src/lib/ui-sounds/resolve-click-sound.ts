@@ -36,7 +36,7 @@ export function resolveClickSound(
 
   const explicit = interactive.getAttribute("data-ui-sound");
   if (explicit === "off") return null;
-  if (explicit && explicit !== "click" && isUiSoundId(explicit)) {
+  if (explicit && isUiSoundId(explicit)) {
     return explicit;
   }
 
@@ -52,7 +52,18 @@ export function resolveClickSound(
     return "select";
   }
 
-  if (interactive.matches("a[href]")) {
+  if (
+    interactive.matches(
+      'button:not(:disabled), [data-slot="button"], [role="button"]:not([aria-disabled="true"])',
+    )
+  ) {
+    return "click";
+  }
+
+  if (
+    interactive.matches("a[href]") &&
+    !interactive.matches('[data-slot="button"]')
+  ) {
     return "navigate";
   }
 

@@ -18,7 +18,7 @@ export const toast = Object.assign(withSound(sonnerToast, "click"), {
   success: withSound(sonnerToast.success, "success"),
   error: withSound(sonnerToast.error, "error"),
   warning: withSound(sonnerToast.warning, "warning"),
-  info: withSound(sonnerToast.info, "select"),
+  info: withSound(sonnerToast.info, "notification"),
   loading: sonnerToast.loading,
   promise: sonnerToast.promise,
   custom: sonnerToast.custom,
