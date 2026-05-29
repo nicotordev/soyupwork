@@ -63,18 +63,120 @@ enum SubscriptionStatus {
   INCOMPLETE
 }
 
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+enum ProductType {
+  ONE_TIME
+  SUBSCRIPTION
+}
+
+enum BillingInterval {
+  MONTH
+  YEAR
+}
+
+enum QuizQuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+}
+
+enum LessonAssetType {
+  PDF
+  TEMPLATE
+  ZIP
+  SOURCE_FILE
+  CHECKLIST
+  WORKSHEET
+  OTHER
+}
+
+enum CouponDiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+enum BlogPostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  UNSUBSCRIBED
+}
+
+enum AnalyticsEventType {
+  PAGE_VIEW
+  COURSE_VIEW
+  LESSON_START
+  LESSON_COMPLETE
+  CHECKOUT_START
+  CHECKOUT_COMPLETE
+  VIDEO_PLAY
+  VIDEO_PROGRESS
+  VIDEO_COMPLETE
+  SIGNUP
+}
+
+enum EmailLogStatus {
+  PENDING
+  SENT
+  FAILED
+  BOUNCED
+}
+
+enum EmailLogType {
+  TRANSACTIONAL
+  MARKETING
+}
+
+enum CommunityPostStatus {
+  PUBLISHED
+  HIDDEN
+  DELETED
+}
+
+enum CohortStatus {
+  DRAFT
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id        String   @id @default(uuid()) @db.Uuid
   clerkId   String   @unique
   email     String?  @unique
+  username  String?  @unique
   firstName String?
   lastName  String?
   imageUrl  String?
   bio       String?
   role      UserRole @default(STUDENT)
 
+  countryCode     String?
+  timezone        String?
+  locale          String?          @default("es")
+  socialLinks     Json?
+  skills          String[]         @default([])
+  experienceLevel ExperienceLevel?
+  freelanceGoals  String?
+
   stripeCustomerId String?   @unique
   deletedAt        DateTime? @db.Timestamp(6)
+  suspendedAt      DateTime? @db.Timestamp(6)
+  bannedAt         DateTime? @db.Timestamp(6)
+  onboardingDoneAt DateTime? @db.Timestamp(6)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -85,10 +187,24 @@ model User {
   subscriptions     Subscription[]
   quizAttempts      QuizAttempt[]
   certificates      Certificate[]
-  instructedCourses Course[]         @relation("CourseInstructor")
+  instructedCourses Course[]           @relation("CourseInstructor")
   courseReviews     CourseReview[]
+  blogPosts         BlogPost[]         @relation("BlogAuthor")
+  analyticsEvents   AnalyticsEvent[]
+  communityPosts    CommunityPost[]
+  communityComments CommunityComment[]
+  communityLikes    CommunityLike[]
+  userGamification  UserGamification?
+  userBadges        UserBadge[]
+  affiliate         Affiliate?
+  emailLogs         EmailLog[]
+  auditLogs         AuditLog[]         @relation("AuditActor")
+  courseDiscussions CourseDiscussion[]
 
   @@index([deletedAt])
+  @@index([role])
+  @@index([suspendedAt])
+  @@index([bannedAt])
 }
 
 model CourseCategory {
@@ -150,15 +266,28 @@ model Course {
   offersCertificate      Boolean     @default(false)
   estimatedDurationHours Int?
 
+  isFree               Boolean   @default(false)
+  publishedAt          DateTime? @db.Timestamp(6)
+  dripEnabled          Boolean   @default(false)
+  minCompletionPercent Int       @default(100)
+  seoTitle             String?
+  seoDescription       String?
+  previewVideoUrl      String?
+
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  modules      CourseModule[]
-  enrollments  Enrollment[]
-  products     Product[]
-  certificates Certificate[]
-  tags         CourseTag[]
-  reviews      CourseReview[]
+  modules           CourseModule[]
+  enrollments       Enrollment[]
+  products          Product[]
+  certificates      Certificate[]
+  tags              CourseTag[]
+  reviews           CourseReview[]
+  leads             Lead[]
+  bundleItems       ProductBundleItem[]
+  communityPosts    CommunityPost[]
+  cohorts           Cohort[]
+  courseDiscussions CourseDiscussion[]
 
   @@index([status])
   @@index([slug])
@@ -197,9 +326,10 @@ model CourseModule {
   id       String @id @default(uuid()) @db.Uuid
   courseId String @db.Uuid
 
-  title       String
-  description String?
-  position    Int
+  title           String
+  description     String?
+  position        Int
+  unlockAfterDays Int?
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -226,10 +356,12 @@ model Lesson {
   videoUrl        String?
   videoStatus     LessonVideoStatus?
 
-  content     String?
-  durationSec Int?
-  isPreview   Boolean @default(false)
-  position    Int
+  content         String?
+  durationSec     Int?
+  isPreview       Boolean   @default(false)
+  position        Int
+  unlockAfterDays Int?
+  unlockAt        DateTime? @db.Timestamp(6)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -237,6 +369,7 @@ model Lesson {
   module   CourseModule     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress LessonProgress[]
   quiz     Quiz?
+  assets   LessonAsset[]
 
   @@unique([moduleId, slug])
   @@unique([moduleId, position])
@@ -250,16 +383,21 @@ model Enrollment {
 
   status      EnrollmentStatus @default(ACTIVE)
   completedAt DateTime?        @db.Timestamp(6)
+  expiresAt   DateTime?        @db.Timestamp(6)
+  source      String?
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course           Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  cohortEnrollment CohortEnrollment?
 
   @@unique([userId, courseId])
   @@index([userId])
   @@index([courseId])
+  @@index([status])
+  @@index([expiresAt])
 }
 
 model LessonProgress {
@@ -267,9 +405,11 @@ model LessonProgress {
   userId   String @db.Uuid
   lessonId String @db.Uuid
 
-  completed   Boolean   @default(false)
-  completedAt DateTime? @db.Timestamp(6)
-  lastSeenAt  DateTime  @default(now()) @db.Timestamp(6)
+  completed       Boolean   @default(false)
+  completedAt     DateTime? @db.Timestamp(6)
+  lastSeenAt      DateTime  @default(now()) @db.Timestamp(6)
+  watchedSeconds  Int       @default(0)
+  lastPositionSec Int       @default(0)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
@@ -280,6 +420,7 @@ model LessonProgress {
   @@unique([userId, lessonId])
   @@index([userId])
   @@index([lessonId])
+  @@index([completed])
 }
 
 model Product {
@@ -295,14 +436,23 @@ model Product {
   currency    String  @default("usd")
   active      Boolean @default(true)
 
+  type            ProductType      @default(ONE_TIME)
+  billingInterval BillingInterval?
+  isLifetime      Boolean          @default(false)
+  trialDays       Int?
+  isBundle        Boolean          @default(false)
+
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  course        Course?        @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  course        Course?             @relation(fields: [courseId], references: [id], onDelete: SetNull)
   orders        Order[]
   subscriptions Subscription[]
+  bundleItems   ProductBundleItem[]
 
   @@index([courseId])
+  @@index([active])
+  @@index([type])
 }
 
 model Order {
@@ -313,19 +463,26 @@ model Order {
   stripeCheckoutSessionId String? @unique
   stripePaymentIntentId   String? @unique
 
-  status      OrderStatus @default(PENDING)
-  amountCents Int
-  currency    String      @default("usd")
+  status        OrderStatus @default(PENDING)
+  amountCents   Int
+  discountCents Int         @default(0)
+  currency      String      @default("usd")
+
+  couponId   String?   @db.Uuid
+  refundedAt DateTime? @db.Timestamp(6)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  coupon  Coupon? @relation(fields: [couponId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([productId])
   @@index([status])
+  @@index([couponId])
+  @@index([createdAt])
 }
 
 model Subscription {
@@ -373,6 +530,7 @@ model QuizQuestion {
   quizId String @db.Uuid
 
   question String
+  type     QuizQuestionType @default(SINGLE_CHOICE)
   position Int
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
@@ -426,14 +584,401 @@ model Certificate {
   userId   String @db.Uuid
   courseId String @db.Uuid
 
-  code     String   @unique
-  issuedAt DateTime @default(now()) @db.Timestamp(6)
+  code      String    @unique
+  issuedAt  DateTime  @default(now()) @db.Timestamp(6)
+  pdfUrl    String?
+  revokedAt DateTime? @db.Timestamp(6)
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
   @@index([code])
+  @@index([issuedAt])
+}
+
+model LessonAsset {
+  id       String @id @default(uuid()) @db.Uuid
+  lessonId String @db.Uuid
+
+  title       String
+  description String?
+  type        LessonAssetType @default(OTHER)
+  storageKey  String
+  fileName    String
+  mimeType    String?
+  sizeBytes   Int?
+  position    Int             @default(0)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([lessonId, position])
+}
+
+model Coupon {
+  id   String @id @default(uuid()) @db.Uuid
+  code String @unique
+
+  discountType   CouponDiscountType
+  percentOff     Int?
+  amountOffCents Int?
+  currency       String             @default("usd")
+
+  maxRedemptions  Int?
+  redemptionCount Int       @default(0)
+  expiresAt       DateTime? @db.Timestamp(6)
+  active          Boolean   @default(true)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  orders Order[]
+
+  @@index([active])
+  @@index([expiresAt])
+}
+
+model ProductBundleItem {
+  productId String @db.Uuid
+  courseId  String @db.Uuid
+  position  Int    @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([productId, courseId])
+  @@index([courseId])
+}
+
+model Lead {
+  id       String     @id @default(uuid()) @db.Uuid
+  email    String
+  name     String?
+  phone    String?
+  source   String?
+  status   LeadStatus @default(NEW)
+  courseId String?    @db.Uuid
+  metadata Json?
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  course Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([status])
+  @@index([courseId])
+  @@index([createdAt])
+}
+
+model BlogPost {
+  id             String         @id @default(uuid()) @db.Uuid
+  slug           String         @unique
+  title          String
+  excerpt        String?
+  content        String
+  coverImageUrl  String?
+  status         BlogPostStatus @default(DRAFT)
+  publishedAt    DateTime?      @db.Timestamp(6)
+  authorId       String?        @db.Uuid
+  seoTitle       String?
+  seoDescription String?
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  author User? @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([status, publishedAt])
+  @@index([authorId])
+}
+
+model AnalyticsEvent {
+  id         String             @id @default(uuid()) @db.Uuid
+  type       AnalyticsEventType
+  userId     String?            @db.Uuid
+  sessionId  String?
+  courseId   String?            @db.Uuid
+  lessonId   String?            @db.Uuid
+  properties Json?
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([type, createdAt])
+  @@index([userId, createdAt])
+  @@index([courseId, createdAt])
+  @@index([sessionId])
+}
+
+model EmailLog {
+  id           String         @id @default(uuid()) @db.Uuid
+  toEmail      String
+  type         EmailLogType
+  template     String
+  subject      String?
+  status       EmailLogStatus @default(PENDING)
+  userId       String?        @db.Uuid
+  errorMessage String?
+  sentAt       DateTime?      @db.Timestamp(6)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([toEmail])
+  @@index([status])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model EmailSequence {
+  id          String  @id @default(uuid()) @db.Uuid
+  slug        String  @unique
+  name        String
+  description String?
+  active      Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  steps EmailSequenceStep[]
+}
+
+model EmailSequenceStep {
+  id         String @id @default(uuid()) @db.Uuid
+  sequenceId String @db.Uuid
+
+  position   Int
+  delayHours Int
+  template   String
+  subject    String
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  sequence EmailSequence @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+
+  @@unique([sequenceId, position])
+  @@index([sequenceId])
+}
+
+model AuditLog {
+  id          String  @id @default(uuid()) @db.Uuid
+  actorUserId String? @db.Uuid
+  action      String
+  entityType  String
+  entityId    String?
+  metadata    Json?
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+
+  actor User? @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+// --- Community (MVP v2 / Phase 2) ---
+
+model CommunityPost {
+  id       String              @id @default(uuid()) @db.Uuid
+  userId   String              @db.Uuid
+  courseId String?             @db.Uuid
+  title    String?
+  body     String
+  status   CommunityPostStatus @default(PUBLISHED)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course   Course?            @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  comments CommunityComment[]
+  likes    CommunityLike[]
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([status, createdAt])
+}
+
+model CommunityComment {
+  id       String  @id @default(uuid()) @db.Uuid
+  postId   String  @db.Uuid
+  userId   String  @db.Uuid
+  parentId String? @db.Uuid
+  body     String
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  post    CommunityPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent  CommunityComment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies CommunityComment[] @relation("CommentThread")
+  likes   CommunityLike[]
+
+  @@index([postId])
+  @@index([userId])
+  @@index([parentId])
+}
+
+model CommunityLike {
+  id        String  @id @default(uuid()) @db.Uuid
+  userId    String  @db.Uuid
+  postId    String? @db.Uuid
+  commentId String? @db.Uuid
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+
+  user    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    CommunityPost?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment CommunityComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+  @@index([postId])
+  @@index([commentId])
+}
+
+model CourseDiscussion {
+  id       String  @id @default(uuid()) @db.Uuid
+  courseId String  @db.Uuid
+  userId   String  @db.Uuid
+  lessonId String? @db.Uuid
+  body     String
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([userId])
+  @@index([lessonId])
+}
+
+// --- Cohorts (MVP v2) ---
+
+model Cohort {
+  id          String       @id @default(uuid()) @db.Uuid
+  courseId    String       @db.Uuid
+  slug        String
+  name        String
+  description String?
+  status      CohortStatus @default(DRAFT)
+  startsAt    DateTime     @db.Timestamp(6)
+  endsAt      DateTime?    @db.Timestamp(6)
+  maxStudents Int?
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollments CohortEnrollment[]
+
+  @@unique([courseId, slug])
+  @@index([courseId])
+  @@index([status])
+  @@index([startsAt])
+}
+
+model CohortEnrollment {
+  id           String @id @default(uuid()) @db.Uuid
+  cohortId     String @db.Uuid
+  enrollmentId String @unique @db.Uuid
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+
+  cohort     Cohort     @relation(fields: [cohortId], references: [id], onDelete: Cascade)
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([cohortId])
+}
+
+// --- Gamification (MVP v2) ---
+
+model UserGamification {
+  userId         String    @id @db.Uuid
+  xp             Int       @default(0)
+  level          Int       @default(1)
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActivityAt DateTime? @db.Timestamp(6)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Badge {
+  id          String  @id @default(uuid()) @db.Uuid
+  slug        String  @unique
+  name        String
+  description String?
+  iconUrl     String?
+  xpReward    Int     @default(0)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  userBadges UserBadge[]
+}
+
+model UserBadge {
+  userId   String   @db.Uuid
+  badgeId  String   @db.Uuid
+  earnedAt DateTime @default(now()) @db.Timestamp(6)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+  @@index([badgeId])
+}
+
+// --- Affiliates (future) ---
+
+model Affiliate {
+  id                String  @id @default(uuid()) @db.Uuid
+  userId            String  @unique @db.Uuid
+  code              String  @unique
+  commissionRateBps Int     @default(1000)
+  active            Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  user      User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referrals AffiliateReferral[]
+
+  @@index([active])
+}
+
+model AffiliateReferral {
+  id              String  @id @default(uuid()) @db.Uuid
+  affiliateId     String  @db.Uuid
+  referredEmail   String?
+  orderId         String? @unique @db.Uuid
+  converted       Boolean @default(false)
+  commissionCents Int?
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+  @@index([converted])
 }
 
 /// Singleton row (`id` = "default") for platform-wide configuration.
