@@ -1,5 +1,4 @@
 import Link from "next/link";
-import React from "react";
 import type { Metadata } from "next";
 import {
   Star,
@@ -21,6 +20,7 @@ import { MarketingProposalSimulatorClient } from "@/components/marketing/marketi
 import { MarketingTrackSelectorClient } from "@/components/marketing/marketing-track-selector.client";
 import { MarketingFaqSection } from "@/components/marketing/marketing-faq-section";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   MARKETING_PAGE,
   buildMarketingMetadata,
@@ -322,31 +322,22 @@ export default function LandingPage() {
               </p>
 
               <div className="pt-2 flex justify-center">
-                <LinkButton
-                  href={MARKETING_PAGE.ctaFinal.href}
-                  className="group relative inline-flex w-full max-w-sm items-center justify-center gap-2.5 rounded-xl border-2 border-foreground bg-primary px-8 py-4 text-xs font-black uppercase tracking-widest text-primary-foreground shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[3.5px] active:shadow-none transition-all sm:w-auto sm:px-10"
+                <Button
+                  asChild
+                  size="xl"
+                  className="group relative w-full max-w-sm tracking-widest sm:w-auto sm:px-10"
                 >
-                  {MARKETING_PAGE.ctaFinal.button}
-                  <Zap className="h-4 w-4 stroke-[3] group-hover:scale-125 transition-transform" />
-                  <ArrowUpRight className="h-3.5 w-3.5 absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </LinkButton>
+                  <Link href={MARKETING_PAGE.ctaFinal.href}>
+                    {MARKETING_PAGE.ctaFinal.button}
+                    <Zap className="stroke-[3] group-hover:scale-125 transition-transform" />
+                    <ArrowUpRight className="absolute top-2 right-2 size-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
         </section>
       </main>
     </div>
-  );
-}
-
-interface LinkButtonProps extends React.ComponentProps<typeof Link> {
-  children: React.ReactNode;
-}
-
-function LinkButton({ children, className, ...props }: LinkButtonProps) {
-  return (
-    <Link className={className} {...props}>
-      {children}
-    </Link>
   );
 }

@@ -18,6 +18,7 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 interface CatalogShellProps {
@@ -208,18 +209,20 @@ export function CatalogShell({
 
       {/* 5. Mobile Floating Action Button (Sticky bottom-6) */}
       <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 select-none w-auto">
-        <button
+        <Button
+          type="button"
+          size="lg"
+          className="rounded-full font-mono"
           onClick={() => setIsMobileFiltersOpen(true)}
-          className="inline-flex items-center gap-2 px-5 py-3 border-2 border-foreground bg-primary text-primary-foreground text-xs font-mono font-black uppercase tracking-wider rounded-full shadow-[4px_4px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all cursor-pointer"
         >
           <IconAdjustmentsHorizontal className="size-4 shrink-0" />
           Filtrar cursos
           {activeFiltersCount > 0 && (
-            <span className="min-w-5 h-5 px-1 bg-background text-foreground border border-foreground rounded-full flex items-center justify-center text-[10px] font-black">
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full border border-foreground bg-background px-1 text-[10px] font-black text-foreground">
               {activeFiltersCount}
             </span>
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );

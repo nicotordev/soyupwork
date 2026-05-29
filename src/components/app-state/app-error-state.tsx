@@ -136,9 +136,9 @@ export function AppErrorState({
           <CardFooter className="mt-4 flex flex-col gap-2 border-t-2 border-destructive bg-muted/30 p-4 sm:mt-6 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:p-6">
             <Button
               onClick={() => reset()}
-              variant="default"
+              variant="destructive"
               size="lg"
-              className="w-full border-2 border-destructive bg-destructive text-destructive-foreground shadow-[2px_2px_0px_0px_var(--destructive)] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--destructive)] active:translate-y-[2px] sm:w-auto"
+              className="w-full border-destructive bg-destructive text-destructive-foreground sm:w-auto"
             >
               <IconRefresh className="mr-2 h-4 w-4" />
               Intentar de nuevo
@@ -148,7 +148,7 @@ export function AppErrorState({
               asChild
               variant="outline"
               size="lg"
-              className="w-full border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_0px_var(--foreground)] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <Link href="/">
                 <IconHome className="mr-2 h-4 w-4" />
@@ -160,7 +160,7 @@ export function AppErrorState({
               asChild
               variant="ghost"
               size="lg"
-              className="w-full border border-transparent transition-all hover:border-foreground hover:bg-secondary sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <Link href="/dashboard">
                 <IconLayoutDashboard className="mr-2 h-4 w-4" />

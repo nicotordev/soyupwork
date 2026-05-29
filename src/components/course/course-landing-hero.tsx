@@ -7,8 +7,6 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { adminBrutalButtonClass } from "@/lib/admin/styles";
-import { cn } from "@/lib/utils";
 import type { CoursePageView } from "@/types/course-page.types";
 import {
   ArrowRight,
@@ -120,13 +118,7 @@ export function CourseLandingHero({
           {/* Start / Continue Button */}
           {continueHref ? (
             <div className="w-full sm:w-auto transition-transform hover:scale-[1.02] active:scale-[0.98]">
-              <Button
-                asChild
-                className={cn(
-                  adminBrutalButtonClass,
-                  "h-12 w-full sm:w-auto bg-primary px-6 text-xs font-black uppercase tracking-wider text-primary-foreground border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none",
-                )}
-              >
+              <Button asChild size="lg" className="w-full sm:w-auto">
                 <Link
                   href={continueHref}
                   className="flex items-center justify-center gap-2"
@@ -143,7 +135,8 @@ export function CourseLandingHero({
             <Button
               asChild
               variant="outline"
-              className="h-12 w-full sm:w-auto px-6 border-2 border-foreground hover:bg-muted text-xs font-black uppercase tracking-wider shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none"
+              size="lg"
+              className="w-full hover:bg-muted sm:w-auto"
             >
               <Link
                 href="#curriculum"

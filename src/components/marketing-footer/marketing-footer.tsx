@@ -16,6 +16,7 @@ import {
   IconSparkles,
 } from "@tabler/icons-react";
 import { MARKETING_PAGE } from "@/constants/marketing.constants";
+import { Button } from "@/components/ui/button";
 
 // NEW: import react-hook-form and zod
 import { useForm } from "react-hook-form";
@@ -183,15 +184,15 @@ export function MarketingFooter() {
                       {submitError}
                     </p>
                   ) : null}
-                  <button
+                  <Button
                     type="submit"
                     disabled={
                       isLoading || (turnstileRequired && !turnstileToken)
                     }
-                    className="w-full flex items-center justify-center gap-2 border-2 border-foreground bg-primary text-primary-foreground font-mono text-xs font-black uppercase py-2.5 rounded shadow-[3px_3px_0px_0px_var(--foreground)] transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_var(--foreground)] active:translate-y-[3px] active:shadow-none disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full font-mono"
                   >
                     {isLoading ? "Registrando..." : "¡Quiero vender más!"}
-                  </button>
+                  </Button>
                 </form>
               )}
             </div>

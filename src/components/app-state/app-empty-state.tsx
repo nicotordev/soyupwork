@@ -135,7 +135,7 @@ export function AppEmptyState({
               asChild
               variant="outline"
               size="lg"
-              className="w-full border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_0px_var(--foreground)] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <Link href="/">
                 <IconHome className="mr-2 h-4 w-4" />
@@ -144,12 +144,7 @@ export function AppEmptyState({
             </Button>
 
             {showDashboardButton && (
-              <Button
-                asChild
-                variant="default"
-                size="lg"
-                className="w-full border-2 border-foreground bg-primary text-primary-foreground shadow-[2px_2px_0px_0px_var(--foreground)] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] sm:w-auto"
-              >
+              <Button asChild size="lg" className="w-full sm:w-auto">
                 <Link href="/dashboard">
                   <IconLayoutDashboard className="mr-2 h-4 w-4" />
                   Entrar a mi Panel

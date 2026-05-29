@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight, Check, PlayCircle } from "lucide-react";
 import { Motion } from "@/components/common/motion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { MARKETING_PAGE } from "@/constants/marketing.constants";
 
 const { hero } = MARKETING_PAGE;
@@ -65,19 +66,23 @@ export function MarketingHeroSectionClient() {
           transition={{ duration: 0.5, delay: 0.24 }}
           className="flex w-full max-w-lg flex-col justify-center gap-3 sm:max-w-none sm:flex-row"
         >
-          <Link
-            href="/waitlist"
-            className="inline-flex w-full items-center justify-center gap-2 rounded border-2 border-foreground bg-primary px-8 py-3.5 text-xs font-black uppercase tracking-wider text-primary-foreground shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[3px_3px_0px_0px_var(--foreground)] active:translate-y-[3px] active:shadow-none transition-all sm:w-auto"
+          <Button asChild size="xl" className="w-full sm:w-auto">
+            <Link href="/waitlist">
+              {hero.ctaPrimary}
+              <ArrowRight className="stroke-3" />
+            </Link>
+          </Button>
+          <Button
+            asChild
+            variant="accent"
+            size="xl"
+            className="w-full sm:w-auto"
           >
-            {hero.ctaPrimary}
-            <ArrowRight className="h-4 w-4 stroke-3" />
-          </Link>
-          <Link
-            href="/demo"
-            className="inline-flex w-full items-center justify-center gap-2 rounded border-2 border-primary bg-background px-8 py-3.5 text-xs font-black uppercase tracking-wider text-primary shadow-[4px_4px_0px_0px_var(--primary)] hover:translate-x-px hover:translate-y-px hover:shadow-[3px_3px_0px_0px_var(--primary)] active:translate-y-[3px] active:shadow-none transition-all sm:w-auto"
-          >
-            {hero.ctaSecondary} <PlayCircle className="h-4 w-4 stroke-3" />
-          </Link>
+            <Link href="/demo">
+              {hero.ctaSecondary}
+              <PlayCircle className="stroke-3" />
+            </Link>
+          </Button>
         </Motion>
 
         <Motion

@@ -241,7 +241,7 @@ export function WaitlistSignupForm() {
           <Button
             type="submit"
             disabled={isPending || needsTurnstile}
-            className="w-full border-2 border-foreground shadow-[2px_2px_0px_0px_var(--foreground)]"
+            className="w-full"
           >
             {isPending ? (
               <IconLoader className="mr-2 animate-spin" stroke={2.25} />
@@ -276,11 +276,7 @@ export function WaitlistSignupForm() {
             />
           </div>
 
-          <Button
-            type="submit"
-            disabled={isPending}
-            className="w-full border-2 border-foreground shadow-[2px_2px_0px_0px_var(--foreground)]"
-          >
+          <Button type="submit" disabled={isPending} className="w-full">
             {isPending ? (
               <IconLoader className="mr-2 animate-spin" stroke={2.25} />
             ) : null}

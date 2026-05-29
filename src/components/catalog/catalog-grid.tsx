@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
 interface CatalogGridProps {
   courses: Course[];
@@ -52,9 +53,6 @@ function CatalogGridEmptyState({
     </div>
   );
 }
-
-const emptyActionClassName =
-  "inline-flex items-center gap-1.5 rounded border-2 border-foreground bg-primary px-4 py-2 font-mono text-xs font-bold uppercase text-primary-foreground shadow-[3px_3px_0px_0px_var(--foreground)] transition-all hover:bg-primary/95 hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-y-px cursor-pointer";
 
 export function CatalogGrid({
   courses,
@@ -96,13 +94,13 @@ export function CatalogGrid({
           title={CATALOG_PAGE.emptyFilteredTitle}
           description={CATALOG_PAGE.emptyFilteredDescription}
           action={
-            <button
+            <Button
               type="button"
+              className="font-mono"
               onClick={handleClearFilters}
-              className={emptyActionClassName}
             >
               {CATALOG_PAGE.emptyFilteredCta}
-            </button>
+            </Button>
           }
         />
       );
@@ -115,9 +113,9 @@ export function CatalogGrid({
           title={CATALOG_PAGE.emptyCategoryTitle(scopedCategoryName)}
           description={CATALOG_PAGE.emptyCategoryDescription}
           action={
-            <Link href="/catalog" className={emptyActionClassName}>
-              {CATALOG_PAGE.emptyCategoryCta}
-            </Link>
+            <Button asChild className="font-mono">
+              <Link href="/catalog">{CATALOG_PAGE.emptyCategoryCta}</Link>
+            </Button>
           }
         />
       );
@@ -129,9 +127,9 @@ export function CatalogGrid({
         title={CATALOG_PAGE.emptyCatalogTitle}
         description={CATALOG_PAGE.emptyCatalogDescription}
         action={
-          <Link href="/" className={emptyActionClassName}>
-            {CATALOG_PAGE.emptyCatalogCta}
-          </Link>
+          <Button asChild className="font-mono">
+            <Link href="/">{CATALOG_PAGE.emptyCatalogCta}</Link>
+          </Button>
         }
       />
     );
@@ -211,13 +209,14 @@ export function CatalogGrid({
                     </div>
 
                     <div className="shrink-0">
-                      <button
+                      <Button
+                        type="button"
+                        className="w-full font-mono md:w-auto"
                         onClick={handlePromoClick}
-                        className="w-full md:w-auto inline-flex items-center justify-center gap-1 font-mono text-xs font-bold uppercase border-2 border-foreground bg-primary text-primary-foreground px-4 py-2.5 hover:bg-primary/95 transition-all shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer rounded"
                       >
                         Ver {promoCategory.name}{" "}
                         <IconExternalLink className="size-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}

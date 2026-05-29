@@ -57,11 +57,7 @@ export function CourseLearnShell({
         </div>
         <Sheet>
           <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 border-2 border-foreground text-[10px] font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_var(--foreground)] hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-none"
-            >
+            <Button variant="outline" size="sm" className="text-[10px]">
               <IconMenu2 className="size-3.5 mr-1.5 shrink-0" stroke={2.25} />
               Temario
             </Button>

@@ -23,10 +23,8 @@ export const adminStatCardClass = cn(
   "p-4 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--foreground)]",
 );
 
-export const adminBrutalButtonClass = cn(
-  "border-2 border-foreground shadow-[2px_2px_0px_0px_var(--foreground)]",
-  "transition-all hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--foreground)]",
-);
+/** @deprecated Prefer `<Button />` variants; kept for font-mono overrides in admin. */
+export const adminBrutalButtonClass = "font-mono";
 
 export const adminInputClass = cn(
   "border-2 border-foreground bg-card shadow-[2px_2px_0px_0px_var(--foreground)]",

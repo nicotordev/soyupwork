@@ -455,16 +455,13 @@ export function CatalogFilters({
           </DrawerHeader>
 
           <div className="py-4 overflow-y-auto flex-1 font-sans">
-            <CatalogFilterPanel
-              {...panelProps}
-              showMobileClose={false}
-            />
+            <CatalogFilterPanel {...panelProps} showMobileClose={false} />
           </div>
 
           <DrawerFooter className="gap-2 border-t-2 border-dashed border-foreground/35 p-0 pt-4 flex flex-col mt-auto shrink-0">
             <Button
               type="button"
-              className="w-full font-mono text-xs font-bold uppercase tracking-wider border-2 border-foreground bg-primary text-primary-foreground py-3 shadow-[2px_2px_0px_0px_var(--foreground)] active:translate-y-px rounded cursor-pointer"
+              className="w-full py-3 font-mono"
               onClick={() => setIsMobileFiltersOpen(false)}
             >
               Aplicar filtros ({filteredCoursesCount})
@@ -473,7 +470,7 @@ export function CatalogFilters({
               <Button
                 type="button"
                 variant="outline"
-                className="w-full font-mono text-xs font-bold uppercase tracking-wider border-2 border-foreground bg-background text-destructive py-3 shadow-[2px_2px_0px_0px_var(--foreground)] active:translate-y-px rounded hover:bg-destructive/5 cursor-pointer"
+                className="w-full py-3 font-mono text-destructive hover:bg-destructive/5"
                 onClick={() => {
                   handleClearFilters();
                   setIsMobileFiltersOpen(false);
