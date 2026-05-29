@@ -6,6 +6,7 @@ import { adminBrutalButtonClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { toast } from "@/lib/toast";
 import { ArrowRight, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
 type RetryCheckoutButtonProps = {
@@ -17,6 +18,7 @@ export function RetryCheckoutButton({
   courseSlug,
   className,
 }: RetryCheckoutButtonProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const handleRetry = () => {
@@ -25,6 +27,13 @@ export function RetryCheckoutButton({
 
       if (!result.ok) {
         toast.error(result.error);
+        return;
+      }
+
+      if ("enrolled" in result && result.enrolled) {
+        toast.success("¡Inscripción completada!");
+        router.push(result.redirectUrl);
+        router.refresh();
         return;
       }
 
