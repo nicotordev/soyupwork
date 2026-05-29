@@ -366,10 +366,11 @@ model Lesson {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  module   CourseModule     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  progress LessonProgress[]
-  quiz     Quiz?
-  assets   LessonAsset[]
+  module      CourseModule       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress    LessonProgress[]
+  quiz        Quiz?
+  assets      LessonAsset[]
+  discussions CourseDiscussion[]
 
   @@unique([moduleId, slug])
   @@unique([moduleId, position])
@@ -858,8 +859,9 @@ model CourseDiscussion {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: SetNull)
 
   @@index([courseId])
   @@index([userId])
