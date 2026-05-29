@@ -10,10 +10,10 @@ export const catalogFilterHeaderClass =
   "flex items-center justify-between border-b-2 border-foreground pb-3";
 
 export const catalogFilterTitleClass =
-  "font-bold font-mono text-sm uppercase flex items-center gap-2";
+  "font-heading text-sm font-extrabold uppercase flex items-center gap-2 tracking-tight";
 
 export const catalogFilterSectionTitleClass = cn(
-  "mb-0 w-full font-bold font-mono text-xs uppercase text-muted-foreground mb-2",
+  "mb-0 w-full font-mono text-[9px] font-black uppercase tracking-wider text-muted-foreground mb-2",
 );
 
 export const catalogFilterFieldGroupClass = "gap-1.5";
@@ -36,8 +36,8 @@ export const catalogFilterRadioClass = cn(
 );
 
 export const catalogFilterOptionLabelClass = cn(
-  "w-full cursor-pointer text-xs font-normal leading-snug text-foreground",
-  "transition-colors hover:text-primary",
+  "w-full cursor-pointer text-xs font-bold leading-snug text-foreground/80",
+  "transition-colors hover:text-primary font-sans",
 );
 
 export const catalogFilterSeparatorClass =

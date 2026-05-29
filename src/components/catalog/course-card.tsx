@@ -35,10 +35,10 @@ export function CourseCard({ course }: CourseCardProps) {
           </div>
 
           <div className="space-y-1">
-            <h3 className="font-extrabold text-base text-foreground group-hover:text-primary transition-colors line-clamp-1 leading-snug">
+            <h3 className="text-base font-heading font-extrabold tracking-tight text-foreground group-hover:text-primary transition-colors line-clamp-1 leading-snug">
               {course.title}
             </h3>
-            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-semibold">
               {course.description}
             </p>
           </div>

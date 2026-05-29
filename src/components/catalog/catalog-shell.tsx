@@ -10,7 +10,13 @@ import type {
   CatalogFilterCategory,
   CatalogFilterOptions,
 } from "@/types/catalog-filters";
-import { IconArrowRight, IconAdjustmentsHorizontal } from "@tabler/icons-react";
+import { CATALOG_PAGE } from "@/constants/catalog.constants";
+import { adminGridBackgroundClass } from "@/lib/admin/styles";
+import {
+  IconArrowRight,
+  IconAdjustmentsHorizontal,
+  IconX,
+} from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -66,7 +72,10 @@ export function CatalogShell({
     selectedCertificate === "all";
 
   return (
-    <div className="bg-background text-foreground min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300 pb-20 lg:pb-8">
+    <div className="relative bg-background text-foreground min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300 pb-20 lg:pb-8">
+      {/* Decorative neobrutalist grid background lines, shared with admin */}
+      <div aria-hidden className={adminGridBackgroundClass} />
+
       {/* 1. Header component (handles local state & url push for search input) */}
       <CatalogHeader
         initialSearchQuery={searchQuery}
@@ -79,7 +88,7 @@ export function CatalogShell({
       {showFeaturedList && (
         <section className="max-w-7xl mx-auto mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold font-sans flex items-center gap-2">
+            <h2 className="text-xl font-heading font-extrabold flex items-center gap-2 tracking-tight text-foreground">
               <span className="flex h-6 w-6 items-center justify-center rounded border-2 border-foreground bg-primary text-primary-foreground text-xs font-mono">
                 ★
               </span>
@@ -135,55 +144,57 @@ export function CatalogShell({
 
       {/* 4. Marketing Value Proposition Section */}
       <section className="max-w-7xl mx-auto mt-20 border-4 border-foreground bg-linear-to-br from-secondary/20 to-secondary/5 rounded-2xl p-6 sm:p-8 md:p-10 relative overflow-hidden shadow-[6px_6px_0px_0px_var(--foreground)]">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+          <div className="space-y-5">
             <span className="font-mono text-[9px] font-bold bg-primary text-primary-foreground px-2.5 py-1 border-2 border-foreground rounded shadow-[1px_1px_0px_0px_var(--foreground)] uppercase tracking-wider">
-              ¿Por qué soyup.work?
+              {CATALOG_PAGE.valueEyebrow}
             </span>
-            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight font-sans">
-              Formación práctica de LATAM para el mundo entero
+            <h2 className="text-2xl md:text-3xl font-heading font-black tracking-tight text-balance text-foreground leading-none">
+              {CATALOG_PAGE.valueTitle}
             </h2>
-            <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-              No enseñamos teoría abstracta. Nuestros cursos están construidos
-              por profesionales en activo que facturan miles de dólares en
-              plataformas internacionales. Te damos plantillas de propuestas
-              listas para copiar, guías de cotización por horas y simulación de
-              llamadas en inglés.
+            <p className="text-xs md:text-sm text-muted-foreground leading-relaxed font-semibold">
+              {CATALOG_PAGE.valueDescription}
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+
+            <div className="rounded-lg border-2 border-dashed border-foreground/40 bg-card/80 p-4 space-y-3">
+              <p className="font-mono text-[9px] font-black uppercase tracking-wider text-muted-foreground">
+                {CATALOG_PAGE.valueNotDoTitle}
+              </p>
+              <ul className="space-y-2">
+                {CATALOG_PAGE.valueNotDoItems.map((item) => (
+                  <li
+                    key={item}
+                    className="flex gap-2 text-[11px] leading-relaxed text-muted-foreground font-medium"
+                  >
+                    <IconX
+                      className="size-3.5 shrink-0 text-destructive mt-0.5"
+                      stroke={2.5}
+                      aria-hidden
+                    />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-1">
               <Link
-                href="/precios"
+                href={CATALOG_PAGE.valueCtaHref}
                 className="inline-flex justify-center items-center gap-1.5 font-mono text-xs font-bold uppercase border-2 border-foreground bg-foreground text-background px-4 py-2.5 hover:bg-foreground/90 transition-all rounded shadow-[2px_2px_0px_0px_var(--background)] active:translate-y-px"
               >
-                Ver planes de membresía <IconArrowRight className="size-4" />
+                {CATALOG_PAGE.valueCtaLabel}{" "}
+                <IconArrowRight className="size-4" />
               </Link>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              {
-                title: "Plantillas Listas",
-                desc: "Propuestas cortas validadas que reciben respuestas de clientes premium.",
-              },
-              {
-                title: "Mentoría Grupal",
-                desc: "Workshops en vivo semanales para revisar tu perfil de Upwork.",
-              },
-              {
-                title: "Enfoque Práctico",
-                desc: "Ejercicios reales de pricing y cálculo de rentabilidad de Connects.",
-              },
-              {
-                title: "Comunidad VIP",
-                desc: "Foro privado para compartir contratos, resolver dudas y alianzas.",
-              },
-            ].map((feature, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {CATALOG_PAGE.valueFeatures.map((feature) => (
               <div
-                key={i}
+                key={feature.title}
                 className="bg-card border-2 border-foreground p-4 rounded-lg shadow-[2px_2px_0px_0px_var(--foreground)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[3.5px_3.5px_0px_0px_var(--foreground)] transition-all space-y-1.5 select-none"
               >
-                <h4 className="font-bold text-xs font-mono uppercase text-primary">
+                <h4 className="font-mono text-xs font-black uppercase text-primary tracking-wider leading-none">
                   {feature.title}
                 </h4>
                 <p className="text-[10px] leading-relaxed text-muted-foreground">

@@ -2,6 +2,7 @@
 
 import type { CatalogTopicChip } from "@/lib/catalog/categories";
 import { getCategoryPath } from "@/lib/catalog/category-paths";
+import { adminEyebrowClass } from "@/lib/admin/styles";
 import { IconSchool, IconSearch, IconX } from "@tabler/icons-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -71,12 +72,12 @@ export function CatalogHeader({
   return (
     <header className="max-w-7xl mx-auto mb-10 text-center md:text-left space-y-6 pt-4">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b-4 border-foreground pb-6">
-        <div className="space-y-2 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-secondary border-2 border-foreground rounded font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_var(--foreground)]">
+        <div className="space-y-3 max-w-3xl">
+          <div className={adminEyebrowClass}>
             <IconSchool className="size-4 text-primary" stroke={2.5} />
             Catálogo de Cursos
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight font-sans leading-none text-balance">
+          <h1 className="text-3xl md:text-5xl font-heading font-black tracking-tight leading-none text-balance text-foreground">
             {pageTitle ?? (
               <>
                 Explora cursos para vender <br className="hidden md:inline" />
@@ -86,7 +87,7 @@ export function CatalogHeader({
               </>
             )}
           </h1>
-          <p className="text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
+          <p className="text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed font-semibold">
             {pageDescription ??
               "Aprende Upwork, propuestas, pricing, entrevistas, automatización e IA con rutas prácticas estructuradas exclusivamente para freelancers de LATAM."}
           </p>

@@ -3,38 +3,74 @@ import type { Metadata } from "next";
 const SITE_NAME = "soyup.work";
 
 export const CATALOG_PAGE = {
-  metadataTitle: `Catálogo de cursos Upwork para freelancers LATAM | ${SITE_NAME}`,
+  metadataTitle: `Upwork Chile: Catálogo de Cursos en Español para Freelancers LATAM | ${SITE_NAME}`,
   metadataDescription:
-    "Cursos prácticos de Upwork para LATAM: propuestas que convierten, pricing, entrevistas en inglés, Connects y operación freelance internacional. Sin teoría vacía.",
+    "¿Cómo funciona Upwork? Cursos prácticos de Upwork en Chile y LATAM: propuestas que convierten, pricing, Connects, entrevistas en inglés y operación freelance internacional. Sin teoría vacía.",
   keywords: [
     "upwork",
-    "freelance",
+    "upwork chile",
+    "upwork español",
+    "upwork chile es confiable",
+    "como funciona upwork",
+    "que es upwork",
+    "registrarse en upwork",
     "cursos upwork",
     "trabajo remoto",
     "propuestas upwork",
     "freelancer latam",
-    "upwork español",
-    "freelancer chile",
+    "upwork vale la pena",
   ],
   categoryMetadataTitle: (categoryName: string) =>
     `Cursos de ${categoryName} para freelancers | ${SITE_NAME}`,
   categoryMetadataDescription: (categoryName: string) =>
-    `Explora cursos de ${categoryName} en soyup.work: formación práctica para vender mejor tus servicios en Upwork y plataformas internacionales.`,
+    `Explora cursos de ${categoryName} en soyup.work: formación práctica de Upwork en español para vender mejor tus servicios freelance a nivel internacional.`,
   categoryPageDescription: (categoryName: string) =>
-    `Rutas y cursos de ${categoryName} para freelancers de LATAM: plantillas, ejercicios reales y enfoque comercial en Upwork.`,
+    `Rutas y cursos de ${categoryName} para freelancers de Chile y LATAM: plantillas, ejercicios reales y enfoque comercial estratégico en Upwork.`,
   emptyCatalogTitle: "El catálogo se está preparando",
   emptyCatalogDescription:
-    "Todavía no hay cursos publicados. Estamos armando rutas prácticas de Upwork, propuestas y pricing para freelancers de LATAM.",
+    "¿Es confiable Upwork? Sí. Todavía no hay cursos publicados, pero estamos armando rutas prácticas de Upwork en Chile y LATAM sobre cómo crear cuenta, registrarse en Upwork y competir comercialmente.",
   emptyCatalogCta: "Volver al inicio",
   emptyCategoryTitle: (categoryName: string) =>
     `Aún no hay cursos en ${categoryName}`,
   emptyCategoryDescription:
-    "Esta categoría todavía no tiene cursos publicados. Explora otras rutas en el catálogo completo.",
+    "Esta categoría todavía no tiene cursos publicados. Explora cómo funciona Upwork en las otras rutas de nuestro catálogo completo.",
   emptyCategoryCta: "Ver todo el catálogo",
   emptyFilteredTitle: "No se encontraron cursos",
   emptyFilteredDescription:
-    "Ningún curso coincide con los criterios de filtrado seleccionados. Intenta quitar algunos filtros o cambiar la búsqueda.",
+    "Ningún curso coincide con los criterios de filtrado seleccionados. Intenta quitar algunos filtros o cambiar la búsqueda de temas.",
   emptyFilteredCta: "Restaurar filtros",
+  valueEyebrow: "Upwork Chile · Trabajo Remoto · Freelance LATAM",
+  valueTitle:
+    "Cursos de Upwork en Español: Aprende a Facturar, No Solo a Registrarse en Upwork",
+  valueDescription:
+    "¿Upwork vale la pena? Totalmente. soyup.work reúne formación práctica sobre cómo funciona Upwork y cómo competir comercialmente en el mercado internacional: propuestas cortas que reciben respuestas de clientes premium, cuidado de Connects, pricing real y simulación de llamadas en inglés.",
+  valueNotDoTitle: "Lo que no encontrarás aquí",
+  valueNotDoItems: [
+    "Tutoriales paso a paso solo para registrarse en Upwork sin estrategia",
+    "Promesas mágicas de ingresos pasivos o atajos sin esfuerzo real",
+    "Foro de soporte general, comunidad masiva o mentorías grupales (aún no)",
+    "Membresías genéricas ilimitadas: compras exactamente el curso práctico que necesitas",
+  ] as const,
+  valueFeatures: [
+    {
+      title: "Propuestas y perfil",
+      desc: "Mensajes breves, lectura rápida de proyectos en Upwork y señales comerciales de perfil — nada de plantillas largas genéricas.",
+    },
+    {
+      title: "Connects y pricing",
+      desc: "Criterios claros para postular en Upwork Chile, cuidar tu presupuesto de Connects y cotizar tarifas con lógica comercial.",
+    },
+    {
+      title: "Trabajo remoto Upwork",
+      desc: "Aprende cómo funciona Upwork para freelancers en Chile y LATAM, compitiendo comercialmente por contratos de alta gama.",
+    },
+    {
+      title: "Formato del curso",
+      desc: "Lecciones en video y texto, ejercicios prácticos de pricing, quizzes y progreso dinámico. Certificado al completar.",
+    },
+  ] as const,
+  valueCtaLabel: "Conocer la metodología",
+  valueCtaHref: "/",
 } as const;
 
 function getAppOrigin(): string {
