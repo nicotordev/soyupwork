@@ -4,13 +4,13 @@ export type MarketingFaqItem = {
   answer: string;
 };
 
-/** FAQs de marketing — alineadas con keywords Upwork Chile/LATAM y docs de producto. */
+/** FAQs de marketing — alineadas con keywords Upwork LATAM y docs de producto. */
 export const MARKETING_FAQ_ITEMS: readonly MarketingFaqItem[] = [
   {
     id: "faq-trust",
-    question: "¿Es confiable Upwork en Chile?",
+    question: "¿Es confiable Upwork en Latinoamérica?",
     answer:
-      "Upwork es una plataforma internacional consolidada para trabajo remoto y contratos freelance. Como en cualquier mercado, los resultados dependen de tu nicho, propuestas y ejecución. En soyup.work no vendemos la plataforma: enseñamos criterio comercial para competir en Upwork desde Chile y LATAM con menos improvisación.",
+      "Upwork es una plataforma internacional consolidada para trabajo remoto y contratos freelance. Como en cualquier mercado, los resultados dependen de tu nicho, propuestas y ejecución. En soyup.work no vendemos la plataforma: enseñamos criterio comercial para competir en Upwork desde LATAM con menos improvisación.",
   },
   {
     id: "faq-what-is-soyup",

@@ -73,7 +73,7 @@ const features = [
     ),
     title: "Enfoque real para LATAM.",
     description:
-      "Resolvemos dudas comunes como upwork es confiable y aterrizamos operacion freelance para trabajar remoto desde Chile y toda LATAM.",
+      "Resolvemos dudas comunes como upwork es confiable y aterrizamos operacion freelance para trabajar remoto desde toda Latinoamérica.",
   },
   {
     icon: (
@@ -135,7 +135,7 @@ export function CourseLandingMarketingSections({
             <p className="mt-6 text-lg text-primary-foreground/80">
               SoyUpwork es una plataforma para freelancers que quieren
               resultados reales: perfil, nicho, propuestas, entrevistas, pricing
-              y operación. Si hoy estás buscando upwork chile, upwork opiniones
+              y operación. Si hoy estás buscando upwork latam, upwork opiniones
               o cómo conseguir trabajo en Upwork, este es el punto de partida
               correcto.
             </p>

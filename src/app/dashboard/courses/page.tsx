@@ -2,10 +2,7 @@ import { getStudentEnrolledCourses } from "@/app/actions/course-page.actions";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-shell";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
 import { adminPanelClass } from "@/lib/admin/styles";
-import {
-  courseLevelLabel,
-  isCourseLevelValue,
-} from "@/lib/catalog/course-level";
+import { formatCourseLevelDisplay } from "@/lib/catalog/course-level";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -71,11 +68,11 @@ export default async function DashboardCoursesPage() {
                     )}
                   </div>
                   <div className="min-w-0 space-y-0.5 sm:space-y-1 text-left">
-                    <p className="truncate text-xs sm:text-sm md:text-base font-bold text-foreground">{course.title}</p>
+                    <p className="truncate text-xs sm:text-sm md:text-base font-bold text-foreground">
+                      {course.title}
+                    </p>
                     <p className="font-mono text-[8px] sm:text-[10px] uppercase text-muted-foreground leading-none">
-                      {isCourseLevelValue(course.level)
-                        ? courseLevelLabel(course.level)
-                        : course.level}
+                      {formatCourseLevelDisplay(course.level)}
                     </p>
                   </div>
                 </Link>

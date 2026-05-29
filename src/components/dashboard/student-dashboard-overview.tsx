@@ -12,10 +12,7 @@ import {
 } from "@/lib/admin/styles";
 import { DashboardContainer } from "@/components/dashboard/dashboard-container";
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
-import {
-  courseLevelLabel,
-  isCourseLevelValue,
-} from "@/lib/catalog/course-level";
+import { formatCourseLevelDisplay } from "@/lib/catalog/course-level";
 import { cn } from "@/lib/utils";
 import {
   IconAward,
@@ -114,7 +111,7 @@ export function StudentDashboardOverview({
               <div
                 className={cn(
                   adminPanelClass,
-                  "flex items-center gap-3 bg-card px-4 py-2 shadow-[2px_2px_0px_0px_var(--foreground)] shrink-0"
+                  "flex items-center gap-3 bg-card px-4 py-2 shadow-[2px_2px_0px_0px_var(--foreground)] shrink-0",
                 )}
               >
                 {user.imageUrl ? (
@@ -153,7 +150,10 @@ export function StudentDashboardOverview({
           {statsItems.map((stat) => {
             const Icon = stat.icon;
             return (
-              <article key={stat.id} className={cn(adminStatCardClass, "p-3 sm:p-4")}>
+              <article
+                key={stat.id}
+                className={cn(adminStatCardClass, "p-3 sm:p-4")}
+              >
                 <div className="flex items-start justify-between gap-2">
                   <p className={adminPanelTitleClass}>{stat.label}</p>
                   <div
@@ -253,9 +253,7 @@ export function StudentDashboardOverview({
                                   variant="outline"
                                   className="font-mono text-[8px] sm:text-[9px] uppercase border-foreground/40 leading-none py-0"
                                 >
-                                  {isCourseLevelValue(course.level)
-                                    ? courseLevelLabel(course.level)
-                                    : course.level}
+                                  {formatCourseLevelDisplay(course.level)}
                                 </Badge>
                                 <span className="font-mono text-[9px] sm:text-[10px] text-muted-foreground font-bold">
                                   {course.completedLessons}/

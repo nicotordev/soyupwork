@@ -37,3 +37,11 @@ export function parseLevelFilters(labels: string[]): CourseLevelValue[] {
 export function courseLevelLabel(level: CourseLevelValue): Course["level"] {
   return COURSE_LEVEL_LABELS[level];
 }
+
+/** User-facing level text from a Prisma enum value; never returns raw enum strings. */
+export function formatCourseLevelDisplay(level: string): string {
+  if (isCourseLevelValue(level)) {
+    return courseLevelLabel(level);
+  }
+  return "Sin nivel";
+}

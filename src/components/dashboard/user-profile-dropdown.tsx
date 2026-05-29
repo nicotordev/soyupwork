@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { getStudentProfile } from "@/app/actions/profile.actions";
 import { PROFILE_QUERY_KEY } from "@/components/dashboard/user-profile-settings-form";
 import {
@@ -66,11 +67,29 @@ function DropdownNavSection({
   );
 }
 
+function ProfileDropdownPlaceholder({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "size-8 shrink-0 animate-pulse rounded-full border-2 border-foreground bg-muted",
+        className,
+      )}
+      aria-hidden
+    />
+  );
+}
+
 export function UserProfileDropdown({
   className,
   role = "student",
 }: UserProfileDropdownProps) {
+  const [hasMounted, setHasMounted] = useState(false);
   const { user, isLoaded, isSignedIn } = useUser();
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   const profileQuery = useQuery({
     queryKey: PROFILE_QUERY_KEY,
     queryFn: async () => {
@@ -88,13 +107,8 @@ export function UserProfileDropdown({
     staleTime: 60_000,
   });
 
-  if (!isLoaded || !isSignedIn) {
-    return (
-      <div
-        className="size-8 animate-pulse rounded-full border-2 border-foreground bg-muted"
-        aria-hidden
-      />
-    );
+  if (!hasMounted || !isLoaded || !isSignedIn) {
+    return <ProfileDropdownPlaceholder className={className} />;
   }
 
   const profile = profileQuery.data?.profile;

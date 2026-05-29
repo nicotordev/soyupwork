@@ -24,6 +24,7 @@ import {
   MARKETING_PAGE,
   buildMarketingMetadata,
 } from "@/constants/marketing.constants";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = buildMarketingMetadata("/");
 
@@ -48,19 +49,16 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
               {MARKETING_PAGE.valuePillars.map((pillar, index) => {
                 const Icon = VALUE_PILLAR_ICONS[index];
-                const iconTone =
-                  index === 0
-                    ? "bg-primary/10 text-primary"
-                    : index === 1
-                      ? "bg-secondary text-foreground shadow-[2px_2px_0px_0px_var(--foreground)]"
-                      : "bg-accent text-accent-foreground";
                 return (
                   <div
                     key={pillar.title}
                     className="group relative min-w-0 rounded-2xl border-2 border-foreground bg-card p-5 text-center shadow-[4px_4px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all sm:p-8 select-none"
                   >
                     <div
-                      className={`mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground group-hover:scale-110 transition-transform ${iconTone}`}
+                      className={cn(
+                        "mx-auto mb-4 inline-flex p-3 rounded-xl border-2 border-foreground group-hover:scale-110 transition-transform",
+                        "bg-primary/10 text-primary",
+                      )}
                     >
                       <Icon className="size-6 stroke-[2.5]" />
                     </div>

@@ -3,14 +3,14 @@ import type { Metadata } from "next";
 const SITE_NAME = "soyup.work";
 
 export const MARKETING_PAGE = {
-  metadataTitle: `Upwork Chile: Cursos en Español para Freelancers LATAM | ${SITE_NAME}`,
+  metadataTitle: `Upwork LATAM: Cursos en Español para Freelancers Latinoamérica | ${SITE_NAME}`,
   metadataDescription:
-    "¿Cómo funciona Upwork y vale la pena en Chile? Academia práctica en español: propuestas, Connects, pricing, entrevistas en inglés y operación freelance. Aprende a facturar, no solo a registrarte.",
+    "¿Cómo funciona Upwork y vale la pena en Latinoamérica? Academia práctica en español: propuestas, Connects, pricing, entrevistas en inglés y operación freelance. Aprende a facturar, no solo a registrarte.",
   keywords: [
     "upwork",
-    "upwork chile",
+    "upwork latam",
     "upwork español",
-    "upwork chile es confiable",
+    "upwork latam es confiable",
     "como funciona upwork",
     "que es upwork",
     "registrarse en upwork",
@@ -21,12 +21,12 @@ export const MARKETING_PAGE = {
     "upwork vale la pena",
   ],
   hero: {
-    eyebrow: "Upwork Chile · Trabajo remoto · Freelance LATAM",
+    eyebrow: "Upwork LATAM · Trabajo remoto · Freelance Latinoamérica",
     titleLead: "Cursos de Upwork en español:",
     titleHighlight: "aprende a facturar",
     titleTrail: ", no solo a registrarte",
     description:
-      "soyup.work es una academia práctica para freelancers de Chile y LATAM que quieren vender servicios en Upwork con criterio comercial: propuestas breves, Connects, pricing, entrevistas en inglés y operación freelance internacional.",
+      "soyup.work es una academia práctica para freelancers de Latinoamérica que quieren vender servicios en Upwork con criterio comercial: propuestas breves, Connects, pricing, entrevistas en inglés y operación freelance internacional.",
     descriptionEmphasis:
       "Sin promesas mágicas de ingresos: formación aplicada con video, texto y cuestionarios.",
     ctaPrimary: "Unirme a la lista",
@@ -34,7 +34,7 @@ export const MARKETING_PAGE = {
     trustChecks: [
       "Cursos por tema (compra el que necesitas)",
       "Video, texto, quizzes y certificado",
-      "Enfoque Chile y LATAM · trabajo remoto",
+      "Enfoque LATAM · trabajo remoto",
     ] as const,
   },
   valuePillars: [
@@ -55,7 +55,7 @@ export const MARKETING_PAGE = {
     badge: "COMPAREMOS ENFOQUES",
     title: "No vendemos atajos. Enseñamos criterio para competir en Upwork.",
     description:
-      "Muchos tutoriales se quedan en crear cuenta o copiar plantillas. Nosotros ordenamos el camino comercial: nicho, propuestas, Connects, entrevistas y operación freelance para Chile y LATAM.",
+      "Muchos tutoriales se quedan en crear cuenta o copiar plantillas. Nosotros ordenamos el camino comercial: nicho, propuestas, Connects, entrevistas y operación freelance para Latinoamérica.",
     superficialLabel: "Tutoriales superficiales",
     sistemaLabel: "Metodología soyup.work",
     rows: [
@@ -125,7 +125,7 @@ export const MARKETING_PAGE = {
       {
         num: "02",
         title: "Connects y propuestas",
-        desc: "Economía de Connects, cuándo postular en Upwork Chile y propuestas cortas alineadas al problema del cliente.",
+        desc: "Economía de Connects, cuándo postular en Upwork en LATAM y propuestas cortas alineadas al problema del cliente.",
       },
       {
         num: "03",
@@ -214,7 +214,7 @@ export const MARKETING_PAGE = {
   },
   ctaFinal: {
     badge: "SIGUIENTE PASO",
-    titleLead: "Si quieres vender en Upwork desde Chile o LATAM, empieza por",
+    titleLead: "Si quieres vender en Upwork desde Latinoamérica, empieza por",
     titleHighlight: "competir con criterio comercial",
     description:
       "Explora el catálogo por tema: propuestas, Connects, entrevistas, pricing y operación freelance internacional. Sin atajos ni promesas de ingresos.",
@@ -225,7 +225,7 @@ export const MARKETING_PAGE = {
     banner: "¿Listo para competir en Upwork con criterio?",
     bannerCta: "Explorar cursos",
     tagline:
-      "Formación práctica en español para freelancers de Chile y LATAM que quieren vender en Upwork — propuestas, Connects, pricing y entrevistas, sin reemplazar la plataforma.",
+      "Formación práctica en español para freelancers de LATAM que quieren vender en Upwork — propuestas, Connects, pricing y entrevistas, sin reemplazar la plataforma.",
   },
 } as const;
 
@@ -249,7 +249,7 @@ export function buildMarketingMetadata(path = "/"): Metadata {
       description: MARKETING_PAGE.metadataDescription,
       url: canonical,
       siteName: SITE_NAME,
-      locale: "es_CL",
+      locale: "es_LA",
       type: "website",
     },
     twitter: {
