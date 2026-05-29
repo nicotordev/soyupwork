@@ -163,7 +163,7 @@ export async function StudentProgressView() {
                     </div>
                     <div className="space-y-0.5 sm:space-y-1 text-left min-w-0 flex-1">
                       <Link
-                        href={`/dashboard/courses/${course.slug}`}
+                        href={`/courses/${course.slug}`}
                         className="font-bold text-xs sm:text-base hover:text-primary hover:underline transition-colors block truncate"
                       >
                         {course.title}
@@ -207,7 +207,7 @@ export async function StudentProgressView() {
                       )}
                     >
                       <Link
-                        href={`/dashboard/courses/${course.slug}`}
+                        href={`/courses/${course.slug}`}
                         className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-extrabold uppercase"
                       >
                         Continuar

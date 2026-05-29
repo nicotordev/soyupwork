@@ -48,7 +48,7 @@ export default async function DashboardCoursesPage() {
           {courses.map((course) => (
             <li key={course.id}>
               <Link
-                href={`/dashboard/courses/${course.slug}`}
+                href={`/courses/${course.slug}`}
                 className={cn(
                   adminPanelClass,
                   "flex gap-2.5 border-2 border-foreground p-2.5 sm:p-3 shadow-[3px_3px_0px_0px_var(--foreground)] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_0px_var(--foreground)]",

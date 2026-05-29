@@ -7,7 +7,7 @@ export default async function StudentContinuePage() {
 
   if (continueLearning) {
     redirect(
-      `/dashboard/courses/${continueLearning.courseSlug}/lessons/${continueLearning.lessonSlug}`,
+      `/courses/${continueLearning.courseSlug}/lessons/${continueLearning.lessonSlug}`,
     );
   }
 

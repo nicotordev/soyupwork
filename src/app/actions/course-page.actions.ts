@@ -11,6 +11,7 @@ import {
 } from "@/lib/course/get-course-page-data";
 import prisma from "@/lib/db/prisma";
 import type { CoursePageData } from "@/types/course-page.types";
+import { auth } from "@clerk/nextjs/server";
 
 export async function getCoursePageForAdminPreview(
   courseId: string,
@@ -44,6 +45,49 @@ export async function getCoursePageForPublicDemo(
   return buildCoursePageData(course, {
     mode: "publicDemo",
     hasFullAccess: true,
+  });
+}
+
+export async function getCoursePageForPublicLanding(
+  courseSlug: string,
+): Promise<CoursePageData | null> {
+  const course = await prisma.course.findUnique({
+    where: { slug: courseSlug, status: CourseStatus.PUBLISHED },
+    include: coursePageInclude,
+  });
+
+  if (!course) return null;
+
+  const { userId: clerkUserId } = await auth();
+
+  if (!clerkUserId) {
+    return buildCoursePageData(course, {
+      mode: "student",
+      hasFullAccess: false,
+    });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { clerkId: clerkUserId },
+    select: { id: true },
+  });
+
+  if (!user) {
+    return buildCoursePageData(course, {
+      mode: "student",
+      hasFullAccess: false,
+    });
+  }
+
+  const hasFullAccess = await userHasActiveEnrollment(user.id, course.id);
+  const completedLessonIds = hasFullAccess
+    ? await fetchCompletedLessonIdsForCourse(user.id, course.id)
+    : new Set<string>();
+
+  return buildCoursePageData(course, {
+    mode: "student",
+    hasFullAccess,
+    completedLessonIds,
   });
 }
 

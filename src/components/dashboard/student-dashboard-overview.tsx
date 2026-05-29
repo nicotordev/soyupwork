@@ -243,7 +243,7 @@ export function StudentDashboardOverview({
                             </div>
                             <div className="space-y-1 min-w-0 flex-1">
                               <Link
-                                href={`/dashboard/courses/${course.slug}`}
+                                href={`/courses/${course.slug}`}
                                 className="font-bold text-sm sm:text-base hover:text-primary hover:underline transition-colors block text-left truncate"
                               >
                                 {course.title}
@@ -289,7 +289,7 @@ export function StudentDashboardOverview({
                               )}
                             >
                               <Link
-                                href={`/dashboard/courses/${course.slug}`}
+                                href={`/courses/${course.slug}`}
                                 className="inline-flex items-center gap-1 font-mono text-[10px] font-extrabold uppercase"
                               >
                                 Entrar
@@ -357,7 +357,7 @@ export function StudentDashboardOverview({
                       )}
                     >
                       <Link
-                        href={`/dashboard/courses/${continueLearning.courseSlug}/lessons/${continueLearning.lessonSlug}`}
+                        href={`/courses/${continueLearning.courseSlug}/lessons/${continueLearning.lessonSlug}`}
                         className="inline-flex items-center justify-center gap-2"
                       >
                         Continuar Aprendiendo
@@ -450,7 +450,7 @@ export function StudentDashboardOverview({
                           )}
                         >
                           <Link
-                            href={`/dashboard/courses/${cert.courseSlug}`}
+                            href={`/courses/${cert.courseSlug}`}
                             className="font-mono text-[9px] font-extrabold uppercase inline-flex items-center gap-0.5"
                           >
                             Ver

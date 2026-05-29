@@ -37,8 +37,30 @@ export function CourseLandingHero({
   isSignedIn = false,
   useCheckoutFlow = false,
 }: CourseLandingHeroProps) {
+  const stats = [
+    {
+      label: "Alumnos",
+      value:
+        enrolledStudentCount > 0
+          ? `${enrolledStudentCount} inscritos`
+          : "Sé el primero",
+      icon: Users,
+    },
+    {
+      label: "Duración estimada",
+      value: estimatedHoursLabel,
+      icon: Clock,
+    },
+    { label: "Dificultad", value: view.levelLabel, icon: TrendingUp },
+    {
+      label: "Lecciones",
+      value: `${view.lessonCount} lecciones`,
+      icon: Play,
+    },
+  ];
+
   return (
-    <section className="relative isolate border border-foreground/20 p-3 font-sans sm:p-8">
+    <section className="relative isolate border border-foreground/20 px-3.5 py-6 font-sans sm:p-8">
       <div
         aria-hidden
         className="absolute inset-0 -z-10 opacity-75"
@@ -56,29 +78,29 @@ export function CourseLandingHero({
       />
       <div className="absolute inset-x-8 top-0 -z-10 h-20 bg-primary/10 blur-2xl" />
 
-      <Card className="mb-12 mt-5 w-full mx-auto max-w-4xl flex flex-col items-center space-y-8 rounded-[1.6rem] border-2 border-foreground bg-card/85 p-4 pb-5 text-center shadow-[8px_8px_0px_0px_var(--foreground)] backdrop-blur-md sm:p-8">
+      <Card className="mb-12 mt-5 w-full mx-auto max-w-4xl flex flex-col items-center space-y-5 sm:space-y-8 rounded-2xl sm:rounded-[1.6rem] border-2 border-foreground bg-card/85 p-4 pb-6 sm:p-8 text-center shadow-[4px_4px_0px_0px_var(--foreground)] sm:shadow-[8px_8px_0px_0px_var(--foreground)] backdrop-blur-md">
         {/* 1. Category, level & Rating Badge row */}
-        <div className="flex flex-wrap items-center justify-center gap-2.5">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
           {view.categoryName ? (
             <Badge
               variant="default"
-              className="h-7 gap-1.5 border border-foreground/30 px-3.5 text-[0.65rem] font-semibold uppercase tracking-wide"
+              className="h-7 gap-1 sm:gap-1.5 border border-foreground/30 px-2.5 sm:px-3.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider"
             >
-              <Layers className="size-3" /> {view.categoryName}
+              <Layers className="size-2.5 sm:size-3" /> {view.categoryName}
             </Badge>
           ) : null}
           <Badge
             variant="secondary"
-            className="h-7 gap-1.5 border border-foreground/30 px-3.5 text-[0.65rem] font-semibold uppercase tracking-wide"
+            className="h-7 gap-1 sm:gap-1.5 border border-foreground/30 px-2.5 sm:px-3.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider"
           >
-            <TrendingUp className="size-3 text-emerald-500" />
+            <TrendingUp className="size-2.5 sm:size-3 text-emerald-500" />
             {view.levelLabel}
           </Badge>
           <Badge
             variant="outline"
-            className="h-7 gap-1.5 border border-foreground/30 px-3.5 text-[0.65rem] font-semibold uppercase tracking-wide"
+            className="h-7 gap-1 sm:gap-1.5 border border-foreground/30 px-2.5 sm:px-3.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider"
           >
-            <Star className="size-3 fill-yellow-400 text-yellow-400" />
+            <Star className="size-2.5 sm:size-3 fill-yellow-400 text-yellow-400" />
             {averageRating
               ? `${averageRating} (${reviewCount} reseñas)`
               : "Sin reseñas"}
@@ -86,32 +108,32 @@ export function CourseLandingHero({
         </div>
 
         {/* 2. Headline and description */}
-        <div className="space-y-4 max-w-3xl">
+        <div className="space-y-3 sm:space-y-4 max-w-3xl">
           <CardHeader className="p-0">
-            <CardTitle className="text-3xl font-black tracking-tight sm:text-5xl lg:text-6xl leading-tight">
+            <CardTitle className="text-2xl font-black tracking-tight sm:text-5xl lg:text-6xl leading-tight">
               {view.title}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <CardDescription>
-              <p className="mx-auto max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg font-medium">
+              <p className="mx-auto max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg font-medium">
                 {view.description ||
                   "Aprende a competir en Upwork con estrategia real: perfil, propuestas, posicionamiento, pricing y sistemas de ejecución."}
               </p>
             </CardDescription>
           </CardContent>
-          <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
-            <Badge className="h-8 border border-emerald-700/20 bg-emerald-500/15 px-4 text-[0.68rem] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-              Inversion
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 pt-1 sm:pt-2">
+            <Badge className="h-7 sm:h-8 border border-emerald-700/20 bg-emerald-500/15 px-3 sm:px-4 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+              Precio
             </Badge>
-            <p className="rounded-lg border border-foreground/30 bg-background/85 px-4 py-1.5 text-xl font-black text-emerald-600 shadow-sm dark:text-emerald-400">
+            <p className="rounded-lg border border-foreground/30 bg-background/85 px-3 py-1 sm:px-4 sm:py-1.5 text-lg sm:text-xl font-black text-emerald-600 shadow-sm dark:text-emerald-400">
               {view.priceLabel}
             </p>
           </div>
         </div>
 
         {/* 3. Horizontal actions */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
           {/* Start / Continue Button */}
           {continueHref || useCheckoutFlow ? (
             <div className="w-full sm:w-auto transition-transform hover:scale-[1.02] active:scale-[0.98]">
@@ -124,7 +146,7 @@ export function CourseLandingHero({
                 isSignedIn={isSignedIn}
                 useCheckoutFlow={useCheckoutFlow}
                 size="lg"
-                className="w-full sm:w-auto gap-2"
+                className="w-full sm:w-auto h-10 px-4 sm:h-12 sm:px-6 gap-1.5 sm:gap-2 text-[10px] sm:text-xs"
               />
             </div>
           ) : null}
@@ -135,7 +157,7 @@ export function CourseLandingHero({
               asChild
               variant="outline"
               size="lg"
-              className="w-full hover:bg-muted sm:w-auto"
+              className="w-full hover:bg-muted sm:w-auto h-10 px-4 sm:h-12 sm:px-6 text-[10px] sm:text-xs"
             >
               <Link
                 href="#curriculum"
@@ -148,29 +170,9 @@ export function CourseLandingHero({
         </div>
       </Card>
 
-      {/* 5. Neobrutalist Highlights Stats Grid */}
-      <div className="relative mt-8 lg:absolute lg:translate-y-1/2 lg:bottom-0 lg:left-0 lg:right-0 lg:mt-0 grid gap-4 w-full grid-cols-2 sm:grid-cols-4 pt-4 max-w-7xl mx-auto px-4">
-        {[
-          {
-            label: "Alumnos",
-            value:
-              enrolledStudentCount > 0
-                ? `${enrolledStudentCount} inscritos`
-                : "Sé el primero",
-            icon: Users,
-          },
-          {
-            label: "Duración estimada",
-            value: estimatedHoursLabel,
-            icon: Clock,
-          },
-          { label: "Dificultad", value: view.levelLabel, icon: TrendingUp },
-          {
-            label: "Lecciones",
-            value: `${view.lessonCount} lecciones`,
-            icon: Play,
-          },
-        ].map((stat) => {
+      {/* 5. Neobrutalist Highlights Stats Grid - DESKTOP */}
+      <div className="hidden sm:grid relative mt-8 lg:absolute lg:translate-y-1/2 lg:bottom-0 lg:left-0 lg:right-0 lg:mt-0 gap-4 w-full grid-cols-4 pt-4 max-w-7xl mx-auto px-4">
+        {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <Card
@@ -189,6 +191,35 @@ export function CourseLandingHero({
             </Card>
           );
         })}
+      </div>
+
+      {/* 5. Neobrutalist Highlights Stats Unified Panel - MOBILE */}
+      <div className="block sm:hidden mt-6 w-full max-w-md mx-auto">
+        <div className="border-2 border-foreground bg-card rounded-xl shadow-[4px_4px_0px_0px_var(--foreground)] overflow-hidden">
+          <div className="grid grid-cols-2 divide-x-2 divide-y-2 divide-foreground">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={stat.label}
+                  className="flex items-center gap-3 p-3.5 bg-card"
+                >
+                  <div className="flex size-7 shrink-0 items-center justify-center rounded-lg border-2 border-foreground bg-primary/10 text-primary shadow-[1px_1px_0px_0px_var(--foreground)]">
+                    <Icon className="size-3.5 stroke-[2.5]" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground leading-none">
+                      {stat.label}
+                    </p>
+                    <p className="text-xs font-black text-foreground mt-1.5 leading-tight truncate">
+                      {stat.value}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
   );

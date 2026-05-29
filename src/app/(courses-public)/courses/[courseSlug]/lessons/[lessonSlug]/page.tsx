@@ -42,7 +42,7 @@ export default async function DashboardCourseLessonPage({ params }: PageProps) {
     const firstAccessible = findFirstAccessibleLessonSlug(data.view.modules);
     if (firstAccessible && firstAccessible !== lessonSlug) {
       redirect(
-        `/dashboard/courses/${data.view.slug}/lessons/${firstAccessible}`,
+        `/courses/${data.view.slug}/lessons/${firstAccessible}`,
       );
     }
     notFound();
@@ -52,8 +52,8 @@ export default async function DashboardCourseLessonPage({ params }: PageProps) {
     <CourseLearnShell
       data={data}
       lessonSlug={lessonSlug}
-      lessonBasePath={`/dashboard/courses/${data.view.slug}/lessons`}
-      courseLandingHref={`/dashboard/courses/${data.view.slug}`}
+      lessonBasePath={`/courses/${data.view.slug}/lessons`}
+      courseLandingHref={`/courses/${data.view.slug}`}
     />
   );
 }

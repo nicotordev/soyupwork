@@ -59,8 +59,8 @@ export async function markLessonComplete(
     },
   });
 
-  revalidatePath(`/dashboard/courses/${input.courseSlug}`);
-  revalidatePath(`/dashboard/courses/${input.courseSlug}/lessons`);
+  revalidatePath(`/courses/${input.courseSlug}`);
+  revalidatePath(`/courses/${input.courseSlug}/lessons`);
 
   return { ok: true };
 }

@@ -37,7 +37,7 @@ export function CourseLandingSyllabus({
     <section
       id="curriculum"
       aria-labelledby="curriculum-title"
-      className="space-y-5 pt-12 font-sans"
+      className="space-y-5 pt-4 font-sans"
     >
       <h2 id="curriculum-title" className="text-2xl font-black sm:text-3xl">
         Curriculum estratégico
