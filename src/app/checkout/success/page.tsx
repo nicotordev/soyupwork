@@ -98,7 +98,7 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
 
   const courseHref = details.courseSlug
     ? `/courses/${details.courseSlug}`
-    : "/dashboard/courses";
+    : "/catalog";
 
   return (
     <main className="mx-auto flex max-w-lg flex-col items-center justify-center px-4 py-12 sm:py-20 font-sans">

@@ -594,6 +594,8 @@ export async function updateCourse(
     const shouldSyncProduct =
       updated.status === CourseStatus.PUBLISHED ||
       existing.status === CourseStatus.PUBLISHED;
+    // Includes unpublish/archive: syncCourseProduct deactivates Stripe products
+    // when status is no longer PUBLISHED.
 
     if (shouldSyncProduct) {
       try {

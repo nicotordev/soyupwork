@@ -2,7 +2,7 @@
 
 import { CourseStatus, EnrollmentStatus } from "@/generated/prisma/client";
 import { requireAdmin } from "@/lib/auth/admin";
-import { requireStudent, StudentAuthError } from "@/lib/auth/student";
+import { requireStudent } from "@/lib/auth/student";
 import {
   buildCoursePageData,
   coursePageInclude,
@@ -10,12 +10,8 @@ import {
   userHasActiveEnrollment,
 } from "@/lib/course/get-course-page-data";
 import prisma from "@/lib/db/prisma";
-import { serializeError } from "@/lib/logger/serialize-error";
-import { getServerLogger } from "@/lib/logger/server";
 import type { CoursePageData } from "@/types/course-page.types";
 import { auth } from "@clerk/nextjs/server";
-
-const log = getServerLogger("course-page.actions");
 
 export async function getCoursePageForAdminPreview(
   courseId: string,
@@ -100,37 +96,25 @@ export async function getCoursePageForPublicLanding(
 export async function getCoursePageForStudent(
   courseSlug: string,
 ): Promise<CoursePageData | null> {
-  try {
-    const user = await requireStudent();
+  const user = await requireStudent();
 
-    const course = await prisma.course.findUnique({
-      where: { slug: courseSlug, status: CourseStatus.PUBLISHED },
-      include: coursePageInclude,
-    });
+  const course = await prisma.course.findUnique({
+    where: { slug: courseSlug, status: CourseStatus.PUBLISHED },
+    include: coursePageInclude,
+  });
 
-    if (!course) return null;
+  if (!course) return null;
 
-    const hasFullAccess = await userHasActiveEnrollment(user.id, course.id);
-    const completedLessonIds = hasFullAccess
-      ? await fetchCompletedLessonIdsForCourse(user.id, course.id)
-      : new Set<string>();
+  const hasFullAccess = await userHasActiveEnrollment(user.id, course.id);
+  const completedLessonIds = hasFullAccess
+    ? await fetchCompletedLessonIdsForCourse(user.id, course.id)
+    : new Set<string>();
 
-    return buildCoursePageData(course, {
-      mode: "student",
-      hasFullAccess,
-      completedLessonIds,
-    });
-  } catch (error) {
-    if (error instanceof StudentAuthError) {
-      return null;
-    }
-
-    log.error(
-      serializeError(error),
-      `Failed to load course page for student (${courseSlug})`,
-    );
-    return null;
-  }
+  return buildCoursePageData(course, {
+    mode: "student",
+    hasFullAccess,
+    completedLessonIds,
+  });
 }
 
 export async function getStudentEnrolledCourses() {

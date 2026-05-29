@@ -1,5 +1,9 @@
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { SignOutView } from "@/components/auth/sign-out-view.client";
+import {
+  getAfterSignOutUrl,
+  resolveSafeAppRedirectPath,
+} from "@/lib/clerk/redirect-url";
 import { getClerkSession } from "@/lib/clerk/session";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -15,28 +19,16 @@ type SignOutPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function resolveRedirectUrl(candidate: string): string | null {
-  if (!candidate.startsWith("/") || candidate.startsWith("//")) {
-    return null;
-  }
-
-  return candidate;
-}
-
-function getDefaultAfterSignOutUrl(): string {
-  return process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL ?? "/";
-}
-
 export default async function SignOutPage({ searchParams }: SignOutPageProps) {
   const params = await searchParams;
   const explicitRedirect =
     typeof params.redirect_url === "string"
-      ? resolveRedirectUrl(params.redirect_url)
+      ? resolveSafeAppRedirectPath(params.redirect_url, getAfterSignOutUrl())
       : null;
   const { isSignedIn } = await getClerkSession();
 
   if (!isSignedIn) {
-    redirect(explicitRedirect ?? getDefaultAfterSignOutUrl());
+    redirect(explicitRedirect ?? getAfterSignOutUrl());
   }
 
   return (

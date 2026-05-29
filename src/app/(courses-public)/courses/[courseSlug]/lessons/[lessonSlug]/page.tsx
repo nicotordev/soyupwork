@@ -1,5 +1,7 @@
 import { getCoursePageForStudent } from "@/app/actions/course-page.actions";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
+import { buildSignInRedirectUrl } from "@/lib/auth/build-sign-in-redirect";
+import { StudentAuthError } from "@/lib/auth/student";
 import { findLessonInView } from "@/lib/course/course-page-view";
 import { findFirstAccessibleLessonSlug } from "@/lib/course/sequential-lesson-access";
 import { auth } from "@clerk/nextjs/server";
@@ -14,7 +16,10 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { courseSlug, lessonSlug } = await params;
-  const data = await getCoursePageForStudent(courseSlug).catch(() => null);
+  const data = await getCoursePageForStudent(courseSlug).catch((error) => {
+    if (error instanceof StudentAuthError) return null;
+    throw error;
+  });
   const lesson = data ? findLessonInView(data.view, lessonSlug) : null;
 
   return {
@@ -28,8 +33,17 @@ export default async function DashboardCourseLessonPage({ params }: PageProps) {
   await auth.protect();
 
   const { courseSlug, lessonSlug } = await params;
+  const lessonPath = `/courses/${courseSlug}/lessons/${lessonSlug}`;
 
-  const data = await getCoursePageForStudent(courseSlug);
+  let data;
+  try {
+    data = await getCoursePageForStudent(courseSlug);
+  } catch (error) {
+    if (error instanceof StudentAuthError) {
+      redirect(buildSignInRedirectUrl(lessonPath));
+    }
+    throw error;
+  }
 
   if (!data) {
     notFound();
