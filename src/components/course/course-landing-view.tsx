@@ -94,7 +94,7 @@ export function CourseLandingView({
 
   return (
     <>
-      <div className="relative min-h-svh overflow-x-hidden bg-background pb-28 font-sans text-foreground antialiased md:pb-0">
+      <div className="relative min-h-svh overflow-x-hidden bg-background font-sans text-foreground antialiased md:pb-0">
         <div className={adminGridBackgroundClass} />
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,var(--primary),transparent)] opacity-10 md:opacity-15" />
 
@@ -125,25 +125,27 @@ export function CourseLandingView({
         />
 
         {isMarketingSurface ? (
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <ul className="flex flex-col items-center gap-2 py-4 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-2">
-              {TRUST_ITEMS.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <li
-                    key={item.label}
-                    className="flex min-h-11 items-center gap-2 font-mono text-[9px] font-bold uppercase tracking-wider text-muted-foreground sm:text-[10px]"
-                  >
-                    <Icon
-                      className="size-4 shrink-0 text-primary"
-                      strokeWidth={2.5}
-                      aria-hidden
-                    />
-                    {item.label}
-                  </li>
-                );
-              })}
-            </ul>
+          <div className="w-full border-t-2 border-foreground">
+            <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <ul className="flex flex-col items-center gap-2 py-4 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-6 sm:gap-y-2">
+                {TRUST_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li
+                      key={item.label}
+                      className="flex min-h-11 items-center gap-2 font-mono text-[9px] font-bold uppercase tracking-wider text-muted-foreground sm:text-[10px]"
+                    >
+                      <Icon
+                        className="size-4 shrink-0 text-primary"
+                        strokeWidth={2.5}
+                        aria-hidden
+                      />
+                      {item.label}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           </div>
         ) : null}
 

@@ -60,7 +60,7 @@ export function CourseLandingHero({
   ];
 
   return (
-    <section className="relative isolate border border-foreground/20 px-3.5 py-6 font-sans sm:p-8">
+    <section className="relative isolate border border-foreground/20 px-3.5 py-6 pb-8 font-sans sm:p-8 sm:pb-10">
       <div
         aria-hidden
         className="absolute inset-0 -z-10 opacity-75"
@@ -78,7 +78,7 @@ export function CourseLandingHero({
       />
       <div className="absolute inset-x-8 top-0 -z-10 h-20 bg-primary/10 blur-2xl" />
 
-      <Card className="mb-12 mt-5 w-full mx-auto max-w-4xl flex flex-col items-center space-y-5 sm:space-y-8 rounded-2xl sm:rounded-[1.6rem] border-2 border-foreground bg-card/85 p-4 pb-6 sm:p-8 text-center shadow-[4px_4px_0px_0px_var(--foreground)] sm:shadow-[8px_8px_0px_0px_var(--foreground)] backdrop-blur-md">
+      <Card className="mb-0 mt-5 w-full mx-auto max-w-4xl flex flex-col items-center space-y-5 sm:space-y-8 rounded-2xl sm:rounded-[1.6rem] border-2 border-foreground bg-card/85 p-4 pb-6 sm:p-8 text-center shadow-[4px_4px_0px_0px_var(--foreground)] sm:shadow-[8px_8px_0px_0px_var(--foreground)] backdrop-blur-md">
         {/* 1. Category, level & Rating Badge row */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
           {view.categoryName ? (
@@ -170,14 +170,14 @@ export function CourseLandingHero({
         </div>
       </Card>
 
-      {/* 5. Neobrutalist Highlights Stats Grid - DESKTOP */}
-      <div className="hidden sm:grid relative mt-8 lg:absolute lg:translate-y-1/2 lg:bottom-0 lg:left-0 lg:right-0 lg:mt-0 gap-4 w-full grid-cols-4 pt-4 max-w-7xl mx-auto px-4">
+      {/* Stats — flujo normal (sin absolute) para no tapar la sección de confianza */}
+      <div className="hidden sm:grid mt-6 lg:mt-8 gap-3 sm:gap-4 w-full grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto px-4 pb-2">
         {stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <Card
               key={stat.label}
-              className="border-2 border-foreground bg-card p-4 rounded-xl shadow-[4px_4px_0px_0px_var(--foreground)] hover:scale-[1.02] transition-all flex flex-col items-center text-center justify-between min-h-[95px] select-none"
+              className="border-2 border-foreground bg-card p-4 rounded-xl shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--foreground)] transition-all flex flex-col items-center text-center justify-between min-h-[95px] select-none"
             >
               <Icon className="size-4 text-primary stroke-[2.5] mb-2" />
               <div>

@@ -5,6 +5,7 @@ import { PlatformAnnouncementBanner } from "@/components/platform/platform-annou
 import { getClerkSession } from "@/lib/clerk/session";
 import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
 import { redirect } from "next/navigation";
+import { adminGridBackgroundClass } from "@/lib/admin/styles";
 
 export default async function CheckoutLayout({
   children,
@@ -21,14 +22,17 @@ export default async function CheckoutLayout({
   }
 
   return (
-    <div className="flex min-h-svh w-full min-w-0 flex-col overflow-x-hidden bg-background font-sans text-foreground">
+    <div className="relative flex min-h-svh w-full min-w-0 flex-col overflow-x-hidden bg-background font-sans text-foreground antialiased">
+      <div className={adminGridBackgroundClass} />
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,var(--primary),transparent)] opacity-10 md:opacity-15" />
       <PlatformAnnouncementBanner />
       <MarketingNavServer
         isSignedIn={isSignedIn}
         catalogSections={catalogSections}
       />
-      <main className="w-full min-w-0 flex-1">{children}</main>
+      <main className="relative w-full min-w-0 flex-1">{children}</main>
       <MarketingFooter />
     </div>
   );
 }
+
