@@ -56,13 +56,8 @@ export function MarketingTrackSelectorClient() {
   return (
     <section
       id="roi-calculator"
-      className="relative z-10 border-b-2 border-foreground bg-secondary/15 py-12 sm:py-24 overflow-hidden font-sans"
+      className="relative z-10 border-b-2 border-foreground bg-secondary/15 py-12 sm:pb-24 overflow-hidden font-sans"
     >
-      {/* Subtle grid pattern background */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_8%)_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-35" />
-      <div className="pointer-events-none absolute -left-20 top-0 -z-10 size-96 rounded-full bg-primary/5 blur-3xl" />
-      <div className="pointer-events-none absolute -right-20 bottom-0 -z-10 size-96 rounded-full bg-primary/5 blur-3xl" />
-
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-8 max-w-3xl space-y-4 text-center sm:mb-16">
           <Badge

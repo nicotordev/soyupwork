@@ -9,6 +9,13 @@ interface CourseCardProps {
 export function CourseCard({ course }: CourseCardProps) {
   return (
     <article className="group flex flex-col bg-card border-2 border-foreground rounded-lg overflow-hidden shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[8px_8px_0px_0px_var(--foreground)] hover:-translate-x-1 hover:-translate-y-1 transition-all duration-200">
+      {/* Top Brand Accent Bar */}
+      <div
+        className={`h-1.5 w-full border-b-2 border-foreground shrink-0 transition-colors duration-200 ${
+          course.isFree ? "bg-emerald-500" : "bg-primary"
+        }`}
+      />
+
       {/* Course Body */}
       <div className="p-4 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-3">
@@ -78,7 +85,7 @@ export function CourseCard({ course }: CourseCardProps) {
           {/* Call to Action Button */}
           <Link
             href={`/dashboard/courses/${course.slug}`}
-            className="w-full text-center block font-mono text-xs font-bold uppercase tracking-wider border-2 border-foreground bg-card py-2 hover:bg-primary hover:text-primary-foreground transition-all shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer rounded"
+            className="w-full text-center block font-mono text-xs font-bold uppercase tracking-wider border-2 border-foreground bg-card py-2 group-hover:bg-primary group-hover:text-primary-foreground transition-all shadow-[2px_2px_0px_0px_var(--foreground)] group-hover:shadow-[4px_4px_0px_0px_var(--foreground)] group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 cursor-pointer rounded"
           >
             {course.isFree ? "Empezar gratis" : "Ver curso completo"}
           </Link>

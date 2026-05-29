@@ -10,7 +10,7 @@ import type {
   CatalogFilterCategory,
   CatalogFilterOptions,
 } from "@/types/catalog-filters";
-import { IconArrowRight } from "@tabler/icons-react";
+import { IconArrowRight, IconAdjustmentsHorizontal } from "@tabler/icons-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -63,7 +63,7 @@ export function CatalogShell({
     selectedCertificate === "all";
 
   return (
-    <div className="bg-background text-foreground min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300">
+    <div className="bg-background text-foreground min-h-screen py-8 px-4 sm:px-6 lg:px-8 font-sans transition-colors duration-300 pb-20 lg:pb-8">
       {/* 1. Header component (handles local state & url push for search input) */}
       <CatalogHeader
         initialSearchQuery={searchQuery}
@@ -88,9 +88,11 @@ export function CatalogShell({
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 scroll-smooth snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {featuredCourses.slice(0, 3).map((course) => (
-              <CourseCard key={`featured-${course.slug}`} course={course} />
+              <div key={`featured-${course.slug}`} className="min-w-[280px] w-[85%] md:w-auto snap-center shrink-0">
+                <CourseCard course={course} />
+              </div>
             ))}
           </div>
         </section>
@@ -125,7 +127,7 @@ export function CatalogShell({
       </main>
 
       {/* 4. Marketing Value Proposition Section */}
-      <section className="max-w-7xl mx-auto mt-20 border-4 border-foreground bg-secondary/15 rounded-xl p-8 relative overflow-hidden shadow-[6px_6px_0px_0px_var(--foreground)]">
+      <section className="max-w-7xl mx-auto mt-20 border-4 border-foreground bg-linear-to-br from-secondary/20 to-secondary/5 rounded-2xl p-6 sm:p-8 md:p-10 relative overflow-hidden shadow-[6px_6px_0px_0px_var(--foreground)]">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="space-y-4">
             <span className="font-mono text-[9px] font-bold bg-primary text-primary-foreground px-2.5 py-1 border-2 border-foreground rounded shadow-[1px_1px_0px_0px_var(--foreground)] uppercase tracking-wider">
@@ -172,7 +174,7 @@ export function CatalogShell({
             ].map((feature, i) => (
               <div
                 key={i}
-                className="bg-card border-2 border-foreground p-4 rounded-lg shadow-[2px_2px_0px_0px_var(--foreground)] space-y-1.5"
+                className="bg-card border-2 border-foreground p-4 rounded-lg shadow-[2px_2px_0px_0px_var(--foreground)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[3.5px_3.5px_0px_0px_var(--foreground)] transition-all space-y-1.5 select-none"
               >
                 <h4 className="font-bold text-xs font-mono uppercase text-primary">
                   {feature.title}
@@ -185,6 +187,22 @@ export function CatalogShell({
           </div>
         </div>
       </section>
+
+      {/* 5. Mobile Floating Action Button (Sticky bottom-6) */}
+      <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 select-none w-auto">
+        <button
+          onClick={() => setIsMobileFiltersOpen(true)}
+          className="inline-flex items-center gap-2 px-5 py-3 border-2 border-foreground bg-primary text-primary-foreground text-xs font-mono font-black uppercase tracking-wider rounded-full shadow-[4px_4px_0px_0px_var(--foreground)] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_var(--foreground)] transition-all cursor-pointer"
+        >
+          <IconAdjustmentsHorizontal className="size-4 shrink-0" />
+          Filtrar cursos
+          {activeFiltersCount > 0 && (
+            <span className="min-w-5 h-5 px-1 bg-background text-foreground border border-foreground rounded-full flex items-center justify-center text-[10px] font-black">
+              {activeFiltersCount}
+            </span>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

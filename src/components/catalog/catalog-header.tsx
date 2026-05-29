@@ -117,20 +117,22 @@ export function CatalogHeader({
         </div>
 
         {topicChips.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 justify-center lg:justify-start">
-            <span className="text-xs font-mono font-bold uppercase text-muted-foreground mr-1">
+          <div className="flex items-center gap-2 w-full overflow-hidden select-none border-2 border-foreground/10 bg-secondary/10 p-2 rounded-xl lg:col-span-3">
+            <span className="text-xs font-mono font-bold uppercase text-muted-foreground shrink-0 pl-1">
               Rutas:
             </span>
-            {topicChips.map((chip) => (
-              <button
-                key={chip.categorySlug}
-                type="button"
-                onClick={() => handleTopicChipClick(chip)}
-                className="font-mono text-[10px] font-bold bg-secondary hover:bg-primary hover:text-primary-foreground border-2 border-foreground px-2 py-0.5 rounded cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-px shadow-[1px_1px_0px_0px_var(--foreground)] hover:shadow-[2px_2px_0px_0px_var(--foreground)]"
-              >
-                {chip.label}
-              </button>
-            ))}
+            <div className="flex overflow-x-auto gap-2 py-1 flex-nowrap scroll-smooth shrink w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] -mr-2 pr-2">
+              {topicChips.map((chip) => (
+                <button
+                  key={chip.categorySlug}
+                  type="button"
+                  onClick={() => handleTopicChipClick(chip)}
+                  className="font-mono text-[10px] font-bold bg-background hover:bg-primary hover:text-primary-foreground border-2 border-foreground px-3 py-1 rounded-full shrink-0 cursor-pointer transition-all hover:-translate-y-0.5 active:translate-y-px shadow-[1.5px_1.5px_0px_0px_var(--foreground)] hover:shadow-[3px_3px_0px_0px_var(--foreground)]"
+                >
+                  {chip.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

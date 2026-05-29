@@ -23,8 +23,8 @@ export function MarketingHeroSectionClient() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-3xl font-black leading-tight tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-6xl"
           >
-            Convierte tu talento en{" "}
-            <span className="text-green-600 drop-shadow-sm">ingresos $$</span>
+            Convierte tu talento{" "}
+            <span className="text-green-600 drop-shadow-sm">en ingresos</span>
           </Motion>
 
 

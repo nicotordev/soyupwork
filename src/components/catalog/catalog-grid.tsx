@@ -101,12 +101,12 @@ export function CatalogGrid({
             return (
               <div key={course.slug} className="contents">
                 {showBannerInline && promoCategory && (
-                  <div className="col-span-1 sm:col-span-2 lg:col-span-3 border-2 border-foreground bg-primary/10 rounded-lg p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-[4px_4px_0px_0px_var(--foreground)] relative overflow-hidden my-2">
+                  <div className="col-span-1 sm:col-span-2 lg:col-span-3 border-2 border-foreground bg-linear-to-br from-primary/15 to-primary/5 rounded-xl p-5 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-[4px_4px_0px_0px_var(--foreground)] hover:shadow-[6px_6px_0px_0px_var(--foreground)] transition-all duration-200 relative overflow-hidden my-2">
                     {/* Banner Background Cyber Element */}
                     <div className="absolute right-0 bottom-0 translate-x-12 translate-y-12 size-36 rounded-full border-4 border-foreground bg-primary/20 pointer-events-none hidden md:block" />
 
                     <div className="space-y-2 max-w-2xl">
-                      <span className="font-mono text-[9px] font-bold bg-primary text-primary-foreground px-2 py-0.5 border-2 border-foreground rounded shadow-[1px_1px_0px_0px_var(--foreground)]">
+                      <span className="font-mono text-[9px] font-bold bg-primary text-primary-foreground px-2.5 py-1 border-2 border-foreground rounded shadow-[1px_1px_0px_0px_var(--foreground)] uppercase tracking-wider">
                         PROMO DE TEMPORADA
                       </span>
                       <h3 className="font-extrabold text-lg md:text-xl tracking-tight leading-tight">
@@ -123,7 +123,7 @@ export function CatalogGrid({
                     <div className="shrink-0">
                       <button
                         onClick={handlePromoClick}
-                        className="w-full md:w-auto inline-flex items-center justify-center gap-1 font-mono text-xs font-bold uppercase border-2 border-foreground bg-primary text-primary-foreground px-4 py-2 hover:bg-primary/95 transition-all shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer rounded"
+                        className="w-full md:w-auto inline-flex items-center justify-center gap-1 font-mono text-xs font-bold uppercase border-2 border-foreground bg-primary text-primary-foreground px-4 py-2.5 hover:bg-primary/95 transition-all shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 cursor-pointer rounded"
                       >
                         Ver {promoCategory.name}{" "}
                         <IconExternalLink className="size-3.5" />

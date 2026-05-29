@@ -29,7 +29,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent, SheetFooter } from "@/components/ui/sheet";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import {
   getCatalogPath,
   getCategoryPath,
@@ -423,26 +429,42 @@ export function CatalogFilters({
         </CardContent>
       </Card>
 
-      <Sheet open={isMobileFiltersOpen} onOpenChange={setIsMobileFiltersOpen}>
-        <SheetContent
-          side="left"
-          showCloseButton={false}
-          className={catalogFilterSheetContentClass}
-        >
-          <CatalogFilterPanel
-            {...panelProps}
-            showMobileClose
-            onMobileClose={() => setIsMobileFiltersOpen(false)}
-            onClearFilters={() => {
-              handleClearFilters();
-              setIsMobileFiltersOpen(false);
-            }}
-          />
+      <Drawer open={isMobileFiltersOpen} onOpenChange={setIsMobileFiltersOpen}>
+        <DrawerContent className="fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] flex-col border-t-4 border-x-4 border-foreground bg-background rounded-t-3xl p-5 before:hidden outline-none shadow-[0_-8px_30px_rgb(0,0,0,0.12)]">
+          <DrawerHeader className="border-b-2 border-foreground pb-3 text-left p-0">
+            <DrawerTitle className="font-heading text-base font-black text-foreground flex items-center justify-between w-full">
+              <span className="flex items-center gap-2">
+                <IconAdjustmentsHorizontal className="size-4 text-primary" />
+                Filtros de búsqueda
+              </span>
+              {activeFiltersCount > 0 && (
+                <Button
+                  type="button"
+                  variant="link"
+                  className={catalogFilterClearButtonClass}
+                  onClick={() => {
+                    handleClearFilters();
+                    setIsMobileFiltersOpen(false);
+                  }}
+                >
+                  <IconRotate className="size-3" />
+                  Limpiar ({activeFiltersCount})
+                </Button>
+              )}
+            </DrawerTitle>
+          </DrawerHeader>
 
-          <SheetFooter className="gap-2 border-t border-foreground p-0 pt-4">
+          <div className="py-4 overflow-y-auto flex-1 font-sans">
+            <CatalogFilterPanel
+              {...panelProps}
+              showMobileClose={false}
+            />
+          </div>
+
+          <DrawerFooter className="gap-2 border-t-2 border-dashed border-foreground/35 p-0 pt-4 flex flex-col mt-auto shrink-0">
             <Button
               type="button"
-              className="w-full"
+              className="w-full font-mono text-xs font-bold uppercase tracking-wider border-2 border-foreground bg-primary text-primary-foreground py-3 shadow-[2px_2px_0px_0px_var(--foreground)] active:translate-y-px rounded cursor-pointer"
               onClick={() => setIsMobileFiltersOpen(false)}
             >
               Aplicar filtros ({filteredCoursesCount})
@@ -451,18 +473,18 @@ export function CatalogFilters({
               <Button
                 type="button"
                 variant="outline"
-                className="w-full text-destructive"
+                className="w-full font-mono text-xs font-bold uppercase tracking-wider border-2 border-foreground bg-background text-destructive py-3 shadow-[2px_2px_0px_0px_var(--foreground)] active:translate-y-px rounded hover:bg-destructive/5 cursor-pointer"
                 onClick={() => {
                   handleClearFilters();
                   setIsMobileFiltersOpen(false);
                 }}
               >
-                Limpiar filtros
+                Limpiar todo
               </Button>
             )}
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }

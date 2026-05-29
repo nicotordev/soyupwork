@@ -136,7 +136,11 @@ export default function LandingPage() {
               <h2 className="mt-4 text-2xl font-black sm:text-4xl lg:text-5xl leading-tight text-foreground tracking-tight">
                 No vendemos atajos. Enseñamos criterio para competir mejor.
               </h2>
+              <p className="mt-3 text-muted-foreground text-base sm:text-lg font-medium tracking-tight">
+                Te mostramos cómo nuestra metodología se diferencia de los típicos cursos genéricos, ayudándote a tomar decisiones informadas frente a cualquier competencia.
+              </p>
             </div>
+
 
             {/* Mobile View */}
             <div className="space-y-4 md:hidden">
@@ -207,7 +211,7 @@ export default function LandingPage() {
         {/* ----------------------------------------------------------------------
             5. CURRICULUM SUGERIDO
            ---------------------------------------------------------------------- */}
-        <section className="relative overflow-hidden py-12 sm:py-24 font-sans border-foreground">
+        <section className="relative overflow-hidden pt-12 sm:pt-24 font-sans border-foreground">
           {/* Engineering grid lines background */}
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1_/_6%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1_/_6%)_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-35" />
 
