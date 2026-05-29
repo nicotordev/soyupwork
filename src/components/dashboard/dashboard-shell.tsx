@@ -60,4 +60,3 @@ export function DashboardShell({ children }: DashboardShellProps) {
     </SidebarProvider>
   );
 }
-
