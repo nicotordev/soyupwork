@@ -54,7 +54,7 @@ export function UserAvatarUploader({
       <div
         className={cn(
           adminPanelClass,
-          "relative size-24 shrink-0 overflow-hidden rounded-full border-2 border-foreground shadow-[3px_3px_0px_0px_var(--foreground)]",
+          "relative size-20 sm:size-24 shrink-0 overflow-hidden rounded-full border-2 border-foreground shadow-[3px_3px_0px_0px_var(--foreground)]",
         )}
       >
         {displayUrl ? (
@@ -68,7 +68,7 @@ export function UserAvatarUploader({
           />
         ) : (
           <div className="flex size-full flex-col items-center justify-center gap-1 text-muted-foreground">
-            <IconPhoto className="size-8" stroke={1.5} />
+            <IconPhoto className="size-7 sm:size-8" stroke={1.5} />
           </div>
         )}
 

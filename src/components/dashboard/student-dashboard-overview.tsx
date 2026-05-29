@@ -101,7 +101,7 @@ export function StudentDashboardOverview({
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="space-y-8"
+        className="space-y-4 sm:space-y-6 md:space-y-8"
       >
         {/* Welcome Section */}
         <motion.div variants={itemVariants}>
@@ -148,12 +148,12 @@ export function StudentDashboardOverview({
         {/* Stats Grid */}
         <motion.div
           variants={itemVariants}
-          className="grid gap-4 sm:grid-cols-3"
+          className="grid gap-3 sm:grid-cols-3"
         >
           {statsItems.map((stat) => {
             const Icon = stat.icon;
             return (
-              <article key={stat.id} className={adminStatCardClass}>
+              <article key={stat.id} className={cn(adminStatCardClass, "p-3 sm:p-4")}>
                 <div className="flex items-start justify-between gap-2">
                   <p className={adminPanelTitleClass}>{stat.label}</p>
                   <div
@@ -162,13 +162,13 @@ export function StudentDashboardOverview({
                       stat.color,
                     )}
                   >
-                    <Icon className="size-4" stroke={2.5} />
+                    <Icon className="size-3.5 sm:size-4" stroke={2.5} />
                   </div>
                 </div>
-                <p className="mt-3 font-heading text-3xl font-extrabold tracking-tight md:text-4xl">
+                <p className="mt-2 sm:mt-3 font-heading text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
                   {stat.value}
                 </p>
-                <p className="mt-1 font-mono text-[10px] font-bold uppercase text-muted-foreground">
+                <p className="mt-0.5 sm:mt-1 font-mono text-[9px] sm:text-[10px] font-bold uppercase text-muted-foreground">
                   {stat.helper}
                 </p>
               </article>
@@ -177,11 +177,11 @@ export function StudentDashboardOverview({
         </motion.div>
 
         {/* Main Content Grid: Left side Courses / Progress, Right side Continue Learning / Certificates */}
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
           {/* Left Column: Courses list */}
           <motion.div
             variants={itemVariants}
-            className="space-y-6 lg:col-span-2"
+            className="space-y-4 sm:space-y-6 lg:col-span-2"
           >
             <div className={adminPanelClass}>
               <div className={adminPanelHeaderClass}>
@@ -196,7 +196,7 @@ export function StudentDashboardOverview({
                     : "cursos inscritos"}
                 </span>
               </div>
-              <div className="p-6">
+              <div className="p-3.5 sm:p-6">
                 {enrolledCourses.length === 0 ? (
                   <div className="border-2 border-dashed border-foreground/30 p-8 text-center rounded-lg bg-muted/10">
                     <p className="text-sm text-muted-foreground mb-4">
@@ -214,18 +214,18 @@ export function StudentDashboardOverview({
                     </Button>
                   </div>
                 ) : (
-                  <ul className="divide-y-2 divide-foreground/10 space-y-4">
+                  <ul className="divide-y-2 divide-foreground/10 space-y-3 sm:space-y-4">
                     {enrolledCourses.map((course, index) => (
                       <li
                         key={course.id}
                         className={cn(
-                          "pt-4 first:pt-0",
+                          "pt-3 sm:pt-4 first:pt-0",
                           index > 0 && "border-t-2 border-foreground/10",
                         )}
                       >
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="flex gap-4">
-                            <div className="relative size-16 shrink-0 overflow-hidden rounded border-2 border-foreground bg-muted shadow-[2px_2px_0px_0px_var(--foreground)]">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex gap-3 sm:gap-4 flex-1 min-w-0">
+                            <div className="relative size-12 sm:size-16 shrink-0 overflow-hidden rounded border-2 border-foreground bg-muted shadow-[2px_2px_0px_0px_var(--foreground)]">
                               {course.thumbnailUrl ? (
                                 <Image
                                   src={course.thumbnailUrl}
@@ -236,43 +236,43 @@ export function StudentDashboardOverview({
                                   unoptimized
                                 />
                               ) : (
-                                <span className="flex size-full items-center justify-center font-mono text-[9px] uppercase text-muted-foreground">
+                                <span className="flex size-full items-center justify-center font-mono text-[8px] sm:text-[9px] uppercase text-muted-foreground">
                                   —
                                 </span>
                               )}
                             </div>
-                            <div className="space-y-1">
+                            <div className="space-y-1 min-w-0 flex-1">
                               <Link
                                 href={`/dashboard/courses/${course.slug}`}
-                                className="font-bold text-base hover:text-primary hover:underline transition-colors block text-left"
+                                className="font-bold text-sm sm:text-base hover:text-primary hover:underline transition-colors block text-left truncate"
                               >
                                 {course.title}
                               </Link>
-                              <div className="flex flex-wrap items-center gap-2">
+                              <div className="flex flex-wrap items-center gap-1.5">
                                 <Badge
                                   variant="outline"
-                                  className="font-mono text-[9px] uppercase border-foreground/40"
+                                  className="font-mono text-[8px] sm:text-[9px] uppercase border-foreground/40 leading-none py-0"
                                 >
                                   {isCourseLevelValue(course.level)
                                     ? courseLevelLabel(course.level)
                                     : course.level}
                                 </Badge>
-                                <span className="font-mono text-[10px] text-muted-foreground font-bold">
+                                <span className="font-mono text-[9px] sm:text-[10px] text-muted-foreground font-bold">
                                   {course.completedLessons}/
-                                  {course.totalLessons} lecciones
+                                  {course.totalLessons} lecc.
                                 </span>
                               </div>
                             </div>
                           </div>
 
                           {/* Progress bar & action */}
-                          <div className="flex items-center justify-between gap-4 sm:justify-end shrink-0 w-full sm:w-auto">
-                            <div className="w-full sm:w-36 space-y-1">
-                              <div className="flex items-center justify-between font-mono text-[10px] font-bold">
+                          <div className="flex items-center justify-between gap-3 sm:justify-end shrink-0 w-full sm:w-auto">
+                            <div className="w-full sm:w-36 space-y-0.5 sm:space-y-1">
+                              <div className="flex items-center justify-between font-mono text-[9px] sm:text-[10px] font-bold">
                                 <span>Progreso</span>
                                 <span>{course.progressPercent}%</span>
                               </div>
-                              <div className="h-3 w-full border-2 border-foreground rounded bg-muted overflow-hidden">
+                              <div className="h-2 sm:h-3 w-full border-2 border-foreground rounded bg-muted overflow-hidden">
                                 <div
                                   className="h-full bg-primary border-r-2 border-foreground transition-all duration-300"
                                   style={{
@@ -337,15 +337,15 @@ export function StudentDashboardOverview({
                       Activo
                     </Badge>
                   </div>
-                  <div className="p-5 space-y-4">
-                    <div className="space-y-1 text-left">
-                      <p className="font-mono text-[9px] font-bold uppercase text-muted-foreground truncate">
+                  <div className="p-3.5 sm:p-5 space-y-3 sm:space-y-4">
+                    <div className="space-y-0.5 sm:space-y-1 text-left">
+                      <p className="font-mono text-[8px] sm:text-[9px] font-bold uppercase text-muted-foreground truncate">
                         Curso: {continueLearning.courseTitle}
                       </p>
-                      <h4 className="font-bold text-base leading-tight truncate">
+                      <h4 className="font-bold text-sm sm:text-base leading-tight truncate">
                         {continueLearning.lessonTitle}
                       </h4>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">
                         Tu progreso global en el curso es del{" "}
                         {continueLearning.progressPercent}%.
                       </p>
@@ -355,7 +355,7 @@ export function StudentDashboardOverview({
                       asChild
                       className={cn(
                         adminBrutalButtonClass,
-                        "w-full bg-primary text-primary-foreground font-mono text-xs font-bold uppercase",
+                        "w-full bg-primary text-primary-foreground font-mono text-[10px] sm:text-xs font-bold uppercase",
                       )}
                     >
                       <Link
@@ -416,23 +416,23 @@ export function StudentDashboardOverview({
                   {certificates.length}
                 </span>
               </div>
-              <div className="p-5">
+              <div className="p-3.5 sm:p-5">
                 {certificates.length === 0 ? (
-                  <div className="text-center py-6 text-muted-foreground space-y-2">
-                    <IconCertificate className="size-8 mx-auto text-muted-foreground/40" />
+                  <div className="text-center py-4 sm:py-6 text-muted-foreground space-y-2">
+                    <IconCertificate className="size-7 sm:size-8 mx-auto text-muted-foreground/40" />
                     <p className="text-xs">
                       Aún no has completado ningún curso con certificación.
                     </p>
-                    <p className="text-[10px] font-mono text-muted-foreground/60 uppercase">
+                    <p className="text-[9px] sm:text-[10px] font-mono text-muted-foreground/60 uppercase">
                       Completa el 100% de un curso para desbloquearlo
                     </p>
                   </div>
                 ) : (
-                  <ul className="space-y-3">
+                  <ul className="space-y-2 sm:space-y-3">
                     {certificates.map((cert) => (
                       <li
                         key={cert.id}
-                        className="flex items-center justify-between border-2 border-foreground/10 bg-muted/10 p-3 rounded-md hover:bg-muted/30 transition-colors"
+                        className="flex items-center justify-between border-2 border-foreground/10 bg-muted/10 p-2.5 sm:p-3 rounded-md hover:bg-muted/30 transition-colors"
                       >
                         <div className="min-w-0 text-left space-y-1">
                           <p className="truncate text-xs font-bold leading-tight">
@@ -477,19 +477,19 @@ export function StudentDashboardOverview({
                   Accesos Rápidos
                 </h3>
               </div>
-              <div className="p-4 grid grid-cols-2 gap-3">
+              <div className="p-3 sm:p-4 grid grid-cols-2 gap-2 sm:gap-3">
                 <Link
                   href="/catalog"
                   className={cn(
                     adminPanelClass,
-                    "flex flex-col items-center justify-center p-3 text-center transition-all bg-card hover:bg-secondary/5 hover:translate-x-px hover:translate-y-px shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[1px_1px_0px_0px_var(--foreground)]",
+                    "flex flex-col items-center justify-center p-2 sm:p-3 text-center transition-all bg-card hover:bg-secondary/5 hover:translate-x-px hover:translate-y-px shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[1px_1px_0px_0px_var(--foreground)]",
                   )}
                 >
                   <IconCompass
-                    className="size-5 mb-1 text-primary"
+                    className="size-4 sm:size-5 mb-1 text-primary"
                     stroke={2.5}
                   />
-                  <span className="font-bold text-[11px] leading-tight">
+                  <span className="font-bold text-[10px] sm:text-[11px] leading-tight">
                     Ver Catálogo
                   </span>
                 </Link>
@@ -497,14 +497,14 @@ export function StudentDashboardOverview({
                   href={`mailto:${user.email ?? "soporte@soyup.work"}`}
                   className={cn(
                     adminPanelClass,
-                    "flex flex-col items-center justify-center p-3 text-center transition-all bg-card hover:bg-secondary/5 hover:translate-x-px hover:translate-y-px shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[1px_1px_0px_0px_var(--foreground)]",
+                    "flex flex-col items-center justify-center p-2 sm:p-3 text-center transition-all bg-card hover:bg-secondary/5 hover:translate-x-px hover:translate-y-px shadow-[2px_2px_0px_0px_var(--foreground)] hover:shadow-[1px_1px_0px_0px_var(--foreground)]",
                   )}
                 >
                   <IconMail
-                    className="size-5 mb-1 text-emerald-500"
+                    className="size-4 sm:size-5 mb-1 text-emerald-500"
                     stroke={2.5}
                   />
-                  <span className="font-bold text-[11px] leading-tight">
+                  <span className="font-bold text-[10px] sm:text-[11px] leading-tight">
                     Soporte técnico
                   </span>
                 </a>

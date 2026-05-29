@@ -54,14 +54,14 @@ export function StudentHeader() {
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="relative ml-auto flex max-w-xs flex-1 items-center md:max-w-md">
+      <div className="relative ml-auto flex max-w-xs min-w-[100px] flex-1 items-center md:max-w-md">
         <IconSearch
           className="pointer-events-none absolute left-2.5 size-4 text-muted-foreground"
           stroke={2.25}
         />
         <Input
           type="search"
-          placeholder="Buscar lecciones, apuntes..."
+          placeholder="Buscar..."
           className={cn(adminInputClass, "h-8 w-full pl-8 font-mono text-xs")}
           aria-label="Buscar en tus cursos"
         />

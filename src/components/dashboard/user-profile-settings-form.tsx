@@ -151,9 +151,9 @@ export function UserProfileSettingsForm({
     <form
       onSubmit={handleSubmit}
       className={cn(
-        "space-y-5",
+        "space-y-3.5 sm:space-y-5",
         variant === "page" &&
-          "max-w-lg rounded-lg border-2 border-foreground bg-card p-6 shadow-[4px_4px_0px_0px_var(--foreground)]",
+          "max-w-lg rounded-lg border-2 border-foreground bg-card p-3.5 sm:p-6 shadow-[4px_4px_0px_0px_var(--foreground)]",
       )}
     >
       <UserAvatarUploader

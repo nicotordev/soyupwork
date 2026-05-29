@@ -24,7 +24,7 @@ export default async function DashboardCoursesPage() {
         title={COURSE_PAGE.dashboardTitle}
         description={COURSE_PAGE.dashboardDescription}
       />
-      <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mx-auto max-w-6xl px-2.5 py-4 sm:px-6 sm:py-8">
         {courses.length === 0 ? (
           <div
             className={cn(
@@ -44,17 +44,17 @@ export default async function DashboardCoursesPage() {
             </p>
           </div>
         ) : (
-          <ul className="grid gap-4 sm:grid-cols-2">
+          <ul className="grid gap-3 sm:grid-cols-2">
             {courses.map((course) => (
               <li key={course.id}>
                 <Link
                   href={`/dashboard/courses/${course.slug}`}
                   className={cn(
                     adminPanelClass,
-                    "flex gap-3 border-2 border-foreground p-3 shadow-[3px_3px_0px_0px_var(--foreground)] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_0px_var(--foreground)]",
+                    "flex gap-2.5 border-2 border-foreground p-2.5 sm:p-3 shadow-[3px_3px_0px_0px_var(--foreground)] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_0px_var(--foreground)]",
                   )}
                 >
-                  <div className="relative size-16 shrink-0 overflow-hidden rounded border border-foreground bg-muted">
+                  <div className="relative size-11 sm:size-16 shrink-0 overflow-hidden rounded border border-foreground bg-muted">
                     {course.thumbnailUrl ? (
                       <Image
                         src={course.thumbnailUrl}
@@ -65,14 +65,14 @@ export default async function DashboardCoursesPage() {
                         unoptimized
                       />
                     ) : (
-                      <span className="flex size-full items-center justify-center font-mono text-[9px] uppercase text-muted-foreground">
+                      <span className="flex size-full items-center justify-center font-mono text-[8px] sm:text-[9px] uppercase text-muted-foreground">
                         —
                       </span>
                     )}
                   </div>
-                  <div className="min-w-0 space-y-1">
-                    <p className="truncate font-semibold">{course.title}</p>
-                    <p className="font-mono text-[10px] uppercase text-muted-foreground">
+                  <div className="min-w-0 space-y-0.5 sm:space-y-1 text-left">
+                    <p className="truncate text-xs sm:text-sm md:text-base font-bold text-foreground">{course.title}</p>
+                    <p className="font-mono text-[8px] sm:text-[10px] uppercase text-muted-foreground leading-none">
                       {isCourseLevelValue(course.level)
                         ? courseLevelLabel(course.level)
                         : course.level}

@@ -19,11 +19,11 @@ export function StudentContinueEmpty() {
       <div
         className={cn(
           adminPanelClass,
-          "flex flex-col items-center gap-6 p-8 sm:p-12 text-center bg-card shadow-[6px_6px_0px_0px_var(--foreground)] max-w-2xl mx-auto",
+          "flex flex-col items-center gap-4 sm:gap-6 p-4 sm:p-8 md:p-12 text-center bg-card shadow-[6px_6px_0px_0px_var(--foreground)] max-w-2xl mx-auto",
         )}
       >
-        <div className="flex size-16 items-center justify-center rounded-full border-2 border-foreground bg-primary/10 shadow-[3px_3px_0px_0px_var(--foreground)] animate-bounce">
-          <IconPlayerPlay className="size-8 text-primary ml-1" fill="currentColor" stroke={2.5} />
+        <div className="flex size-12 sm:size-16 items-center justify-center rounded-full border-2 border-foreground bg-primary/10 shadow-[3px_3px_0px_0px_var(--foreground)] animate-bounce">
+          <IconPlayerPlay className="size-6 sm:size-8 text-primary ml-0.5 sm:ml-1" fill="currentColor" stroke={2.5} />
         </div>
         
         <div className="space-y-2 max-w-md">

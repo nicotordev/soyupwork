@@ -3,9 +3,16 @@
 import { getStudentProfile } from "@/app/actions/profile.actions";
 import { PROFILE_QUERY_KEY } from "@/components/dashboard/user-profile-settings-form";
 import {
+  STUDENT_ACCOUNT_NAV,
+  STUDENT_EXPLORE_NAV,
+  STUDENT_LEARNING_NAV,
+  type StudentNavItem,
+} from "@/constants/student-nav.constants";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -13,13 +20,7 @@ import { adminBrutalButtonClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { useUser, SignOutButton } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
-import {
-  IconBook,
-  IconBooks,
-  IconLogout,
-  IconSettings,
-  IconUser,
-} from "@tabler/icons-react";
+import { IconLogout, IconUser } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -27,6 +28,43 @@ type UserProfileDropdownProps = {
   className?: string;
   role?: "student" | "admin" | "instructor";
 };
+
+const menuLinkClassName =
+  "flex items-center gap-2 p-1.5 font-mono text-[10px] font-bold uppercase text-foreground hover:bg-secondary/15 hover:underline rounded border border-transparent hover:border-foreground/10 transition-colors focus:bg-secondary/15 focus:text-foreground";
+
+function DropdownNavLink({ item }: { item: StudentNavItem }) {
+  const Icon = item.icon;
+
+  return (
+    <DropdownMenuItem asChild>
+      <Link href={item.href} className={menuLinkClassName}>
+        <Icon className="size-3.5 text-primary" stroke={2.5} />
+        {item.label}
+      </Link>
+    </DropdownMenuItem>
+  );
+}
+
+function DropdownNavSection({
+  label,
+  items,
+}: {
+  label: string;
+  items: StudentNavItem[];
+}) {
+  if (items.length === 0) return null;
+
+  return (
+    <>
+      <DropdownMenuLabel className="px-1.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </DropdownMenuLabel>
+      {items.map((item) => (
+        <DropdownNavLink key={item.href} item={item} />
+      ))}
+    </>
+  );
+}
 
 export function UserProfileDropdown({
   className,
@@ -105,7 +143,7 @@ export function UserProfileDropdown({
       <DropdownMenuContent
         align="end"
         sideOffset={8}
-        className="w-64 p-3 bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)] text-left space-y-3 rounded-lg focus:outline-hidden"
+        className="max-h-[min(32rem,85vh)] w-64 overflow-y-auto p-3 bg-card border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)] text-left space-y-1 rounded-lg focus:outline-hidden"
       >
         <div className="flex items-center gap-3 pb-2 border-b border-foreground/15">
           {avatarUrl ? (
@@ -134,58 +172,42 @@ export function UserProfileDropdown({
           </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          {role === "admin" && (
+        {role === "admin" ? (
+          <>
+            <DropdownMenuLabel className="px-1.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+              Administración
+            </DropdownMenuLabel>
             <DropdownMenuItem asChild>
-              <Link
-                href="/admin"
-                className="flex items-center gap-2 p-1.5 font-mono text-[10px] font-bold uppercase text-foreground hover:bg-secondary/15 hover:underline rounded border border-transparent hover:border-foreground/10 transition-colors focus:bg-secondary/15 focus:text-foreground"
-              >
+              <Link href="/admin" className={menuLinkClassName}>
                 <IconUser className="size-3.5 text-primary" stroke={2.5} />
                 Panel de Admin
               </Link>
             </DropdownMenuItem>
-          )}
-          <DropdownMenuItem asChild>
-            <Link
-              href="/dashboard"
-              className="flex items-center gap-2 p-1.5 font-mono text-[10px] font-bold uppercase text-foreground hover:bg-secondary/15 hover:underline rounded border border-transparent hover:border-foreground/10 transition-colors focus:bg-secondary/15 focus:text-foreground"
-            >
-              <IconBook className="size-3.5 text-primary" stroke={2.5} />
-              Mi Panel
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link
-              href="/dashboard/courses"
-              className="flex items-center gap-2 p-1.5 font-mono text-[10px] font-bold uppercase text-foreground hover:bg-secondary/15 hover:underline rounded border border-transparent hover:border-foreground/10 transition-colors focus:bg-secondary/15 focus:text-foreground"
-            >
-              <IconBooks className="size-3.5 text-primary" stroke={2.5} />
-              Mis Cursos
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link
-              href="/dashboard/profile"
-              className="flex items-center gap-2 p-1.5 font-mono text-[10px] font-bold uppercase text-foreground hover:bg-secondary/15 hover:underline rounded border border-transparent hover:border-foreground/10 transition-colors focus:bg-secondary/15 focus:text-foreground"
-            >
-              <IconSettings className="size-3.5 text-primary" stroke={2.5} />
-              Configuración de perfil
-            </Link>
-          </DropdownMenuItem>
-        </div>
+          </>
+        ) : null}
 
-        <DropdownMenuSeparator className="bg-foreground/15 my-0" />
-        <div>
-          <SignOutButton redirectUrl="/">
-            <DropdownMenuItem asChild>
-              <button className="flex items-center gap-2 w-full p-1.5 font-mono text-[10px] font-bold uppercase text-destructive hover:bg-destructive/10 hover:underline rounded border border-transparent hover:border-destructive/20 transition-colors cursor-pointer text-left focus:bg-destructive/10 focus:text-destructive">
-                <IconLogout className="size-3.5" stroke={2.5} />
-                Cerrar sesión
-              </button>
-            </DropdownMenuItem>
-          </SignOutButton>
-        </div>
+        <DropdownNavSection
+          label="Mi Aprendizaje"
+          items={STUDENT_LEARNING_NAV}
+        />
+        <DropdownNavSection label="Explorar" items={STUDENT_EXPLORE_NAV} />
+        <DropdownNavSection label="Cuenta" items={STUDENT_ACCOUNT_NAV} />
+
+        <DropdownMenuSeparator className="bg-foreground/15 my-1" />
+        <SignOutButton redirectUrl="/">
+          <DropdownMenuItem asChild>
+            <button
+              type="button"
+              className={cn(
+                menuLinkClassName,
+                "w-full text-destructive hover:bg-destructive/10 hover:border-destructive/20 focus:bg-destructive/10 focus:text-destructive",
+              )}
+            >
+              <IconLogout className="size-3.5" stroke={2.5} />
+              Cerrar sesión
+            </button>
+          </DropdownMenuItem>
+        </SignOutButton>
       </DropdownMenuContent>
     </DropdownMenu>
   );
