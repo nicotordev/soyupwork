@@ -2,14 +2,21 @@
 
 This document explains the Prisma database schema for **soyup.work**, a custom LMS for selling Upwork/freelancing courses to LATAM students.
 
+Source of truth: [`prisma/schema.prisma`](../prisma/schema.prisma).
+
 The schema is designed around these core domains:
 
 - Users and authentication via Clerk
-- Courses, modules, and lessons
-- Student enrollments and progress tracking
-- Stripe products, orders, and subscriptions
+- Courses, categories, tags, modules, and lessons
+- Student enrollments, cohorts, and progress tracking
+- Stripe products, orders, subscriptions, coupons, and bundles
 - Quizzes and attempts
-- Certificates
+- Certificates and downloadable lesson assets
+- Marketing (leads, blog, waitlist, newsletter)
+- Analytics and email delivery
+- Community and course discussions
+- Gamification and affiliates
+- Platform-wide settings (singleton)
 
 ---
 
@@ -25,6 +32,10 @@ id String @id @default(uuid()) @db.Uuid
 
 This is preferred over `cuid()` when the column is explicitly typed as `@db.Uuid`.
 
+### Timestamps
+
+Most models use `@db.Timestamp(6)` for `createdAt` / `updatedAt` (and other datetimes) for microsecond precision.
+
 ### Clerk as the authentication source
 
 The app does **not** store passwords. Clerk owns authentication, sessions, social login, email verification, and account security.
@@ -35,142 +46,83 @@ The local `User` model stores app-specific user data and links each user to Cler
 clerkId String @unique
 ```
 
+Auth-related UX flags (redirect URLs, OAuth toggles) live in `PlatformSettings`; secrets stay in environment variables.
+
 ### Stripe as the payment source
 
 Stripe owns checkout, payment intents, subscriptions, invoices, and customer billing information.
 
-The local database stores only the Stripe identifiers needed to map payment events back into the LMS.
+The local database stores only the Stripe identifiers needed to map payment events back into the LMS. Checkout and currency defaults can be toggled via `PlatformSettings`.
 
 ### Course access is controlled by enrollments
 
-A user should only access protected course content when they have an active enrollment:
+A user should only access protected course content when they have a valid enrollment:
 
 ```prisma
 EnrollmentStatus.ACTIVE
 ```
 
-Enrollments are usually created after successful Stripe payment or manually by an admin.
+Also consider `COMPLETED` (usually retains access) and `expiresAt` when access is time-limited.
+
+Enrollments are usually created after successful Stripe payment, bundle purchase, admin grant, or cohort assignment.
+
+### Private assets (R2 / Mux)
+
+Protected downloads use `LessonAsset.storageKey` (not public URLs). Video may use Mux (`videoProvider`, `videoAssetId`, etc.) with signed playback controlled in app settings.
 
 ---
 
 ## 2. Enum Overview
 
-### `UserRole`
+### Core LMS
 
-Defines app-level permissions.
+| Enum                | Values                                           | Purpose                  |
+| ------------------- | ------------------------------------------------ | ------------------------ |
+| `UserRole`          | `STUDENT`, `INSTRUCTOR`, `ADMIN`                 | App-level permissions    |
+| `CourseStatus`      | `DRAFT`, `PUBLISHED`, `ARCHIVED`                 | Catalog visibility       |
+| `CourseLevel`       | `BEGINNER`, `INTERMEDIATE`, `ADVANCED`           | Course difficulty        |
+| `LessonType`        | `VIDEO`, `TEXT`, `QUIZ`, `DOWNLOAD`              | Lesson content type      |
+| `LessonVideoStatus` | `PENDING`, `READY`, `ERRORED`, `DELETED`         | Video processing state   |
+| `EnrollmentStatus`  | `ACTIVE`, `COMPLETED`, `CANCELLED`, `EXPIRED`    | Course access state      |
+| `ExperienceLevel`   | `BEGINNER`, `INTERMEDIATE`, `ADVANCED`, `EXPERT` | User profile skill level |
 
-```prisma
-STUDENT
-INSTRUCTOR
-ADMIN
-```
+### Commerce
 
-Recommended usage:
+| Enum                 | Values                                                                | Purpose                           |
+| -------------------- | --------------------------------------------------------------------- | --------------------------------- |
+| `OrderStatus`        | `PENDING`, `PAID`, `FAILED`, `REFUNDED`, `CANCELLED`                  | One-time payment state            |
+| `SubscriptionStatus` | `ACTIVE`, `TRIALING`, `PAST_DUE`, `CANCELLED`, `UNPAID`, `INCOMPLETE` | Recurring billing (mirror Stripe) |
+| `ProductType`        | `ONE_TIME`, `SUBSCRIPTION`                                            | How the product is sold           |
+| `BillingInterval`    | `MONTH`, `YEAR`                                                       | Subscription cadence              |
+| `CouponDiscountType` | `PERCENTAGE`, `FIXED`                                                 | Coupon discount shape             |
 
-- `STUDENT`: normal course buyer
-- `INSTRUCTOR`: can manage their own educational content later
-- `ADMIN`: can manage the whole platform
+### Quizzes & assets
 
----
+| Enum               | Values                                                                     | Purpose                 |
+| ------------------ | -------------------------------------------------------------------------- | ----------------------- |
+| `QuizQuestionType` | `SINGLE_CHOICE`, `MULTIPLE_CHOICE`                                         | Question scoring rules  |
+| `LessonAssetType`  | `PDF`, `TEMPLATE`, `ZIP`, `SOURCE_FILE`, `CHECKLIST`, `WORKSHEET`, `OTHER` | Downloadable asset kind |
 
-### `CourseStatus`
+### Marketing & ops
 
-Controls course visibility.
+| Enum                 | Values                                                                                                                                                           | Purpose              |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| `BlogPostStatus`     | `DRAFT`, `PUBLISHED`, `ARCHIVED`                                                                                                                                 | Blog visibility      |
+| `LeadStatus`         | `NEW`, `CONTACTED`, `QUALIFIED`, `CONVERTED`, `UNSUBSCRIBED`                                                                                                     | Lead pipeline        |
+| `AnalyticsEventType` | `PAGE_VIEW`, `COURSE_VIEW`, `LESSON_START`, `LESSON_COMPLETE`, `CHECKOUT_START`, `CHECKOUT_COMPLETE`, `VIDEO_PLAY`, `VIDEO_PROGRESS`, `VIDEO_COMPLETE`, `SIGNUP` | Event taxonomy       |
+| `EmailLogStatus`     | `PENDING`, `SENT`, `FAILED`, `BOUNCED`                                                                                                                           | Outbound email state |
+| `EmailLogType`       | `TRANSACTIONAL`, `MARKETING`                                                                                                                                     | Email category       |
 
-```prisma
-DRAFT
-PUBLISHED
-ARCHIVED
-```
+### Community & cohorts
 
-Recommended usage:
-
-- `DRAFT`: hidden from public catalog
-- `PUBLISHED`: visible and purchasable
-- `ARCHIVED`: no longer sold, but may remain accessible to enrolled users
-
----
-
-### `LessonType`
-
-Defines the content type of a lesson.
-
-```prisma
-VIDEO
-TEXT
-QUIZ
-DOWNLOAD
-```
-
-Recommended usage:
-
-- `VIDEO`: main video lesson
-- `TEXT`: written lesson
-- `QUIZ`: lesson connected to a quiz
-- `DOWNLOAD`: resource or file-based lesson
+| Enum                  | Values                                                   | Purpose          |
+| --------------------- | -------------------------------------------------------- | ---------------- |
+| `CommunityPostStatus` | `PUBLISHED`, `HIDDEN`, `DELETED`                         | Moderation state |
+| `CohortStatus`        | `DRAFT`, `OPEN`, `IN_PROGRESS`, `COMPLETED`, `CANCELLED` | Cohort lifecycle |
 
 ---
 
-### `EnrollmentStatus`
-
-Tracks course access state.
-
-```prisma
-ACTIVE
-COMPLETED
-CANCELLED
-EXPIRED
-```
-
-Recommended usage:
-
-- `ACTIVE`: user can access the course
-- `COMPLETED`: user finished the course
-- `CANCELLED`: access was manually cancelled or revoked
-- `EXPIRED`: access ended after a limited access period
-
----
-
-### `OrderStatus`
-
-Tracks one-time payment state.
-
-```prisma
-PENDING
-PAID
-FAILED
-REFUNDED
-CANCELLED
-```
-
-Recommended usage:
-
-- `PENDING`: checkout was created but payment is not confirmed
-- `PAID`: payment succeeded
-- `FAILED`: payment failed
-- `REFUNDED`: payment was refunded
-- `CANCELLED`: checkout was cancelled
-
----
-
-### `SubscriptionStatus`
-
-Tracks recurring billing state.
-
-```prisma
-ACTIVE
-TRIALING
-PAST_DUE
-CANCELLED
-UNPAID
-INCOMPLETE
-```
-
-This should mirror Stripe subscription statuses as closely as possible.
-
----
-
-## 3. Main Models
+## 3. User & Profile
 
 ## `User`
 
@@ -179,42 +131,80 @@ Represents a platform user synced from Clerk.
 ### Important fields
 
 ```prisma
-clerkId String @unique
-email String? @unique
-role UserRole @default(STUDENT)
-stripeCustomerId String? @unique
+clerkId          String   @unique
+email            String?  @unique
+username         String?  @unique
+role             UserRole @default(STUDENT)
+stripeCustomerId String?  @unique
+
+countryCode     String?
+timezone        String?
+locale          String?          @default("es")
+socialLinks     Json?
+skills          String[]         @default([])
+experienceLevel ExperienceLevel?
+freelanceGoals  String?
+
+deletedAt        DateTime?
+suspendedAt      DateTime?
+bannedAt         DateTime?
+onboardingDoneAt DateTime?
 ```
-
-### Why it exists
-
-Clerk handles identity, but the app still needs a local user record to connect users to:
-
-- Enrollments
-- Lesson progress
-- Orders
-- Subscriptions
-- Quiz attempts
-- Certificates
 
 ### Relations
 
 ```prisma
-enrollments    Enrollment[]
-lessonProgress LessonProgress[]
-orders         Order[]
-subscriptions  Subscription[]
-quizAttempts   QuizAttempt[]
-certificates   Certificate[]
+enrollments       Enrollment[]
+lessonProgress    LessonProgress[]
+orders            Order[]
+subscriptions     Subscription[]
+quizAttempts      QuizAttempt[]
+certificates      Certificate[]
+instructedCourses Course[]           @relation("CourseInstructor")
+courseReviews     CourseReview[]
+blogPosts         BlogPost[]
+analyticsEvents   AnalyticsEvent[]
+communityPosts    CommunityPost[]
+communityComments CommunityComment[]
+communityLikes    CommunityLike[]
+userGamification  UserGamification?
+userBadges        UserBadge[]
+affiliate         Affiliate?
+emailLogs         EmailLog[]
+auditLogs         AuditLog[]         @relation("AuditActor")
+courseDiscussions CourseDiscussion[]
 ```
 
 ### Typical lifecycle
 
 1. User signs up with Clerk.
 2. Clerk webhook creates or updates the local `User`.
-3. User buys a course.
-4. Stripe webhook attaches `stripeCustomerId`, creates an `Order`, and creates an `Enrollment`.
+3. Optional onboarding sets `onboardingDoneAt`.
+4. User purchases via Stripe → `Order` / `Subscription` → `Enrollment`.
+
+### Account moderation
+
+- `deletedAt`: soft delete (prefer anonymization over hard delete for audit/tax).
+- `suspendedAt` / `bannedAt`: block access without deleting financial records.
 
 ---
+
+## 4. Course Catalog
+
+## `CourseCategory`
+
+Groups courses in the public catalog.
+
+```prisma
+slug     String @unique
+name     String
+icon     String?
+position Int    @default(0)
+```
+
+## `Tag` / `CourseTag`
+
+Many-to-many tags on courses via composite key `@@id([courseId, tagId])`.
 
 ## `Course`
 
@@ -223,377 +213,275 @@ Represents a sellable LMS course.
 ### Important fields
 
 ```prisma
-slug String @unique
-title String
-description String?
-thumbnailUrl String?
-status CourseStatus @default(DRAFT)
-priceCents Int
-currency String @default("usd")
+slug         String       @unique
+title        String
+status       CourseStatus @default(DRAFT)
+priceCents   Int
+currency     String       @default("usd")
+
+categoryId   String?
+instructorId String?
+level        CourseLevel  @default(BEGINNER)
+
+isFeatured             Boolean @default(false)
+offersCertificate      Boolean @default(false)
+estimatedDurationHours Int?
+isFree                 Boolean @default(false)
+publishedAt            DateTime?
+dripEnabled            Boolean @default(false)
+minCompletionPercent   Int     @default(100)
+seoTitle               String?
+seoDescription         String?
+previewVideoUrl        String?
 ```
 
-### Why price is stored here
-
-`Course.priceCents` is useful for display and internal logic, but Stripe should remain the payment source of truth through the `Product` model.
+`Course.priceCents` is useful for display; Stripe remains the payment source of truth through `Product`.
 
 ### Relations
 
 ```prisma
-modules CourseModule[]
-enrollments Enrollment[]
-products Product[]
-certificates Certificate[]
+modules           CourseModule[]
+enrollments       Enrollment[]
+products          Product[]
+certificates      Certificate[]
+tags              CourseTag[]
+reviews           CourseReview[]
+leads             Lead[]
+bundleItems       ProductBundleItem[]
+communityPosts    CommunityPost[]
+cohorts           Cohort[]
+courseDiscussions CourseDiscussion[]
 ```
 
-A course can be attached to multiple Stripe products/prices over time. For example:
+## `CourseReview`
 
-- One-time purchase
-- Monthly subscription
-- Lifetime deal
-- Discounted launch product
+Student or marketing testimonials linked to a course.
+
+```prisma
+@@unique([userId, courseId])
+rating      Int
+isPublished Boolean @default(false)
+```
+
+Optional display fields: `headline`, `comment`, `displayName`, `niche`, `metricBefore`, `metricAfter`.
 
 ---
+
+## 5. Curriculum
 
 ## `CourseModule`
 
 Groups lessons inside a course.
 
-### Important fields
-
 ```prisma
-courseId String @db.Uuid
-title String
-position Int
-```
-
-### Ordering
-
-Modules are ordered by `position`.
-
-```prisma
+courseId        String @db.Uuid
+title           String
+position        Int
+description     String?
+unlockAfterDays Int?   // drip: days after enrollment
 @@unique([courseId, position])
 ```
 
-This prevents two modules from having the same position inside the same course.
-
-### Relations
-
-```prisma
-course Course
-lessons Lesson[]
-```
-
----
-
 ## `Lesson`
 
-Represents one learning unit inside a module.
+One learning unit inside a module.
 
 ### Important fields
 
 ```prisma
-moduleId String @db.Uuid
-slug String
-title String
-type LessonType @default(VIDEO)
-content String?
-durationSec Int?
-isPreview Boolean @default(false)
-position Int
-```
+moduleId        String @db.Uuid
+slug            String
+type            LessonType @default(VIDEO)
+isPreview       Boolean    @default(false)
+position        Int
+unlockAfterDays Int?
+unlockAt        DateTime?
 
-### Video fields
-
-```prisma
-videoProvider String?
-videoAssetId String?
+videoProvider   String?
+videoAssetId    String?
 videoPlaybackId String?
-videoUrl String?
+videoUrl        String?
+videoStatus     LessonVideoStatus?
 ```
-
-These fields allow flexibility for video providers such as:
-
-- Bunny Stream
-- Mux
-- Cloudflare Stream
-- Private R2-hosted HLS assets
-
-For the current soyup.work direction, Cloudflare R2 can be used for protected assets, while HLS-compatible playback can be handled at the application layer.
-
-### Ordering
 
 ```prisma
 @@unique([moduleId, slug])
 @@unique([moduleId, position])
 ```
 
-This means each lesson slug and lesson position must be unique within a module.
-
 ### Relations
 
 ```prisma
-module CourseModule
-progress LessonProgress[]
-quiz Quiz?
+module      CourseModule
+progress    LessonProgress[]
+quiz        Quiz?
+assets      LessonAsset[]
+discussions CourseDiscussion[]
 ```
 
-A lesson can optionally have one quiz.
+## `LessonAsset`
+
+Downloadable files for a lesson (R2 `storageKey`, not a public URL).
+
+```prisma
+type       LessonAssetType @default(OTHER)
+storageKey String
+fileName   String
+position   Int @default(0)
+```
 
 ---
+
+## 6. Enrollments & Progress
 
 ## `Enrollment`
 
-Represents a user having access to a course.
-
-### Important fields
-
 ```prisma
-userId String @db.Uuid
-courseId String @db.Uuid
-status EnrollmentStatus @default(ACTIVE)
+userId      String @db.Uuid
+courseId    String @db.Uuid
+status      EnrollmentStatus @default(ACTIVE)
 completedAt DateTime?
-```
-
-### Uniqueness
-
-```prisma
+expiresAt   DateTime?   // limited-time access
+source      String?     // e.g. stripe, admin, bundle
 @@unique([userId, courseId])
 ```
 
-A user can only have one enrollment per course.
+Optional link: `cohortEnrollment CohortEnrollment?`
 
 ### Access control
 
-Most protected course pages should check:
-
 ```ts
-user has Enrollment where courseId = currentCourse.id and status = ACTIVE or COMPLETED
+// Typical check
+enrollment.status in (ACTIVE, COMPLETED)
+&& (expiresAt is null || expiresAt > now)
 ```
-
-`COMPLETED` should usually keep access unless the business model says otherwise.
-
----
 
 ## `LessonProgress`
 
-Tracks whether a user completed a lesson.
-
-### Important fields
-
 ```prisma
-userId String @db.Uuid
-lessonId String @db.Uuid
-completed Boolean @default(false)
-completedAt DateTime?
-lastSeenAt DateTime @default(now())
-```
-
-### Uniqueness
-
-```prisma
+completed       Boolean   @default(false)
+completedAt     DateTime?
+lastSeenAt      DateTime  @default(now())
+watchedSeconds  Int       @default(0)
+lastPositionSec Int       @default(0)
 @@unique([userId, lessonId])
 ```
 
-A user can only have one progress record per lesson.
-
-### Recommended usage
-
-- Create or update this record when a user opens a lesson.
-- Set `lastSeenAt` whenever the lesson page is viewed.
-- Set `completed = true` when the user finishes the lesson.
-- Set `completedAt` only once, when completed for the first time.
+Use `watchedSeconds` / `lastPositionSec` for video resume and completion heuristics.
 
 ---
 
-## 4. Commerce Models
+## 7. Commerce
 
 ## `Product`
 
-Maps a Stripe product/price to an internal course offer.
-
-### Important fields
+Maps a Stripe product/price to an internal offer.
 
 ```prisma
-courseId String? @db.Uuid
 stripeProductId String @unique
-stripePriceId String @unique
-name String
-priceCents Int
-currency String @default("usd")
-active Boolean @default(true)
+stripePriceId   String @unique
+courseId        String?
+type            ProductType      @default(ONE_TIME)
+billingInterval BillingInterval?
+isLifetime      Boolean          @default(false)
+trialDays       Int?
+isBundle        Boolean          @default(false)
 ```
 
-### Why this exists
+Bundles use `ProductBundleItem` to attach multiple courses to one `Product`.
 
-A course is educational content. A product is a commercial offer.
-
-Examples:
-
-- Course: `Upwork desde cero`
-- Product 1: Lifetime access — `$99`
-- Product 2: Monthly membership — `$19/month`
-- Product 3: Launch discount — `$49`
-
-### Relations
+## `ProductBundleItem`
 
 ```prisma
-course Course?
-orders Order[]
-subscriptions Subscription[]
+@@id([productId, courseId])
+position Int @default(0)
 ```
-
----
 
 ## `Order`
 
-Represents a one-time purchase.
-
-### Important fields
-
 ```prisma
-userId String @db.Uuid
-productId String @db.Uuid
+status        OrderStatus @default(PENDING)
+amountCents   Int
+discountCents Int         @default(0)
+couponId      String?
+refundedAt    DateTime?
 stripeCheckoutSessionId String? @unique
-stripePaymentIntentId String? @unique
-status OrderStatus @default(PENDING)
-amountCents Int
-currency String @default("usd")
+stripePaymentIntentId   String? @unique
 ```
 
-### Recommended Stripe flow
-
-1. User clicks buy.
-2. App creates Stripe Checkout Session.
-3. App creates local `Order` with `PENDING` status.
-4. Stripe sends `checkout.session.completed` webhook.
-5. App marks order as `PAID`.
-6. App creates or activates an `Enrollment`.
-
----
+`product` uses `onDelete: Restrict` to preserve purchase history.
 
 ## `Subscription`
 
-Represents recurring billing.
-
-### Important fields
-
 ```prisma
-userId String @db.Uuid
-productId String @db.Uuid
 stripeSubscriptionId String @unique
-status SubscriptionStatus
-currentPeriodStart DateTime?
-currentPeriodEnd DateTime?
-cancelAtPeriodEnd Boolean @default(false)
+status               SubscriptionStatus
+currentPeriodStart   DateTime?
+currentPeriodEnd     DateTime?
+cancelAtPeriodEnd    Boolean @default(false)
 ```
 
-### Recommended usage
+## `Coupon`
 
-Use this model for:
+Internal coupons (can complement Stripe promotion codes).
 
-- Membership access
-- Cohort subscriptions
-- Community access
-- Monthly content library access
+```prisma
+code           String @unique
+discountType   CouponDiscountType
+percentOff     Int?
+amountOffCents Int?
+maxRedemptions Int?
+redemptionCount Int @default(0)
+expiresAt      DateTime?
+active         Boolean @default(true)
+```
 
-Stripe webhooks should update this table when subscription state changes.
+### Recommended Stripe flow (one-time)
 
-Relevant Stripe events usually include:
+1. User clicks buy → Stripe Checkout Session.
+2. Create local `Order` as `PENDING` (optional `couponId`).
+3. Webhook `checkout.session.completed` → `PAID`, increment coupon redemption.
+4. Create or activate `Enrollment` (set `source`, `expiresAt` if applicable).
 
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
-- `invoice.payment_succeeded`
-- `invoice.payment_failed`
+Never grant course access only from the client success page.
 
 ---
 
-## 5. Quiz Models
+## 8. Quizzes
 
 ## `Quiz`
 
-Represents a quiz attached to a lesson.
-
-### Important fields
-
 ```prisma
-lessonId String @unique @db.Uuid
-title String
-passingScore Int @default(70)
+lessonId     String @unique @db.Uuid
+passingScore Int    @default(70)
 ```
-
-### Relation to lesson
-
-```prisma
-lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-```
-
-Each lesson can have one quiz.
-
----
 
 ## `QuizQuestion`
 
-Represents a question inside a quiz.
-
-### Important fields
-
 ```prisma
-quizId String @db.Uuid
-question String
+type     QuizQuestionType @default(SINGLE_CHOICE)
 position Int
-```
-
-### Ordering
-
-```prisma
 @@unique([quizId, position])
 ```
 
-Questions are ordered by position inside each quiz.
-
----
-
 ## `QuizOption`
 
-Represents a possible answer for a quiz question.
-
-### Important fields
-
 ```prisma
-questionId String @db.Uuid
-text String
+@@unique([questionId, position])
 isCorrect Boolean @default(false)
-position Int
 ```
 
-### Important note
-
-This schema supports single-choice and multi-choice questions, because more than one option can have `isCorrect = true`.
-
-If the app only supports single-choice quizzes, enforce that rule in application logic.
-
----
+For `SINGLE_CHOICE`, enforce exactly one `isCorrect` in application logic. For `MULTIPLE_CHOICE`, multiple options may be correct.
 
 ## `QuizAttempt`
 
-Stores a user's quiz attempt.
-
-### Important fields
-
 ```prisma
-userId String @db.Uuid
-quizId String @db.Uuid
-score Int
-passed Boolean
+score   Int
+passed  Boolean
 answers Json
 ```
 
-### Why `answers` is JSON
-
-The `answers` field keeps the attempt flexible.
-
-Example structure:
+Example `answers` JSON:
 
 ```json
 {
@@ -607,318 +495,350 @@ Example structure:
 }
 ```
 
-For stronger analytics later, this can be normalized into a `QuizAttemptAnswer` table.
-
 ---
 
-## 6. Certificate Model
+## 9. Certificates
 
 ## `Certificate`
 
-Represents proof that a user completed a course.
-
-### Important fields
-
 ```prisma
-userId String @db.Uuid
-courseId String @db.Uuid
-code String @unique
-issuedAt DateTime @default(now())
-```
-
-### Uniqueness
-
-```prisma
+code      String   @unique
+issuedAt  DateTime @default(now())
+pdfUrl    String?
+revokedAt DateTime?
 @@unique([userId, courseId])
 ```
 
-A user can only receive one certificate per course.
-
-### Recommended usage
-
-The `code` field should be public-verifiable.
-
-Example certificate URL:
+Public verification example:
 
 ```txt
 https://soyup.work/certificates/SOYUP-2026-000001
 ```
 
+Issue when `Course.offersCertificate` is true and completion rules pass (`minCompletionPercent`, required lessons/quizzes).
+
 ---
 
-## 7. Main Business Flows
+## 10. Marketing & Content
 
-## User signup flow
+## `Lead`
+
+Pre-purchase interest capture.
+
+```prisma
+email    String
+status   LeadStatus @default(NEW)
+courseId String?
+metadata Json?
+```
+
+## `BlogPost`
+
+```prisma
+slug    String @unique
+status  BlogPostStatus @default(DRAFT)
+author  User?  @relation("BlogAuthor")
+```
+
+## `WaitlistEntry` / `WaitlistVerification`
+
+Waitlist signups with OTP verification (`codeHash`, `expiresAt`, `attempts`) before promoting to `WaitlistEntry`.
+
+## `NewsletterSubscriber` / `NewsletterVerification`
+
+Same OTP pattern for newsletter opt-in.
+
+Controlled in part by `PlatformSettings.waitlistMode` and related flags.
+
+---
+
+## 11. Analytics & Email
+
+## `AnalyticsEvent`
+
+Lightweight product analytics (not a full warehouse).
+
+```prisma
+type       AnalyticsEventType
+userId     String?
+sessionId  String?
+courseId   String?
+lessonId   String?
+properties Json?
+```
+
+Retention hint: `PlatformSettings.analyticsRetentionDays` (default 365).
+
+## `EmailLog`
+
+Outbound email audit trail per send attempt.
+
+## `EmailSequence` / `EmailSequenceStep`
+
+Drip campaigns with ordered steps (`delayHours`, `template`, `subject`).
+
+```prisma
+@@unique([sequenceId, position])
+```
+
+Transactional toggles (purchase, enrollment, certificate) live in `PlatformSettings`.
+
+---
+
+## 12. Community & Discussions
+
+## `CommunityPost`
+
+Course-scoped or global posts with moderation status.
+
+## `CommunityComment`
+
+Threaded comments via `parentId` (`CommentThread` self-relation).
+
+## `CommunityLike`
+
+Like a post or comment; unique per user per target.
+
+## `CourseDiscussion`
+
+Q&A tied to a course and optionally a specific `lessonId` (lighter than full community posts).
+
+---
+
+## 13. Cohorts
+
+## `Cohort`
+
+Time-bounded runs of a course.
+
+```prisma
+courseId    String
+slug        String
+status      CohortStatus @default(DRAFT)
+startsAt    DateTime
+endsAt      DateTime?
+maxStudents Int?
+@@unique([courseId, slug])
+```
+
+## `CohortEnrollment`
+
+Links a `Cohort` to an existing `Enrollment` (`enrollmentId` is `@unique`).
+
+---
+
+## 14. Gamification
+
+## `UserGamification`
+
+One row per user (`userId` as PK): `xp`, `level`, streak fields.
+
+## `Badge` / `UserBadge`
+
+Achievement definitions and earned badges (`@@id([userId, badgeId])`).
+
+---
+
+## 15. Affiliates
+
+## `Affiliate`
+
+```prisma
+userId            String @unique
+code              String @unique
+commissionRateBps Int    @default(1000)  // basis points (1000 = 10%)
+```
+
+## `AffiliateReferral`
+
+Tracks referred email / optional `orderId` and conversion commission.
+
+---
+
+## 16. Platform Configuration
+
+## `PlatformSettings`
+
+Singleton row (`id = "default"`) for runtime feature flags and non-secret defaults:
+
+- Site branding, maintenance mode, waitlist mode
+- Clerk redirect URLs and registration gates
+- Stripe currency, refund policy days
+- Email from/support and send toggles
+- R2/Mux limits and video playback defaults
+- Admin notification and rate-limit settings
+
+Secrets (Clerk, Stripe, Resend, R2, Mux API keys) remain in environment variables only.
+
+## `AuditLog`
+
+Admin/security actions with `actorUserId`, `action`, `entityType`, `entityId`, `metadata`.
+
+---
+
+## 17. Main Business Flows
+
+### User signup
 
 ```txt
-Clerk signup
-→ Clerk webhook
-→ Create User in Prisma
-→ User can browse courses
+Clerk signup → webhook → User
+→ optional onboarding (onboardingDoneAt)
+→ browse catalog
+```
+
+### One-time purchase
+
+```txt
+Buy → Checkout Session → Order PENDING
+→ webhook PAID → Enrollment ACTIVE
+→ optional Coupon redemption
+→ EmailLog / AnalyticsEvent
+```
+
+### Subscription
+
+```txt
+Checkout → Subscription row
+→ webhooks sync status
+→ grant Enrollment while ACTIVE / TRIALING
+→ revoke or EXPIRED on cancel / unpaid per business rules
+```
+
+### Bundle purchase
+
+```txt
+Product.isBundle = true
+→ ProductBundleItem lists courses
+→ one Order → multiple Enrollments
+```
+
+### Lesson progress
+
+```txt
+Open lesson → upsert LessonProgress (lastSeenAt)
+→ video events update watchedSeconds / lastPositionSec
+→ complete → completed + completedAt
+```
+
+### Course completion & certificate
+
+```txt
+Required lessons done (minCompletionPercent)
+→ Enrollment COMPLETED + completedAt
+→ Certificate if offersCertificate
+```
+
+### Drip content
+
+```txt
+Enrollment createdAt + module.unlockAfterDays / lesson.unlockAfterDays
+→ gate access in app layer
+```
+
+### Waitlist / newsletter OTP
+
+```txt
+Submit email → *Verification row with codeHash
+→ verify OTP → promote to WaitlistEntry / NewsletterSubscriber
 ```
 
 ---
 
-## One-time course purchase flow
+## 18. Recommended Access Rules
 
-```txt
-User clicks Buy
-→ Create Stripe Checkout Session
-→ Create Order as PENDING
-→ Stripe payment succeeds
-→ Stripe webhook marks Order as PAID
-→ Create Enrollment as ACTIVE
-→ User can access course
-```
+### Public
 
----
-
-## Subscription flow
-
-```txt
-User starts subscription
-→ Stripe Checkout Session
-→ Stripe creates subscription
-→ Webhook creates Subscription
-→ App grants Enrollment or membership access
-→ Stripe webhooks keep status synced
-```
-
----
-
-## Lesson progress flow
-
-```txt
-User opens lesson
-→ Upsert LessonProgress
-→ Update lastSeenAt
-→ User completes lesson
-→ Set completed = true
-→ Set completedAt
-```
-
----
-
-## Course completion flow
-
-```txt
-User completes all required lessons
-→ Enrollment status becomes COMPLETED
-→ completedAt is set
-→ Certificate is generated
-```
-
----
-
-## Quiz flow
-
-```txt
-User submits quiz
-→ App calculates score
-→ Create QuizAttempt
-→ If passed, lesson may be marked as completed
-```
-
----
-
-## 8. Recommended Access Rules
-
-### Public users
-
-Can access:
-
-- Landing pages
-- Published course catalog
-- Course sales pages
-- Preview lessons only
+- Landing, blog (`PUBLISHED`), catalog (`CourseStatus.PUBLISHED`)
+- Preview lessons (`Lesson.isPreview`)
+- Respect `PlatformSettings.maintenanceMode` and `waitlistMode`
 
 ### Students
 
-Can access:
-
-- Purchased courses
-- Active enrollments
-- Their own progress
-- Their own certificates
+- Active/non-expired enrollments
+- Own progress, certificates, quiz attempts
+- Community/discussions per course enrollment
 
 ### Instructors
 
-Can access:
-
-- Course authoring tools later
-- Course analytics later
+- `Course.instructorId` matches user (future authoring UI)
+- Own instructed courses
 
 ### Admins
 
-Can access:
-
-- All courses
-- All users
-- Orders
-- Subscriptions
-- Enrollments
-- Platform analytics
+- Full platform access; bypass maintenance when `maintenanceAllowAdmins`
+- Orders, subscriptions, coupons, audit logs, settings
 
 ---
 
-## 9. Notes for Clerk Integration
+## 19. Integration Notes
 
-Use Clerk webhooks to keep `User` synced.
+### Clerk webhooks
 
-Recommended webhook events:
+Recommended: `user.created`, `user.updated`, `user.deleted`.
 
-- `user.created`
-- `user.updated`
-- `user.deleted`
+Sync `email`, `firstName`, `lastName`, `imageUrl`, `username`. On delete, prefer soft delete (`deletedAt`) or anonymization.
 
-Recommended local sync behavior:
+### Stripe webhooks
 
-- `user.created`: create local `User`
-- `user.updated`: update email, name, image
-- `user.deleted`: either delete user or anonymize user depending on business/legal needs
+Recommended: `checkout.session.completed`, `checkout.session.expired`, `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.refunded`, `customer.subscription.*`, `invoice.payment_*`.
 
-For an LMS, soft-delete or anonymization is often safer than hard delete because orders, certificates, and tax records may need to remain auditable.
+Always grant access from verified webhooks, not the success page alone.
 
----
+### Cloudflare R2
 
-## 10. Notes for Stripe Integration
+- Store private keys in `LessonAsset.storageKey`
+- Check enrollment before signed URL generation
+- Public thumbnails / marketing assets may use `PlatformSettings.storagePublicUrl` or a public bucket
 
-Use Stripe webhooks as the source of truth for payment state.
+### Mux (optional)
 
-Recommended webhook events:
-
-- `checkout.session.completed`
-- `checkout.session.expired`
-- `payment_intent.succeeded`
-- `payment_intent.payment_failed`
-- `charge.refunded`
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
-- `invoice.payment_succeeded`
-- `invoice.payment_failed`
-
-Never grant course access only from the client-side success page. Always grant access from verified Stripe webhooks.
+When `PlatformSettings.enableMuxStreaming` is true, use lesson video fields and `videoSignedPlayback` for protected playback.
 
 ---
 
-## 11. Notes for Cloudflare R2
+## 20. Indexing Strategy
 
-R2 should be used for private course assets such as:
+The schema indexes common LMS and ops queries, including:
 
-- Downloadable files
-- PDFs
-- Templates
-- Worksheets
-- Source files
-- Possibly video/HLS assets if the app handles signed access correctly
+| Area         | Indexed fields                                                                      |
+| ------------ | ----------------------------------------------------------------------------------- |
+| Users        | `deletedAt`, `role`, `suspendedAt`, `bannedAt`                                      |
+| Courses      | `slug`, `status`, `categoryId`, `instructorId`, `isFeatured`, `level`               |
+| Curriculum   | `courseId` on modules; `moduleId` on lessons                                        |
+| Enrollments  | `userId`, `courseId`, `status`, `expiresAt`                                         |
+| Progress     | `userId`, `lessonId`, `completed`                                                   |
+| Commerce     | `courseId`, `active`, `type` on products; orders by `userId`, `status`, `createdAt` |
+| Certificates | `code`, `issuedAt`                                                                  |
+| Leads        | `email`, `status`, `createdAt`                                                      |
+| Analytics    | `type + createdAt`, `userId + createdAt`, `sessionId`                               |
+| Community    | `status + createdAt` on posts                                                       |
+| Cohorts      | `courseId`, `status`, `startsAt`                                                    |
 
-Recommended pattern:
-
-```txt
-Private R2 bucket
-→ App checks enrollment
-→ App generates signed URL
-→ Student downloads or streams asset
-```
-
-Do not expose raw private asset URLs directly in the database for protected content.
-
-For public assets such as course thumbnails, use a public R2 bucket or Cloudflare public domain.
+Use these for dashboard queries, webhook idempotency lookups (Stripe IDs are `@unique`), and certificate verification.
 
 ---
 
-## 12. Potential Future Tables
+## 21. Schema Boundaries
 
-These are not required for MVP, but likely useful later.
+### Implemented in schema (beyond original MVP doc)
 
-### `Coupon`
+- Categories, tags, instructors, course reviews
+- Drip unlocks, free courses, SEO fields
+- Lesson assets, video status, video watch progress
+- Coupons, product types, bundles
+- Leads, blog, waitlist/newsletter with OTP verification
+- Analytics events, email logs, email sequences
+- Community, course discussions, cohorts
+- Gamification, affiliates (referral tracking)
+- Platform settings singleton, audit log
 
-For internal coupons independent of Stripe promotion codes.
+### Still out of scope / application-layer
 
-### `Affiliate`
-
-For affiliate/referral tracking.
-
-### `CommunityPost`
-
-For a lightweight community layer.
-
-### `Comment`
-
-For course or community discussions.
-
-### `Lead`
-
-For email capture before purchase.
-
-### `EmailSequence`
-
-For onboarding, abandoned checkout, and post-purchase flows.
-
-### `CourseReview`
-
-For testimonials and ratings.
-
-### `LessonResource`
-
-For multiple downloadable files per lesson.
-
-### `AuditLog`
-
-For admin/security-sensitive actions.
-
----
-
-## 13. Indexing Strategy
-
-The schema already includes useful indexes for common access patterns:
-
-- Course lookup by `slug`
-- Course filtering by `status`
-- Module lookup by `courseId`
-- Lesson lookup by `moduleId`
-- Enrollment lookup by `userId` and `courseId`
-- Progress lookup by `userId` and `lessonId`
-- Orders by `userId`, `productId`, and `status`
-- Subscriptions by `userId`, `productId`, and `status`
-- Certificates by `code`
-
-These indexes support the most common LMS queries:
-
-- Get user courses
-- Get course curriculum
-- Check course access
-- Load lesson progress
-- Verify certificates
-- Process Stripe webhooks idempotently
-
----
-
-## 14. MVP Boundaries
-
-For the MVP, the schema is intentionally focused.
-
-Included:
-
-- Users
-- Courses
-- Modules
-- Lessons
-- Enrollments
-- Progress
-- Stripe products/orders/subscriptions
-- Quizzes
-- Certificates
-
-Not included yet:
-
-- Full community system
-- Advanced assignments
-- Instructor payouts
-- Affiliate commissions
+- Full data warehouse / BI exports (use `AnalyticsEvent` as lightweight trail only)
+- Instructor payout ledger
 - Multi-tenant organizations
-- Deep analytics warehouse
-- Tax invoice system
+- Tax invoicing system
+- Normalized `QuizAttemptAnswer` table (optional future refactor)
+- Automated affiliate payout settlement
 
-This keeps the first version shippable while leaving clean expansion paths.
+This keeps operational flexibility while the Prisma schema remains the single structural reference for the LMS.

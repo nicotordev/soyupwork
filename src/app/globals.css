@@ -239,3 +239,7 @@
     color: color-mix(in oklch, var(--foreground) 88%, transparent);
   }
 }
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}

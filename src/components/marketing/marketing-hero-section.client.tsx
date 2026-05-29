@@ -11,9 +11,9 @@ const { hero } = MARKETING_PAGE;
 
 export function MarketingHeroSectionClient() {
   return (
-    <section className="relative mx-auto w-full overflow-x-hidden px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1/8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1/8%)_1px,transparent_1px)] bg-size-[3rem_3rem] opacity-45" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,var(--primary),transparent)] opacity-15" />
+    <section className="relative mx-auto w-full overflow-x-hidden px-4 py-12 sm:px-6 sm:py-20 md:py-28 lg:px-8">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1/8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1/8%)_1px,transparent_1px)] bg-size-[3rem_3rem] opacity-25 md:opacity-45" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,var(--primary),transparent)] opacity-10 md:opacity-15" />
 
       <div className="mx-auto flex max-w-4xl flex-col items-center space-y-8 text-center">
         <Motion
@@ -66,7 +66,11 @@ export function MarketingHeroSectionClient() {
           transition={{ duration: 0.5, delay: 0.24 }}
           className="flex w-full max-w-lg flex-col justify-center gap-3 sm:max-w-none sm:flex-row"
         >
-          <Button asChild size="xl" className="w-full sm:w-auto">
+          <Button
+            asChild
+            size="lg"
+            className="h-12 min-h-12 w-full px-6 sm:w-auto md:h-14 md:min-h-14 md:px-8"
+          >
             <Link href="/waitlist">
               {hero.ctaPrimary}
               <ArrowRight className="stroke-3" />
@@ -75,8 +79,8 @@ export function MarketingHeroSectionClient() {
           <Button
             asChild
             variant="accent"
-            size="xl"
-            className="w-full sm:w-auto"
+            size="lg"
+            className="h-12 min-h-12 w-full px-6 sm:w-auto md:h-14 md:min-h-14 md:px-8"
           >
             <Link href="/demo">
               {hero.ctaSecondary}
@@ -85,12 +89,38 @@ export function MarketingHeroSectionClient() {
           </Button>
         </Motion>
 
+        {/* Mobile: list rows */}
         <Motion
           as="div"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.32 }}
-          className="flex w-full max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-3 pt-2 text-xs text-muted-foreground font-mono font-semibold sm:text-sm"
+          className="w-full max-w-sm md:hidden"
+        >
+          <div className="overflow-hidden rounded-xl border-2 border-foreground bg-card shadow-[2px_2px_0px_0px_var(--foreground)]">
+            {hero.trustChecks.map((label, index) => (
+              <div
+                key={label}
+                className={`flex min-h-11 items-center gap-3 px-3 py-2 text-xs font-mono font-semibold text-muted-foreground active:opacity-80 ${
+                  index < hero.trustChecks.length - 1
+                    ? "border-b-2 border-foreground"
+                    : ""
+                }`}
+              >
+                <Check className="size-4 shrink-0 text-primary" />
+                {label}
+              </div>
+            ))}
+          </div>
+        </Motion>
+
+        {/* Desktop: wrapped badges */}
+        <Motion
+          as="div"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.32 }}
+          className="hidden w-full max-w-3xl flex-wrap items-center justify-center gap-x-6 gap-y-3 pt-2 text-xs text-muted-foreground font-mono font-semibold sm:text-sm md:flex"
         >
           {hero.trustChecks.map((label) => (
             <span key={label} className="inline-flex items-center gap-1.5">

@@ -8,7 +8,11 @@ import {
   useSyncExternalStore,
   type RefObject,
 } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { motion } from "framer-motion";
+
+/** Slower travel on narrow viewports (same duration crosses less distance → feels rushed). */
+const MOBILE_MOTION_MULTIPLIER = 2.4;
 
 const SHAPE_TYPES = [
   "star",
@@ -105,7 +109,7 @@ function generateShapes(count: number, seed: number): FloatingShape[] {
       delay: round(range(rand, 0, 12)),
       spin,
       spinDuration: round(range(rand, 10, 18)),
-      hiddenOnMobile: rand() > 0.5,
+      hiddenOnMobile: rand() > 0.35,
     };
   });
 }
@@ -338,16 +342,21 @@ function NeobrutalistShapeGraphic({
 function FloatingShapeNode({
   shape,
   reducedMotion,
+  isMobile,
   bodyWidth,
   bodyHeight,
 }: {
   shape: FloatingShape;
   reducedMotion: boolean;
+  isMobile: boolean;
   bodyWidth: number;
   bodyHeight: number;
 }) {
   const path = getBodyPath(shape, bodyWidth, bodyHeight);
-  const travelDuration = reducedMotion ? shape.duration * 2.5 : shape.duration;
+  const motionScale =
+    (reducedMotion ? 2.5 : 1) * (isMobile ? MOBILE_MOTION_MULTIPLIER : 1);
+  const travelDuration = shape.duration * motionScale;
+  const spinDuration = shape.spinDuration * motionScale;
 
   const visibilityClass = shape.hiddenOnMobile ? "hidden sm:block" : undefined;
 
@@ -389,7 +398,7 @@ function FloatingShapeNode({
         transition={
           shape.spin
             ? {
-                duration: shape.spinDuration,
+                duration: spinDuration,
                 repeat: Infinity,
                 ease: "linear",
               }
@@ -411,6 +420,7 @@ export function NeobrutalistPageDecoration({
 }: NeobrutalistPageDecorationProps) {
   const [mounted, setMounted] = useState(false);
   const prefersReducedMotion = usePrefersReducedMotion();
+  const isMobile = useIsMobile();
   const bodyRef = useRef<HTMLDivElement>(null);
   const { width: bodyWidth, height: bodyHeight } = useBodySize(bodyRef);
   const shapes = useMemo(
@@ -443,6 +453,7 @@ export function NeobrutalistPageDecoration({
                 key={shape.id}
                 shape={shape}
                 reducedMotion={prefersReducedMotion}
+                isMobile={isMobile}
                 bodyWidth={bodyWidth}
                 bodyHeight={bodyHeight}
               />

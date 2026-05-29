@@ -21,7 +21,7 @@ export const MARKETING_PAGE = {
     "upwork vale la pena",
   ],
   hero: {
-    eyebrow: "Upwork LATAM · Trabajo remoto · Freelance Latinoamérica",
+    eyebrow: "Upwork LATAM · Freelance Latinoamérica",
     titleLead: "Cursos de Upwork en español:",
     titleHighlight: "aprende a facturar",
     titleTrail: ", no solo a registrarte",
