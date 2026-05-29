@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { NeobrutalistPageDecoration } from "@/components/common/neobrutalist-page-decoration";
 
 type PlatformStatusPageProps = {
   eyebrow: string;
@@ -17,98 +18,7 @@ export function PlatformStatusPage({
 }: PlatformStatusPageProps) {
   return (
     <div className="relative isolate flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-background px-4 py-12 sm:py-20">
-      {/* Background layers (z-0 inside isolate — negative z-index breaks behind body) */}
-      <div className="pointer-events-none absolute inset-0 z-0" aria-hidden>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,color-mix(in_oklch,var(--foreground)_12%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_oklch,var(--foreground)_12%,transparent)_1px,transparent_1px)] bg-size-[60px_60px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,color-mix(in_oklch,var(--primary)_14%,transparent),transparent)]" />
-      </div>
-
-      {/* Decorative shapes */}
-      <div
-        className="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none"
-        aria-hidden
-      >
-        <svg
-          viewBox="-4 -4 32 32"
-          className="absolute -left-6 -top-6 size-20 animate-float-y sm:left-10 sm:top-10 sm:size-28"
-        >
-          <path
-            d="M12 0L14.5 9L24 12L14.5 15L12 24L9.5 15L0 12L9.5 9Z"
-            fill="var(--foreground)"
-            transform="translate(2, 2)"
-          />
-          <path
-            d="M12 0L14.5 9L24 12L14.5 15L12 24L9.5 15L0 12L9.5 9Z"
-            fill="#fde047"
-            stroke="var(--foreground)"
-            strokeWidth={1.5}
-          />
-        </svg>
-
-        <svg
-          viewBox="-4 -4 32 32"
-          className="absolute -right-6 -bottom-6 size-24 animate-float-y-delayed sm:right-10 sm:bottom-10 sm:size-32"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            fill="var(--foreground)"
-            transform="translate(2, 2)"
-          />
-          <circle
-            cx="12"
-            cy="12"
-            r="10"
-            fill="#6ee7b7"
-            stroke="var(--foreground)"
-            strokeWidth={1.5}
-          />
-          <circle
-            cx="12"
-            cy="12"
-            r="6"
-            fill="none"
-            stroke="var(--foreground)"
-            strokeWidth={1.5}
-          />
-          <circle cx="12" cy="12" r="2" fill="var(--foreground)" />
-        </svg>
-
-        <svg
-          viewBox="-4 -4 32 32"
-          className="absolute top-[18%] -right-4 hidden size-14 animate-spin-slow lg:block"
-        >
-          <path
-            d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8V2z"
-            fill="var(--foreground)"
-            transform="translate(2, 2)"
-          />
-          <path
-            d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8V2z"
-            fill="#c7d2fe"
-            stroke="var(--foreground)"
-            strokeWidth={1.5}
-          />
-        </svg>
-
-        <svg
-          viewBox="-4 -4 32 32"
-          className="absolute bottom-[22%] -left-4 hidden size-20 animate-float-y lg:block"
-        >
-          <path
-            d="M12 2L2 22h20L12 2z"
-            fill="var(--foreground)"
-            transform="translate(2, 2)"
-          />
-          <path
-            d="M12 2L2 22h20L12 2z"
-            fill="#fbcfe8"
-            stroke="var(--foreground)"
-            strokeWidth={1.5}
-          />
-        </svg>
-      </div>
+      <NeobrutalistPageDecoration shapeCount={7} seed={7} />
 
       {/* Main card */}
       <div className="relative z-10 w-full max-w-lg">

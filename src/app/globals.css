@@ -118,6 +118,12 @@
   --sidebar-border: oklch(0.93 0.007 106.5);
   --sidebar-ring: oklch(0.737 0.021 106.9);
 
+  /* Neobrutalist floating shape accents (platform + marketing pages) */
+  --decoration-star: #fde047;
+  --decoration-circle: #6ee7b7;
+  --decoration-plus: #c7d2fe;
+  --decoration-triangle: #fbcfe8;
+
   /* Clerk theme bridge (https://clerk.com/docs/guides/customizing-clerk/appearance-prop/variables) */
   --clerk-color-primary: var(--primary);
   --clerk-color-danger: var(--destructive);
@@ -175,6 +181,11 @@
   --clerk-color-background: var(--card);
   --clerk-color-input: var(--background);
   --clerk-color-input-foreground: var(--foreground);
+
+  --decoration-star: #ca8a04;
+  --decoration-circle: #059669;
+  --decoration-plus: #6366f1;
+  --decoration-triangle: #db2777;
 }
 
 @layer base {

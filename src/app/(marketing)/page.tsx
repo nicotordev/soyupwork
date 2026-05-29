@@ -15,6 +15,7 @@ import {
   DollarSign,
   ArrowUpRight,
 } from "lucide-react";
+import { NeobrutalistPageDecoration } from "@/components/common/neobrutalist-page-decoration";
 import { MarketingHeroSectionClient } from "@/components/marketing/marketing-hero-section.client";
 import { MarketingProposalSimulatorClient } from "@/components/marketing/marketing-proposal-simulator.client";
 import { MarketingTrackSelectorClient } from "@/components/marketing/marketing-track-selector.client";
@@ -34,7 +35,8 @@ const VALUE_PILLAR_ICONS = [BookOpen, Send, Award] as const;
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background font-sans text-foreground antialiased">
+    <div className="relative isolate min-h-screen overflow-x-hidden bg-background font-sans text-foreground antialiased">
+      <NeobrutalistPageDecoration shapeCount={16} seed={42} />
       <main className="relative z-10">
         <MarketingHeroSectionClient />
 

@@ -333,7 +333,7 @@ export function WaitlistSignupForm() {
       )}
 
       <Button variant="outline" disabled={isPending} className="w-full" asChild>
-        <Link href="/sign-in">Volver</Link>
+        <Link href="/">Volver</Link>
       </Button>
     </form>
   );
