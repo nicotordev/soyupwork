@@ -1,3 +1,4 @@
+import { CourseEnrollButton } from "@/components/course/course-enroll-button.client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,15 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import type { CoursePageView } from "@/types/course-page.types";
-import {
-  ArrowRight,
-  Layers,
-  Star,
-  TrendingUp,
-  Clock,
-  Play,
-  Users,
-} from "lucide-react";
+import { Layers, Star, TrendingUp, Clock, Play, Users } from "lucide-react";
 import Link from "next/link";
 
 type CourseLandingHeroProps = {
@@ -28,6 +21,8 @@ type CourseLandingHeroProps = {
   averageRating: number | null;
   reviewCount: number;
   enrolledStudentCount: number;
+  isSignedIn?: boolean;
+  useCheckoutFlow?: boolean;
 };
 
 export function CourseLandingHero({
@@ -39,6 +34,8 @@ export function CourseLandingHero({
   averageRating,
   reviewCount,
   enrolledStudentCount,
+  isSignedIn = false,
+  useCheckoutFlow = false,
 }: CourseLandingHeroProps) {
   return (
     <section className="relative isolate border border-foreground/20 p-3 font-sans sm:p-8">
@@ -116,17 +113,19 @@ export function CourseLandingHero({
         {/* 3. Horizontal actions */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-4 w-full sm:w-auto">
           {/* Start / Continue Button */}
-          {continueHref ? (
+          {continueHref || useCheckoutFlow ? (
             <div className="w-full sm:w-auto transition-transform hover:scale-[1.02] active:scale-[0.98]">
-              <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link
-                  href={continueHref}
-                  className="flex items-center justify-center gap-2"
-                >
-                  {ctaLabel}
-                  <ArrowRight className="size-4 stroke-3" />
-                </Link>
-              </Button>
+              <CourseEnrollButton
+                courseSlug={view.slug}
+                hasFullAccess={view.hasFullAccess}
+                isFree={view.isFree}
+                ctaLabel={ctaLabel}
+                fallbackHref={continueHref}
+                isSignedIn={isSignedIn}
+                useCheckoutFlow={useCheckoutFlow}
+                size="lg"
+                className="w-full sm:w-auto gap-2"
+              />
             </div>
           ) : null}
 

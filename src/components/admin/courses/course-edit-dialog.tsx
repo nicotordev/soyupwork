@@ -15,7 +15,12 @@ import {
   ADMIN_COURSES_STATUS_FILTER_OPTIONS,
   ADMIN_COURSE_STATUS_LABELS,
 } from "@/constants/courses.constants";
-import type { CourseLevel, CourseStatus } from "@/generated/prisma/client";
+import type {
+  BillingInterval,
+  CourseLevel,
+  CourseStatus,
+  ProductType,
+} from "@/generated/prisma/client";
 import {
   adminBrutalButtonClass,
   adminInputClass,
@@ -32,6 +37,7 @@ import {
   IconLink,
   IconLoader,
   IconSchool,
+  IconUsers,
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
@@ -66,6 +72,11 @@ export function CourseEditDialog({ courseId, onClose }: CourseEditDialogProps) {
   const [price, setPrice] = useState("0");
   const [isFeatured, setIsFeatured] = useState(false);
   const [offersCertificate, setOffersCertificate] = useState(false);
+  const [productType, setProductType] = useState<ProductType>("ONE_TIME");
+  const [billingInterval, setBillingInterval] = useState<BillingInterval | "">(
+    "",
+  );
+  const [trialDays, setTrialDays] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [storageConfigured, setStorageConfigured] = useState(false);
   const [maxThumbnailSizeMb, setMaxThumbnailSizeMb] = useState(10);
@@ -98,6 +109,13 @@ export function CourseEditDialog({ courseId, onClose }: CourseEditDialogProps) {
       setPrice(String(course.priceCents / 100));
       setIsFeatured(course.isFeatured);
       setOffersCertificate(course.offersCertificate);
+      setProductType(course.productType);
+      setBillingInterval(course.billingInterval ?? "");
+      setTrialDays(
+        course.trialDays !== null && course.trialDays !== undefined
+          ? String(course.trialDays)
+          : "",
+      );
       setThumbnailUrl(course.thumbnailUrl);
       setStorageConfigured(result.storageConfigured);
       setMaxThumbnailSizeMb(result.maxThumbnailSizeMb);
@@ -136,6 +154,22 @@ export function CourseEditDialog({ courseId, onClose }: CourseEditDialogProps) {
       return;
     }
 
+    const parsedTrialDays = trialDays.trim()
+      ? Number.parseInt(trialDays, 10)
+      : null;
+    if (
+      trialDays.trim() &&
+      (!Number.isFinite(parsedTrialDays) || parsedTrialDays! < 0)
+    ) {
+      toast.error("Ingresa días de prueba válidos.");
+      return;
+    }
+
+    if (productType === "SUBSCRIPTION" && priceValue > 0 && !billingInterval) {
+      toast.error("Selecciona un intervalo de facturación para suscripciones.");
+      return;
+    }
+
     startTransition(async () => {
       const result = await updateCourse({
         id: courseId,
@@ -148,6 +182,12 @@ export function CourseEditDialog({ courseId, onClose }: CourseEditDialogProps) {
         priceCents: Math.round(priceValue * 100),
         isFeatured,
         offersCertificate,
+        productType,
+        billingInterval:
+          productType === "SUBSCRIPTION" && billingInterval
+            ? billingInterval
+            : null,
+        trialDays: parsedTrialDays,
       });
 
       if (!result.ok) {
@@ -344,6 +384,66 @@ export function CourseEditDialog({ courseId, onClose }: CourseEditDialogProps) {
                   />
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="editCourseProductType">Modelo de pago</Label>
+                  <select
+                    id="editCourseProductType"
+                    value={productType}
+                    onChange={(event) =>
+                      setProductType(event.target.value as ProductType)
+                    }
+                    className={cn(
+                      adminInputClass,
+                      "h-9 w-full px-2 text-xs font-mono font-bold uppercase",
+                    )}
+                  >
+                    <option value="ONE_TIME">Pago único</option>
+                    <option value="SUBSCRIPTION">Suscripción</option>
+                  </select>
+                </div>
+
+                {productType === "SUBSCRIPTION" ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="editCourseBillingInterval">
+                        Intervalo
+                      </Label>
+                      <select
+                        id="editCourseBillingInterval"
+                        value={billingInterval}
+                        onChange={(event) =>
+                          setBillingInterval(
+                            event.target.value as BillingInterval | "",
+                          )
+                        }
+                        className={cn(
+                          adminInputClass,
+                          "h-9 w-full px-2 text-xs font-mono font-bold uppercase",
+                        )}
+                      >
+                        <option value="">Seleccionar…</option>
+                        <option value="MONTH">Mensual</option>
+                        <option value="YEAR">Anual</option>
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="editCourseTrialDays">
+                        Días de prueba (opcional)
+                      </Label>
+                      <Input
+                        id="editCourseTrialDays"
+                        type="number"
+                        min={0}
+                        max={365}
+                        value={trialDays}
+                        onChange={(event) => setTrialDays(event.target.value)}
+                        className={adminInputClass}
+                        placeholder="0"
+                      />
+                    </div>
+                  </>
+                ) : null}
+
                 <div className="flex flex-col gap-3 sm:col-span-2">
                   <label className="flex cursor-pointer items-center gap-2.5">
                     <Checkbox
@@ -369,21 +469,38 @@ export function CourseEditDialog({ courseId, onClose }: CourseEditDialogProps) {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-2 border-t-2 border-foreground bg-muted/20 px-6 py-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className={adminBrutalButtonClass}
-                  asChild
-                >
-                  <Link
-                    href={`/admin/courses/${courseId}/curriculum`}
-                    onClick={handleClose}
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={adminBrutalButtonClass}
+                    asChild
                   >
-                    <IconBooks stroke={2.25} />
-                    Módulos y lecciones
-                  </Link>
-                </Button>
+                    <Link
+                      href={`/admin/courses/${courseId}/curriculum`}
+                      onClick={handleClose}
+                    >
+                      <IconBooks stroke={2.25} />
+                      Módulos y lecciones
+                    </Link>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={adminBrutalButtonClass}
+                    asChild
+                  >
+                    <Link
+                      href={`/admin/courses/${courseId}/enrollments`}
+                      onClick={handleClose}
+                    >
+                      <IconUsers stroke={2.25} />
+                      Inscripciones
+                    </Link>
+                  </Button>
+                </div>
                 <div className="flex items-center gap-2">
                   <Button
                     type="button"

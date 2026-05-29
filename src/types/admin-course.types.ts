@@ -1,5 +1,10 @@
 import type { ADMIN_COURSES_FILTER_ALL } from "@/constants/courses.constants";
-import type { CourseLevel, CourseStatus } from "@/generated/prisma/client";
+import type {
+  BillingInterval,
+  CourseLevel,
+  CourseStatus,
+  ProductType,
+} from "@/generated/prisma/client";
 
 export type AdminCoursesFilterAll = typeof ADMIN_COURSES_FILTER_ALL;
 
@@ -51,6 +56,9 @@ export type AdminCourseForEdit = {
   categoryId: string | null;
   isFeatured: boolean;
   offersCertificate: boolean;
+  productType: ProductType;
+  billingInterval: BillingInterval | null;
+  trialDays: number | null;
 };
 
 export type InitCourseThumbnailUploadData = {

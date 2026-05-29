@@ -10,6 +10,7 @@ export function getStudentBreadcrumbLabel(pathname: string): string {
     courses: "Mis Cursos",
     progress: "Progreso",
     certificates: "Certificados",
+    purchases: "Mis compras",
     profile: "Mi perfil",
     lessons: "Lección",
   };

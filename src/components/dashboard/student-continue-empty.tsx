@@ -23,21 +23,36 @@ export function StudentContinueEmpty() {
         )}
       >
         <div className="flex size-12 sm:size-16 items-center justify-center rounded-full border-2 border-foreground bg-primary/10 shadow-[3px_3px_0px_0px_var(--foreground)] animate-bounce">
-          <IconPlayerPlay className="size-6 sm:size-8 text-primary ml-0.5 sm:ml-1" fill="currentColor" stroke={2.5} />
+          <IconPlayerPlay
+            className="size-6 sm:size-8 text-primary ml-0.5 sm:ml-1"
+            fill="currentColor"
+            stroke={2.5}
+          />
         </div>
-        
+
         <div className="space-y-2 max-w-md">
           <h2 className="font-heading text-xl font-extrabold text-foreground">
             No encontramos lecciones pendientes
           </h2>
           <p className="text-sm text-muted-foreground">
-            Aún no has iniciado ninguna lección o ya has completado exitosamente todo tu material. Inscríbete en un nuevo curso o revisa tus cursos activos para empezar.
+            Aún no has iniciado ninguna lección o ya has completado exitosamente
+            todo tu material. Inscríbete en un nuevo curso o revisa tus cursos
+            activos para empezar.
           </p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-3 w-full sm:w-auto pt-2">
-          <Button asChild className={cn(adminBrutalButtonClass, "w-full sm:w-auto bg-primary")}>
-            <Link href="/dashboard/courses" className="inline-flex items-center justify-center gap-2">
+          <Button
+            asChild
+            className={cn(
+              adminBrutalButtonClass,
+              "w-full sm:w-auto bg-primary",
+            )}
+          >
+            <Link
+              href="/courses"
+              className="inline-flex items-center justify-center gap-2"
+            >
               <IconBooks className="size-4" stroke={2.5} />
               Mis cursos activos
             </Link>
@@ -45,9 +60,15 @@ export function StudentContinueEmpty() {
           <Button
             asChild
             variant="outline"
-            className={cn(adminBrutalButtonClass, "w-full sm:w-auto bg-background")}
+            className={cn(
+              adminBrutalButtonClass,
+              "w-full sm:w-auto bg-background",
+            )}
           >
-            <Link href="/catalog" className="inline-flex items-center justify-center gap-2">
+            <Link
+              href="/catalog"
+              className="inline-flex items-center justify-center gap-2"
+            >
               <IconCompass className="size-4" stroke={2.5} />
               Explorar catálogo
             </Link>

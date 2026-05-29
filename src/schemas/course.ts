@@ -1,4 +1,9 @@
-import { CourseLevel, CourseStatus } from "@/generated/prisma/client";
+import {
+  BillingInterval,
+  CourseLevel,
+  CourseStatus,
+  ProductType,
+} from "@/generated/prisma/client";
 import { z } from "zod";
 
 export const courseSlugField = z
@@ -47,18 +52,35 @@ export type CreateAiDraftCourseInput = z.infer<
   typeof createAiDraftCourseSchema
 >;
 
-export const updateCourseSchema = z.object({
-  id: z.uuid(),
-  title: z.string().trim().min(1, "El título es obligatorio.").max(120),
-  slug: courseSlugField,
-  description: z.string().trim().max(5000),
-  status: z.nativeEnum(CourseStatus),
-  level: z.nativeEnum(CourseLevel),
-  categoryId: z.uuid().nullable(),
-  priceCents: z.number().int().min(0, "El precio debe ser 0 o mayor."),
-  isFeatured: z.boolean(),
-  offersCertificate: z.boolean(),
-});
+export const updateCourseSchema = z
+  .object({
+    id: z.uuid(),
+    title: z.string().trim().min(1, "El título es obligatorio.").max(120),
+    slug: courseSlugField,
+    description: z.string().trim().max(5000),
+    status: z.nativeEnum(CourseStatus),
+    level: z.nativeEnum(CourseLevel),
+    categoryId: z.uuid().nullable(),
+    priceCents: z.number().int().min(0, "El precio debe ser 0 o mayor."),
+    isFeatured: z.boolean(),
+    offersCertificate: z.boolean(),
+    productType: z.nativeEnum(ProductType).default(ProductType.ONE_TIME),
+    billingInterval: z.nativeEnum(BillingInterval).nullable().optional(),
+    trialDays: z.number().int().min(0).max(365).nullable().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.productType === ProductType.SUBSCRIPTION &&
+      data.priceCents > 0 &&
+      !data.billingInterval
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Selecciona un intervalo de facturación para suscripciones.",
+        path: ["billingInterval"],
+      });
+    }
+  });
 
 export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
 

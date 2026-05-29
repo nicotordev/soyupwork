@@ -3,6 +3,7 @@
 import { ADMIN_COURSES_FILTER_ALL } from "@/constants/courses.constants";
 import {
   CourseStatus,
+  ProductType,
   type CourseLevel,
   type Prisma,
 } from "@/generated/prisma/client";
@@ -18,7 +19,11 @@ import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
 import { OpenAIConfigError } from "@/lib/openai/config";
 import { generateCourseSyllabusWithOpenAI } from "@/lib/openai/generate-syllabus";
-import { getResolvedUploadLimits } from "@/lib/platform/settings/resolve";
+import {
+  getResolvedStripeCurrency,
+  getResolvedUploadLimits,
+} from "@/lib/platform/settings/resolve";
+import { syncCourseProduct } from "@/lib/stripe/sync-course-product";
 import { toSlug } from "@/lib/slug";
 import {
   COURSE_THUMBNAIL_CONTENT_TYPES,
@@ -348,6 +353,15 @@ export async function getAdminCourseForEdit(
           categoryId: true,
           isFeatured: true,
           offersCertificate: true,
+          products: {
+            orderBy: { updatedAt: "desc" },
+            take: 1,
+            select: {
+              type: true,
+              billingInterval: true,
+              trialDays: true,
+            },
+          },
         },
       }),
       prisma.courseCategory.findMany({
@@ -361,11 +375,25 @@ export async function getAdminCourseForEdit(
       return { ok: false, error: "Curso no encontrado." };
     }
 
+    const linkedProduct = course.products[0];
+
     return {
       ok: true,
       course: {
-        ...course,
+        id: course.id,
+        title: course.title,
+        slug: course.slug,
         description: course.description ?? "",
+        thumbnailUrl: course.thumbnailUrl,
+        status: course.status,
+        level: course.level,
+        priceCents: course.priceCents,
+        categoryId: course.categoryId,
+        isFeatured: course.isFeatured,
+        offersCertificate: course.offersCertificate,
+        productType: linkedProduct?.type ?? ProductType.ONE_TIME,
+        billingInterval: linkedProduct?.billingInterval ?? null,
+        trialDays: linkedProduct?.trialDays ?? null,
       },
       categories,
       storageConfigured: isR2Configured(),
@@ -497,7 +525,7 @@ export async function updateCourse(
 
     const existing = await prisma.course.findUnique({
       where: { id: parsed.data.id },
-      select: { id: true, slug: true },
+      select: { id: true, slug: true, status: true, publishedAt: true },
     });
 
     if (!existing) {
@@ -532,6 +560,11 @@ export async function updateCourse(
         ? existing.slug
         : await resolveUniqueCourseSlug(parsed.data.slug, parsed.data.id);
 
+    const isPublishing =
+      existing.status !== CourseStatus.PUBLISHED &&
+      parsed.data.status === CourseStatus.PUBLISHED;
+    const currency = await getResolvedStripeCurrency();
+
     const updated = await prisma.course.update({
       where: { id: parsed.data.id },
       data: {
@@ -542,14 +575,56 @@ export async function updateCourse(
         level: parsed.data.level,
         categoryId: parsed.data.categoryId,
         priceCents: parsed.data.priceCents,
+        currency,
+        isFree: parsed.data.priceCents === 0,
         isFeatured: parsed.data.isFeatured,
         offersCertificate: parsed.data.offersCertificate,
+        ...(isPublishing ? { publishedAt: new Date() } : {}),
       },
-      select: { id: true, slug: true, title: true },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        status: true,
+        description: true,
+        priceCents: true,
+      },
     });
+
+    const shouldSyncProduct =
+      updated.status === CourseStatus.PUBLISHED ||
+      existing.status === CourseStatus.PUBLISHED;
+
+    if (shouldSyncProduct) {
+      try {
+        await syncCourseProduct({
+          courseId: updated.id,
+          title: parsed.data.title,
+          description: parsed.data.description || null,
+          priceCents: parsed.data.priceCents,
+          currency,
+          status: parsed.data.status,
+          commerce: {
+            productType: parsed.data.productType,
+            billingInterval: parsed.data.billingInterval ?? null,
+            trialDays: parsed.data.trialDays ?? null,
+          },
+        });
+      } catch (syncError) {
+        log.error(serializeError(syncError), "Failed to sync Stripe product");
+        return {
+          ok: false,
+          error:
+            syncError instanceof Error
+              ? syncError.message
+              : "No se pudo sincronizar el producto con Stripe.",
+        };
+      }
+    }
 
     revalidatePath("/admin/courses");
     revalidatePath("/catalog");
+    revalidatePath(`/courses/${updated.slug}`);
 
     log.info({ courseId: updated.id, slug: updated.slug }, "Course updated");
 
@@ -589,7 +664,7 @@ export async function deleteCourse(
     revalidatePath("/catalog");
     revalidatePath(`/admin/courses/${existing.id}/curriculum`);
     revalidatePath(`/admin/courses/${existing.id}/preview`, "layout");
-    revalidatePath(`/dashboard/courses/${existing.slug}`, "layout");
+    revalidatePath(`/courses/${existing.slug}`, "layout");
 
     log.info({ courseId: existing.id, slug: existing.slug }, "Course deleted");
 

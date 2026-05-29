@@ -5,7 +5,7 @@ import { CourseLandingMarketingSections } from "@/components/course/course-landi
 import { CourseLandingReviews } from "@/components/course/course-landing-reviews";
 import { CourseLandingSyllabus } from "@/components/course/course-landing-syllabus";
 import { CoursePreviewBanner } from "@/components/course/course-preview-banner";
-import { Button } from "@/components/ui/button";
+import { CourseEnrollButton } from "@/components/course/course-enroll-button.client";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
 import { adminGridBackgroundClass } from "@/lib/admin/styles";
 import {
@@ -15,7 +15,6 @@ import {
 } from "@/lib/course/course-page-mode";
 import type { CoursePageData } from "@/types/course-page.types";
 import type { CatalogSection } from "@/types/marketing-nav.types";
-import Link from "next/link";
 import { MarketingFooter } from "../marketing-footer";
 import { MarketingNav } from "../marketing-nav";
 import { CourseMarketingBento } from "./course-marketing-bento";
@@ -27,6 +26,7 @@ type CourseLandingViewProps = {
   showModeBanner?: boolean;
   isSignedIn?: boolean;
   catalogSections?: CatalogSection[];
+  useCheckoutFlow?: boolean;
 };
 
 export function CourseLandingView({
@@ -35,6 +35,7 @@ export function CourseLandingView({
   showModeBanner = true,
   isSignedIn = false,
   catalogSections = [],
+  useCheckoutFlow = false,
 }: CourseLandingViewProps) {
   const { view, mode } = data;
   const reviews = view.reviews ?? [];
@@ -97,6 +98,8 @@ export function CourseLandingView({
           averageRating={averageRating}
           reviewCount={reviewCount}
           enrolledStudentCount={enrolledStudentCount}
+          isSignedIn={isSignedIn}
+          useCheckoutFlow={useCheckoutFlow}
         />
 
         <div className="mx-auto w-full max-w-7xl space-y-16 px-4 py-8 pt-8 sm:px-6 lg:px-8 lg:py-14 lg:pt-24">
@@ -118,7 +121,7 @@ export function CourseLandingView({
 
       <CourseMarketingBento />
 
-      {continueHref ? (
+      {continueHref || useCheckoutFlow ? (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-foreground/10 bg-background/95 p-3 backdrop-blur md:hidden">
           <div className="mx-auto flex max-w-7xl items-center gap-3">
             <div className="min-w-0 flex-1">
@@ -127,9 +130,17 @@ export function CourseLandingView({
                 {view.priceLabel} · pago seguro
               </p>
             </div>
-            <Button asChild size="sm" className="shrink-0">
-              <Link href={continueHref}>{ctaLabel}</Link>
-            </Button>
+            <CourseEnrollButton
+              courseSlug={view.slug}
+              hasFullAccess={view.hasFullAccess}
+              isFree={view.isFree}
+              ctaLabel={ctaLabel}
+              fallbackHref={continueHref}
+              isSignedIn={isSignedIn}
+              useCheckoutFlow={useCheckoutFlow}
+              size="sm"
+              className="shrink-0"
+            />
           </div>
         </div>
       ) : null}
