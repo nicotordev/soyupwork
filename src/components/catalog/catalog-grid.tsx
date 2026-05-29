@@ -1,33 +1,74 @@
 "use client";
 
 import { CourseCard } from "@/components/catalog/course-card";
+import { CATALOG_PAGE } from "@/constants/catalog.constants";
 import type { Course } from "@/types/catalog-course";
 import type { CatalogFilterCategory } from "@/types/catalog-filters";
 import {
   IconAdjustmentsHorizontal,
+  IconBook,
   IconExternalLink,
   IconRotate,
+  IconSchool,
 } from "@tabler/icons-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { ReactNode } from "react";
 
 interface CatalogGridProps {
   courses: Course[];
   activeFiltersCount: number;
   sortBy: string;
   promoCategory: CatalogFilterCategory | null;
+  scopedCategoryName?: string | null;
   setIsMobileFiltersOpen: (open: boolean) => void;
 }
+
+interface CatalogGridEmptyStateProps {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  action?: ReactNode;
+}
+
+function CatalogGridEmptyState({
+  icon,
+  title,
+  description,
+  action,
+}: CatalogGridEmptyStateProps) {
+  return (
+    <div className="space-y-6 rounded-lg border-4 border-dashed border-foreground/35 bg-card p-12 text-center shadow-[4px_4px_0px_0px_var(--foreground)]">
+      <div className="mx-auto flex size-12 items-center justify-center rounded border-2 border-foreground bg-secondary shadow-[2px_2px_0px_0px_var(--foreground)]">
+        {icon}
+      </div>
+      <div className="mx-auto max-w-md space-y-2">
+        <h3 className="font-sans text-lg font-bold">{title}</h3>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+      </div>
+      {action}
+    </div>
+  );
+}
+
+const emptyActionClassName =
+  "inline-flex items-center gap-1.5 rounded border-2 border-foreground bg-primary px-4 py-2 font-mono text-xs font-bold uppercase text-primary-foreground shadow-[3px_3px_0px_0px_var(--foreground)] transition-all hover:bg-primary/95 hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-y-px cursor-pointer";
 
 export function CatalogGrid({
   courses,
   activeFiltersCount,
   sortBy,
   promoCategory,
+  scopedCategoryName = null,
   setIsMobileFiltersOpen,
 }: CatalogGridProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+
+  const hasActiveFilters = activeFiltersCount > 0;
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -45,6 +86,55 @@ export function CatalogGrid({
     const params = new URLSearchParams();
     params.append("category", promoCategory.slug);
     router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const renderEmptyState = () => {
+    if (hasActiveFilters) {
+      return (
+        <CatalogGridEmptyState
+          icon={<IconRotate className="size-6 text-muted-foreground" />}
+          title={CATALOG_PAGE.emptyFilteredTitle}
+          description={CATALOG_PAGE.emptyFilteredDescription}
+          action={
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className={emptyActionClassName}
+            >
+              {CATALOG_PAGE.emptyFilteredCta}
+            </button>
+          }
+        />
+      );
+    }
+
+    if (scopedCategoryName) {
+      return (
+        <CatalogGridEmptyState
+          icon={<IconBook className="size-6 text-primary" />}
+          title={CATALOG_PAGE.emptyCategoryTitle(scopedCategoryName)}
+          description={CATALOG_PAGE.emptyCategoryDescription}
+          action={
+            <Link href="/catalog" className={emptyActionClassName}>
+              {CATALOG_PAGE.emptyCategoryCta}
+            </Link>
+          }
+        />
+      );
+    }
+
+    return (
+      <CatalogGridEmptyState
+        icon={<IconSchool className="size-6 text-primary" />}
+        title={CATALOG_PAGE.emptyCatalogTitle}
+        description={CATALOG_PAGE.emptyCatalogDescription}
+        action={
+          <Link href="/" className={emptyActionClassName}>
+            {CATALOG_PAGE.emptyCatalogCta}
+          </Link>
+        }
+      />
+    );
   };
 
   return (
@@ -138,27 +228,7 @@ export function CatalogGrid({
           })}
         </div>
       ) : (
-        /* Beautiful Neobrutalist Empty State */
-        <div className="border-4 border-dashed border-foreground/35 bg-card text-center p-12 rounded-lg space-y-6 shadow-[4px_4px_0px_0px_var(--foreground)]">
-          <div className="mx-auto w-12 h-12 bg-secondary border-2 border-foreground rounded flex items-center justify-center shadow-[2px_2px_0px_0px_var(--foreground)]">
-            <IconRotate className="size-6 text-muted-foreground" />
-          </div>
-          <div className="space-y-2 max-w-md mx-auto">
-            <h3 className="text-lg font-bold font-sans">
-              No se encontraron cursos
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Ningún curso coincide con los criterios de filtrado seleccionados.
-              Intenta quitar algunos filtros o cambiar la búsqueda.
-            </p>
-          </div>
-          <button
-            onClick={handleClearFilters}
-            className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase border-2 border-foreground bg-primary text-primary-foreground px-4 py-2 hover:bg-primary/95 transition-all shadow-[3px_3px_0px_0px_var(--foreground)] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-y-px rounded cursor-pointer"
-          >
-            Restaurar filtros
-          </button>
-        </div>
+        renderEmptyState()
       )}
 
       {/* Pagination / Load more Simulation */}

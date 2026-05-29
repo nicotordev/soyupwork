@@ -22,6 +22,19 @@ export const CATALOG_PAGE = {
     `Explora cursos de ${categoryName} en soyup.work: formación práctica para vender mejor tus servicios en Upwork y plataformas internacionales.`,
   categoryPageDescription: (categoryName: string) =>
     `Rutas y cursos de ${categoryName} para freelancers de LATAM: plantillas, ejercicios reales y enfoque comercial en Upwork.`,
+  emptyCatalogTitle: "El catálogo se está preparando",
+  emptyCatalogDescription:
+    "Todavía no hay cursos publicados. Estamos armando rutas prácticas de Upwork, propuestas y pricing para freelancers de LATAM.",
+  emptyCatalogCta: "Volver al inicio",
+  emptyCategoryTitle: (categoryName: string) =>
+    `Aún no hay cursos en ${categoryName}`,
+  emptyCategoryDescription:
+    "Esta categoría todavía no tiene cursos publicados. Explora otras rutas en el catálogo completo.",
+  emptyCategoryCta: "Ver todo el catálogo",
+  emptyFilteredTitle: "No se encontraron cursos",
+  emptyFilteredDescription:
+    "Ningún curso coincide con los criterios de filtrado seleccionados. Intenta quitar algunos filtros o cambiar la búsqueda.",
+  emptyFilteredCta: "Restaurar filtros",
 } as const;
 
 function getAppOrigin(): string {

@@ -54,6 +54,7 @@ export default async function CategoryCatalogPage({
         {...viewModel}
         pageTitle={`Cursos de ${category.name}`}
         pageDescription={CATALOG_PAGE.categoryPageDescription(category.name)}
+        scopedCategoryName={category.name}
       />
     </Suspense>
   );

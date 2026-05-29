@@ -30,6 +30,8 @@ interface CatalogShellProps {
   sortBy: string;
   pageTitle?: string;
   pageDescription?: string;
+  /** When set, empty grid without extra filters uses category-specific copy. */
+  scopedCategoryName?: string | null;
 }
 
 export function CatalogShell({
@@ -48,6 +50,7 @@ export function CatalogShell({
   sortBy,
   pageTitle,
   pageDescription,
+  scopedCategoryName = null,
 }: CatalogShellProps) {
   // Mobile filter drawer state
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -90,7 +93,10 @@ export function CatalogShell({
 
           <div className="flex md:grid md:grid-cols-3 gap-6 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 scroll-smooth snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             {featuredCourses.slice(0, 3).map((course) => (
-              <div key={`featured-${course.slug}`} className="min-w-[280px] w-[85%] md:w-auto snap-center shrink-0">
+              <div
+                key={`featured-${course.slug}`}
+                className="min-w-[280px] w-[85%] md:w-auto snap-center shrink-0"
+              >
                 <CourseCard course={course} />
               </div>
             ))}
@@ -121,6 +127,7 @@ export function CatalogShell({
             activeFiltersCount={activeFiltersCount}
             sortBy={sortBy}
             promoCategory={promoCategory}
+            scopedCategoryName={scopedCategoryName}
             setIsMobileFiltersOpen={setIsMobileFiltersOpen}
           />
         </div>
