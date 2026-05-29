@@ -8,8 +8,9 @@ import {
 import { QUIZ_PLAY } from "@/constants/quiz-play.constants";
 import { pickFromPool } from "@/lib/emojis/apple-emoji";
 import { cn } from "@/lib/utils";
+import { playQuizFeedbackSound } from "@/lib/quiz/quiz-sounds";
 import { motion } from "framer-motion";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 type QuizFeedbackScreenProps = {
   correct: boolean;
@@ -35,6 +36,10 @@ export function QuizFeedbackScreen({
       ),
     [correct],
   );
+
+  useEffect(() => {
+    playQuizFeedbackSound(correct);
+  }, [correct]);
 
   const correctTexts = optionLabels
     .filter((option) => correctOptionIds.includes(option.id))

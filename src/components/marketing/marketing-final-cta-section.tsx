@@ -3,10 +3,15 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MARKETING_PAGE } from "@/constants/marketing.constants";
+import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
 
 const { ctaFinal, hero } = MARKETING_PAGE;
 
 export function MarketingFinalCtaSection() {
+  const waitlistMode = isPublicWaitlistMode();
+  const primaryHref = waitlistMode ? "/waitlist" : ctaFinal.href;
+  const primaryLabel = waitlistMode ? hero.ctaPrimary : ctaFinal.button;
+
   return (
     <section className="font-sans">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-24 lg:px-8">
@@ -38,8 +43,8 @@ export function MarketingFinalCtaSection() {
                 size="lg"
                 className="group h-12 min-h-12 w-full sm:w-auto md:h-14 md:min-h-14 md:px-8"
               >
-                <Link href={ctaFinal.href}>
-                  {ctaFinal.button}
+                <Link href={primaryHref}>
+                  {primaryLabel}
                   <ArrowUpRight className="stroke-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
               </Button>

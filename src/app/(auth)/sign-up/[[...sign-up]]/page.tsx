@@ -1,5 +1,6 @@
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { clerkSignUpAppearance } from "@/lib/clerk/appearance";
+import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
 import { SignUp } from "@clerk/nextjs";
 import type { Metadata } from "next";
@@ -12,6 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default async function SignUpPage() {
+  if (isPublicWaitlistMode()) {
+    redirect("/waitlist");
+  }
+
   const settings = await getPlatformSettings();
 
   if (!settings.registrationsOpen) {

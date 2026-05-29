@@ -8,8 +8,9 @@ import { adminBrutalButtonClass } from "@/lib/admin/styles";
 import { pickFromPool } from "@/lib/emojis/apple-emoji";
 import { cn } from "@/lib/utils";
 import { IconRotate } from "@tabler/icons-react";
+import { playQuizResultsSound } from "@/lib/quiz/quiz-sounds";
 import { motion } from "framer-motion";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 type QuizResultsScreenProps = {
   score: number;
@@ -43,6 +44,10 @@ export function QuizResultsScreen({
   }, [passed, score, passingScore]);
 
   const emojiFile = useMemo(() => pickFromPool(emojiPool), [emojiPool]);
+
+  useEffect(() => {
+    playQuizResultsSound(passed, score, passingScore);
+  }, [passed, score, passingScore]);
 
   return (
     <motion.div
@@ -82,6 +87,7 @@ export function QuizResultsScreen({
       <Button
         type="button"
         variant="outline"
+        data-ui-sound="navigate"
         className={adminBrutalButtonClass}
         onClick={onRetry}
       >

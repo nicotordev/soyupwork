@@ -3,10 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { QUIZ_PLAY } from "@/constants/quiz-play.constants";
 import { adminBrutalButtonClass } from "@/lib/admin/styles";
+import { playQuizTimerWarningSound } from "@/lib/quiz/quiz-sounds";
 import { cn } from "@/lib/utils";
 import type { QuizPlayQuestion } from "@/types/quiz-play.types";
 import { IconClock } from "@tabler/icons-react";
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 type QuizQuestionScreenProps = {
   question: QuizPlayQuestion;
@@ -31,6 +33,19 @@ export function QuizQuestionScreen({
 }: QuizQuestionScreenProps) {
   const progress = ((questionIndex + 1) / totalQuestions) * 100;
   const timerUrgent = secondsLeft <= 5;
+  const timerWarningPlayedRef = useRef(false);
+
+  useEffect(() => {
+    timerWarningPlayedRef.current = false;
+  }, [question.id]);
+
+  useEffect(() => {
+    if (secondsLeft > 5 || timerWarningPlayedRef.current || isSubmitting) {
+      return;
+    }
+    timerWarningPlayedRef.current = true;
+    playQuizTimerWarningSound();
+  }, [secondsLeft, isSubmitting]);
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
@@ -84,6 +99,7 @@ export function QuizQuestionScreen({
                 <button
                   type="button"
                   disabled={isSubmitting}
+                  data-ui-sound="select"
                   onClick={() => onToggleOption(option.id)}
                   className={cn(
                     "w-full rounded-lg border-2 px-4 py-3 text-left text-sm font-medium transition-all",

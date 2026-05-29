@@ -1,4 +1,8 @@
 import { shouldCheckPlatformGate } from "@/lib/platform/gate";
+import {
+  isPublicWaitlistMode,
+  isStaffSignInBypass,
+} from "@/lib/platform/public-waitlist-mode";
 import type { PlatformGateAction } from "@/types/platform-settings.types";
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -72,6 +76,19 @@ export default clerkMiddleware(async (auth, req) => {
 
   const pathname = req.nextUrl.pathname;
 
+  if (isPublicWaitlistMode()) {
+    if (pathname.startsWith("/sign-up")) {
+      return NextResponse.redirect(new URL("/waitlist", req.url));
+    }
+
+    if (
+      pathname.startsWith("/sign-in") &&
+      !isStaffSignInBypass(req.nextUrl.searchParams)
+    ) {
+      return NextResponse.redirect(new URL("/waitlist", req.url));
+    }
+  }
+
   if (shouldCheckPlatformGate(pathname)) {
     const { userId } = await auth();
     const action = await fetchPlatformGateAction(
@@ -92,7 +109,10 @@ export default clerkMiddleware(async (auth, req) => {
   if (isAdminRoute(req)) {
     const { userId } = await auth();
     if (!userId) {
-      return NextResponse.redirect(new URL("/sign-in", req.url));
+      const signInUrl = isPublicWaitlistMode()
+        ? "/sign-in?access=staff&redirect_url=/admin"
+        : "/sign-in";
+      return NextResponse.redirect(new URL(signInUrl, req.url));
     }
 
     const isAdmin = await fetchIsAdmin(req.nextUrl.origin, userId);

@@ -80,6 +80,7 @@ export function QuizIntroScreen({
       <Button
         type="button"
         size="lg"
+        data-ui-sound="open"
         className={cn(adminBrutalButtonClass, "w-full")}
         onClick={onStart}
       >

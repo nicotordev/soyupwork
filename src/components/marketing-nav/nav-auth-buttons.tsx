@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { MARKETING_PAGE } from "@/constants/marketing.constants";
+import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
 import { cn } from "@/lib/utils";
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
@@ -34,7 +36,27 @@ function SignedInActions({ layout }: { layout: "row" | "column" }) {
   );
 }
 
+function WaitlistActions({ layout }: { layout: "row" | "column" }) {
+  return (
+    <div
+      className={cn(
+        layout === "column"
+          ? "flex w-full flex-col gap-2.5"
+          : "flex items-center gap-3",
+      )}
+    >
+      <Button asChild className={layout === "column" ? "w-full" : undefined}>
+        <Link href="/waitlist">{MARKETING_PAGE.hero.ctaPrimary}</Link>
+      </Button>
+    </div>
+  );
+}
+
 function SignedOutActions({ layout }: { layout: "row" | "column" }) {
+  if (isPublicWaitlistMode()) {
+    return <WaitlistActions layout={layout} />;
+  }
+
   return (
     <div
       className={cn(

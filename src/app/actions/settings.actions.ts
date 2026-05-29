@@ -32,6 +32,7 @@ import {
   PLATFORM_SETTINGS_ID,
   getPlatformSettings,
 } from "@/lib/platform/settings/store";
+import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
 import type {
   AuthSettingsFormValues,
   ConfirmWaitlistVerificationResult,
@@ -259,6 +260,10 @@ export async function updateNotificationsSettings(
 async function assertWaitlistOpen(): Promise<
   { ok: true } | { ok: false; error: string }
 > {
+  if (isPublicWaitlistMode()) {
+    return { ok: true };
+  }
+
   const settings = await getPlatformSettings();
   if (!settings.waitlistMode) {
     return { ok: false, error: "La lista de espera no está activa." };
