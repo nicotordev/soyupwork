@@ -18,13 +18,16 @@ type DesktopNavProps = {
   isLoadingCatalogSections?: boolean;
 };
 
-export function DesktopNav({ catalogSections, isLoadingCatalogSections }: DesktopNavProps) {
+export function DesktopNav({
+  catalogSections,
+  isLoadingCatalogSections,
+}: DesktopNavProps) {
   if (isLoadingCatalogSections) {
     return (
-      <NavigationMenu className="hidden lg:flex">
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger className="font-mono text-xs font-bold uppercase tracking-wider border-2 border-transparent bg-transparent hover:border-foreground hover:bg-secondary px-3 py-1.5 transition-all rounded-md data-[state=open]:border-foreground data-[state=open]:bg-secondary data-[state=open]:shadow-[2px_2px_0px_0px_var(--foreground)]">
+      <NavigationMenu className="hidden w-full max-w-none flex-1 lg:flex">
+        <NavigationMenuList className="w-full">
+          <NavigationMenuItem className="w-full flex-1">
+            <NavigationMenuTrigger className="w-full justify-center font-mono text-xs font-bold uppercase tracking-wider border-2 border-transparent bg-transparent hover:border-foreground hover:bg-secondary px-3 py-1.5 transition-all rounded-md data-[state=open]:border-foreground data-[state=open]:bg-secondary data-[state=open]:shadow-[2px_2px_0px_0px_var(--foreground)]">
               <Skeleton className="w-24 h-4" />
             </NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -63,11 +66,11 @@ export function DesktopNav({ catalogSections, isLoadingCatalogSections }: Deskto
   );
 
   return (
-    <NavigationMenu className="hidden lg:flex">
-      <NavigationMenuList>
+    <NavigationMenu className="hidden w-full max-w-none flex-1 lg:flex">
+      <NavigationMenuList className="w-full">
         {sections.map((section) => (
-          <NavigationMenuItem key={section.label}>
-            <NavigationMenuTrigger className="font-mono text-xs font-bold uppercase tracking-wider border-2 border-transparent bg-transparent hover:border-foreground hover:bg-secondary px-3 py-1.5 transition-all rounded-md data-[state=open]:border-foreground data-[state=open]:bg-secondary data-[state=open]:shadow-[2px_2px_0px_0px_var(--foreground)]">
+          <NavigationMenuItem key={section.label} className="w-full flex-1">
+            <NavigationMenuTrigger className="w-full justify-center font-mono text-xs font-bold uppercase tracking-wider border-2 border-transparent bg-transparent hover:border-foreground hover:bg-secondary px-3 py-1.5 transition-all rounded-md data-[state=open]:border-foreground data-[state=open]:bg-secondary data-[state=open]:shadow-[2px_2px_0px_0px_var(--foreground)]">
               {section.label}
             </NavigationMenuTrigger>
             <NavigationMenuContent>

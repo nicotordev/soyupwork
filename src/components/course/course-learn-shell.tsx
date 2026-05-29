@@ -1,9 +1,11 @@
 "use client";
 
 import { CourseLessonContent } from "@/components/course/course-lesson-content";
+import { CourseLessonLockedView } from "@/components/course/course-lesson-locked-view";
 import { CourseLessonSidebar } from "@/components/course/course-lesson-sidebar";
 import { CourseDemoBanner } from "@/components/course/course-demo-banner";
 import { CoursePreviewBanner } from "@/components/course/course-preview-banner";
+import { findFirstAccessibleLessonSlug } from "@/lib/course/sequential-lesson-access";
 import { findLessonInView } from "@/lib/course/course-page-view";
 import {
   isAdminPreviewMode,
@@ -21,6 +23,7 @@ type CourseLearnShellProps = {
   courseLandingHref: string;
   lessonHrefMode?: "path" | "query";
   showModeBanner?: boolean;
+  onDemoLessonComplete?: (lessonId: string) => void;
 };
 
 export function CourseLearnShell({
@@ -30,12 +33,37 @@ export function CourseLearnShell({
   courseLandingHref,
   lessonHrefMode = "path",
   showModeBanner = true,
+  onDemoLessonComplete,
 }: CourseLearnShellProps) {
   const { view, mode } = data;
   const lesson = findLessonInView(view, lessonSlug);
 
-  if (!lesson || (!lesson.isAccessible && mode === "student")) {
+  const lessonHref = (slug: string) =>
+    lessonHrefMode === "query"
+      ? `${lessonBasePath}?leccion=${encodeURIComponent(slug)}`
+      : `${lessonBasePath}/${slug}`;
+
+  const firstAccessibleSlug = findFirstAccessibleLessonSlug(view.modules);
+  const currentLessonHref = firstAccessibleSlug
+    ? lessonHref(firstAccessibleSlug)
+    : null;
+
+  if (!lesson) {
     return null;
+  }
+
+  if (!lesson.isAccessible && !isAdminPreviewMode(mode)) {
+    return (
+      <div className="flex min-h-svh flex-col font-sans">
+        {showModeBanner && isPublicDemoMode(mode) ? <CourseDemoBanner /> : null}
+        <main className="flex flex-1 items-center justify-center p-4 sm:p-6">
+          <CourseLessonLockedView
+            currentLessonHref={currentLessonHref}
+            courseLandingHref={courseLandingHref}
+          />
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -90,7 +118,14 @@ export function CourseLearnShell({
           />
         </div>
         <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <CourseLessonContent view={view} lesson={lesson} mode={mode} />
+          <CourseLessonContent
+            view={view}
+            lesson={lesson}
+            mode={mode}
+            lessonBasePath={lessonBasePath}
+            lessonHrefMode={lessonHrefMode}
+            onDemoLessonComplete={onDemoLessonComplete}
+          />
         </main>
       </div>
     </div>

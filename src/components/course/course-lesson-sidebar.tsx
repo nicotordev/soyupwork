@@ -11,6 +11,7 @@ import type {
 } from "@/types/course-page.types";
 import {
   IconBook,
+  IconCheck,
   IconClipboardList,
   IconLock,
   IconVideo,
@@ -67,6 +68,7 @@ export function CourseLessonSidebar({
               {module.lessons.map((lesson, lessonIndex) => {
                 const isActive = lesson.slug === activeLessonSlug;
                 const isLocked = !lesson.isAccessible;
+                const isCompleted = lesson.isCompleted;
 
                 const itemClass = cn(
                   "flex items-start gap-2 rounded border px-2 py-2 text-left text-xs transition-colors",
@@ -91,7 +93,13 @@ export function CourseLessonSidebar({
                         {COURSE_PAGE.previewLessonBadge}
                       </span>
                     ) : null}
-                    {isLocked ? (
+                    {isCompleted ? (
+                      <IconCheck
+                        className="size-3 shrink-0 text-emerald-600"
+                        stroke={2.5}
+                        aria-label="Completada"
+                      />
+                    ) : isLocked ? (
                       <IconLock className="size-3 shrink-0" stroke={2.25} />
                     ) : null}
                   </>
@@ -102,7 +110,7 @@ export function CourseLessonSidebar({
                     <li
                       key={lesson.id}
                       className={itemClass}
-                      title={COURSE_PAGE.lockedLessonLabel}
+                      title={COURSE_PAGE.lockedLessonSequential}
                     >
                       {content}
                     </li>

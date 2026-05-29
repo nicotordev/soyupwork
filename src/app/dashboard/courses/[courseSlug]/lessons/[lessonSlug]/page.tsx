@@ -1,8 +1,9 @@
 import { getCoursePageForStudent } from "@/app/actions/course-page.actions";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
 import { findLessonInView } from "@/lib/course/course-page-view";
+import { findFirstAccessibleLessonSlug } from "@/lib/course/sequential-lesson-access";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 type PageProps = {
   params: Promise<{ courseSlug: string; lessonSlug: string }>;
@@ -33,7 +34,17 @@ export default async function DashboardCourseLessonPage({ params }: PageProps) {
 
   const lesson = findLessonInView(data.view, lessonSlug);
 
-  if (!lesson || !lesson.isAccessible) {
+  if (!lesson) {
+    notFound();
+  }
+
+  if (!lesson.isAccessible) {
+    const firstAccessible = findFirstAccessibleLessonSlug(data.view.modules);
+    if (firstAccessible && firstAccessible !== lessonSlug) {
+      redirect(
+        `/dashboard/courses/${data.view.slug}/lessons/${firstAccessible}`,
+      );
+    }
     notFound();
   }
 

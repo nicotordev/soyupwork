@@ -17,19 +17,25 @@ import type { CatalogSection } from "@/types/marketing-nav.types";
 import { IconMenu2 } from "@tabler/icons-react";
 
 type MobileNavProps = {
+  className?: string;
   isSignedIn: boolean;
   catalogSections: CatalogSection[];
   isLoadingCatalogSections?: boolean;
 };
 
-export function MobileNav({ isSignedIn, catalogSections, isLoadingCatalogSections }: MobileNavProps) {
+export function MobileNav({
+  className,
+  isSignedIn,
+  catalogSections,
+  isLoadingCatalogSections,
+}: MobileNavProps) {
   return (
     <Sheet>
-      <SheetTrigger asChild className="lg:hidden">
+      <SheetTrigger asChild className={className}>
         <Button
           variant="outline"
           size="icon"
-          className="border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_0px_var(--foreground)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px] transition-all size-9 flex items-center justify-center"
+          className="size-9 shrink-0 border-2 border-foreground bg-background text-foreground shadow-[2px_2px_0px_0px_var(--foreground)] transition-all hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px]"
         >
           <IconMenu2 className="size-5" />
           <span className="sr-only">Abrir menú</span>

@@ -6,6 +6,7 @@ import { requireStudent } from "@/lib/auth/student";
 import {
   buildCoursePageData,
   coursePageInclude,
+  fetchCompletedLessonIdsForCourse,
   userHasActiveEnrollment,
 } from "@/lib/course/get-course-page-data";
 import prisma from "@/lib/db/prisma";
@@ -59,10 +60,14 @@ export async function getCoursePageForStudent(
   if (!course) return null;
 
   const hasFullAccess = await userHasActiveEnrollment(user.id, course.id);
+  const completedLessonIds = hasFullAccess
+    ? await fetchCompletedLessonIdsForCourse(user.id, course.id)
+    : new Set<string>();
 
   return buildCoursePageData(course, {
     mode: "student",
     hasFullAccess,
+    completedLessonIds,
   });
 }
 

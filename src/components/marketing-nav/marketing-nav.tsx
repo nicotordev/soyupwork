@@ -25,28 +25,32 @@ export function MarketingNav({
         "sticky top-0 w-full z-50 border-b-2 border-foreground bg-background transition-all duration-200",
       )}
     >
-      <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="shrink-0 font-heading text-sm md:text-base font-extrabold tracking-tight border-2 border-foreground bg-secondary px-3 py-1 shadow-[2px_2px_0px_0px_var(--foreground)] rounded transition-all hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px]"
-        >
-          SoyUpwork
-        </Link>
+      <div className="mx-auto flex h-14 w-full max-w-7xl items-center gap-2 px-4 sm:px-6 lg:gap-3 lg:px-8">
+        <div className="flex min-w-0 flex-1 items-center justify-start">
+          <Link
+            href="/"
+            className="shrink-0 font-heading text-sm md:text-base font-extrabold tracking-tight border-2 border-foreground bg-secondary px-3 py-1 shadow-[2px_2px_0px_0px_var(--foreground)] rounded transition-all hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-y-[2px]"
+          >
+            SoyUpwork
+          </Link>
+        </div>
 
-        <div className="flex flex-1 justify-center">
+        <div className="flex min-w-0 flex-1 items-center justify-center">
           <DesktopNav
             catalogSections={catalogSections}
             isLoadingCatalogSections={isLoadingCatalogSections}
           />
         </div>
 
-        <NavAuthButtons className="hidden lg:flex" isSignedIn={isSignedIn} />
-
-        <MobileNav
-          isSignedIn={isSignedIn}
-          catalogSections={catalogSections}
-          isLoadingCatalogSections={isLoadingCatalogSections}
-        />
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+          <NavAuthButtons className="hidden lg:flex" isSignedIn={isSignedIn} />
+          <MobileNav
+            className="lg:hidden"
+            isSignedIn={isSignedIn}
+            catalogSections={catalogSections}
+            isLoadingCatalogSections={isLoadingCatalogSections}
+          />
+        </div>
       </div>
     </header>
   );

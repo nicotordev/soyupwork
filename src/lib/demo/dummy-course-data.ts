@@ -1,8 +1,14 @@
 import { DEMO_DUMMY_COURSE_ID } from "@/lib/demo/demo-constants";
+import {
+  applySequentialLessonAccess,
+  findFirstAccessibleLessonSlug,
+} from "@/lib/course/sequential-lesson-access";
 import type {
   CoursePageData,
   CoursePageLesson,
+  CoursePageLessonComment,
   CoursePageModule,
+  CoursePageVideoAiInsight,
 } from "@/types/course-page.types";
 
 const DUMMY_LESSON_VIDEO = "bienvenida";
@@ -29,6 +35,195 @@ function videoStatusFor(playbackId: string | null): "READY" | null {
   return playbackId ? "READY" : null;
 }
 
+const DEMO_VIDEO_ENGAGEMENT: Record<
+  VideoKey,
+  {
+    videoAiInsight: CoursePageVideoAiInsight;
+    placeholderComments: CoursePageLessonComment[];
+  }
+> = {
+  welcome: {
+    videoAiInsight: {
+      summary:
+        "Esta lección presenta el mapa del curso: perfil, selección de jobs, propuestas, entrevistas y retención. El objetivo es que uses cada módulo como un sistema, no como vídeos aislados.",
+      highlights: [
+        "Recorre el curso en orden la primera vez; luego vuelve al módulo que más te cuesta.",
+        "Cada bloque termina con ejercicios cortos para aplicar en Upwork.",
+        "La meta no es ver todo, sino mejorar una métrica por semana (respuestas, entrevistas, cierres).",
+      ],
+      suggestedPrompts: [
+        "¿Por dónde empiezo si ya tengo perfil pero no recibo respuestas?",
+        "Resume el curso en 3 pasos accionables.",
+      ],
+    },
+    placeholderComments: [
+      {
+        id: "demo-comment-welcome-1",
+        authorName: "María G.",
+        body: "¿Conviene ver todo el curso antes de aplicar o ir módulo por módulo?",
+        createdAt: "2026-05-27T14:20:00.000Z",
+      },
+      {
+        id: "demo-comment-welcome-2",
+        authorName: "Diego R.",
+        body: "Me ayudó entender que no es solo perfil: también jobs y propuestas.",
+        createdAt: "2026-05-26T09:10:00.000Z",
+      },
+    ],
+  },
+  profileAudit: {
+    videoAiInsight: {
+      summary:
+        "Aprendes a auditar título, primera línea, portfolio y prueba social antes de gastar Connects. La idea es alinear cada elemento con tu oferta concreta.",
+      highlights: [
+        "El título debe comunicar resultado, no solo rol técnico.",
+        "La primera línea del overview debe reforzar el problema que resuelves.",
+        "El portfolio debe mostrar evidencia del nicho que quieres vender.",
+      ],
+      suggestedPrompts: [
+        "¿Qué revisar primero si mi perfil tiene muchas skills genéricas?",
+        "Dame un checklist de 5 minutos antes de aplicar.",
+      ],
+    },
+    placeholderComments: [
+      {
+        id: "demo-comment-profile-1",
+        authorName: "Ana L.",
+        body: "¿El título en inglés o español si busco clientes de EE.UU.?",
+        createdAt: "2026-05-28T11:45:00.000Z",
+      },
+      {
+        id: "demo-comment-profile-2",
+        authorName: "Carlos M.",
+        body: "Revisé mi overview con el checklist y ya se lee más claro.",
+        createdAt: "2026-05-25T16:30:00.000Z",
+      },
+    ],
+  },
+  jobSelection: {
+    videoAiInsight: {
+      summary:
+        "La matriz de priorización te ayuda a decidir cuándo aplicar, guardar o descartar un job según fit, cliente y timing. Evita gastar Connects en proyectos donde no puedes escribir una apertura específica en cinco minutos.",
+      highlights: [
+        "Puntúa fit, cliente y timing antes de aplicar.",
+        "Menos de 5 propuestas puede ser oportunidad temprana si el fit es fuerte.",
+        "Con 50+ propuestas necesitas prueba social muy alineada o invitación.",
+      ],
+      suggestedPrompts: [
+        "¿Cuándo tiene sentido boostear un job?",
+        "¿Cómo priorizo si tengo pocos Connects esta semana?",
+      ],
+    },
+    placeholderComments: [
+      {
+        id: "demo-comment-jobs-1",
+        authorName: "Lucía P.",
+        body: "La regla de los 5 minutos para la apertura me ahorró varias aplicaciones malas.",
+        createdAt: "2026-05-27T08:00:00.000Z",
+      },
+      {
+        id: "demo-comment-jobs-2",
+        authorName: "Tomás V.",
+        body: "¿La matriz sirve también para trabajos por hora de largo plazo?",
+        createdAt: "2026-05-24T19:15:00.000Z",
+      },
+    ],
+  },
+  proposalStructure: {
+    videoAiInsight: {
+      summary:
+        "Una propuesta efectiva en Upwork usa cinco bloques: contexto, diagnóstico, plan, evidencia y pregunta. El vídeo muestra cómo mantenerla corta y orientada al siguiente paso.",
+      highlights: [
+        "Demuestra que leíste el brief en la primera línea.",
+        "Propón fases o entregables acotados para reducir riesgo.",
+        "Cierra con una pregunta que invite a responder, no solo a contratar.",
+      ],
+      suggestedPrompts: [
+        "¿Cuántas líneas debería tener una propuesta corta?",
+        "Dame un ejemplo de cierre con pregunta.",
+      ],
+    },
+    placeholderComments: [
+      {
+        id: "demo-comment-proposal-1",
+        authorName: "Sofía N.",
+        body: "¿El bloque de evidencia puede ser un enlace al portfolio aunque no sea el mismo nicho?",
+        createdAt: "2026-05-28T13:20:00.000Z",
+      },
+      {
+        id: "demo-comment-proposal-2",
+        authorName: "Javier H.",
+        body: "Probé la estructura de 5 bloques y tuve dos respuestas en la misma semana.",
+        createdAt: "2026-05-23T10:05:00.000Z",
+      },
+      {
+        id: "demo-comment-proposal-3",
+        authorName: "Paula S.",
+        body: "¿Conviene adjuntar un Loom en la primera propuesta o esperar a que respondan?",
+        createdAt: "2026-05-22T17:40:00.000Z",
+      },
+    ],
+  },
+  interview: {
+    videoAiInsight: {
+      summary:
+        "El guion de entrevista te guía para conducir la llamada con claridad: entender el problema, validar alcance y proponer un siguiente paso sin sonar a script genérico.",
+      highlights: [
+        "Prepara 3 preguntas sobre resultado, riesgos y criterios de éxito.",
+        "Responde objeciones reencuadrando valor y alcance, no solo precio.",
+        "Cierra con acuerdos escritos: entregables, plazos y qué necesitas del cliente.",
+      ],
+      suggestedPrompts: [
+        "¿Qué preguntar si el brief del job era muy vago?",
+        "¿Cómo manejar 'está fuera de presupuesto' sin bajar tarifa de golpe?",
+      ],
+    },
+    placeholderComments: [
+      {
+        id: "demo-comment-interview-1",
+        authorName: "Renata C.",
+        body: "¿Grabar la llamada está bien o suena poco profesional?",
+        createdAt: "2026-05-27T15:55:00.000Z",
+      },
+      {
+        id: "demo-comment-interview-2",
+        authorName: "Mateo F.",
+        body: "El cierre por escrito después de la call me salvó un malentendido de alcance.",
+        createdAt: "2026-05-26T12:00:00.000Z",
+      },
+    ],
+  },
+  onboarding: {
+    videoAiInsight: {
+      summary:
+        "El onboarding en 15 minutos define expectativas, canales y primer entregable desde el primer mensaje post-contrato. Reduce fricción y prepara el terreno para retención o retainer.",
+      highlights: [
+        "Confirma objetivo, entregables incluidos y excluidos por escrito.",
+        "Pide accesos y materiales con plazos claros.",
+        "Agenda un check-in corto para la primera semana.",
+      ],
+      suggestedPrompts: [
+        "¿Qué incluir en el primer mensaje tras aceptar el contrato?",
+        "¿Cómo proponer continuidad sin presionar?",
+      ],
+    },
+    placeholderComments: [
+      {
+        id: "demo-comment-onboarding-1",
+        authorName: "Valentina T.",
+        body: "¿El mismo mensaje sirve para fixed price y por hora?",
+        createdAt: "2026-05-28T09:30:00.000Z",
+      },
+      {
+        id: "demo-comment-onboarding-2",
+        authorName: "Andrés K.",
+        body: "Implementé el check-in semanal y el cliente renovó el segundo mes.",
+        createdAt: "2026-05-25T20:10:00.000Z",
+      },
+    ],
+  },
+};
+
 function makeVideoLesson(input: {
   id: string;
   slug: string;
@@ -41,6 +236,7 @@ function makeVideoLesson(input: {
   content?: string;
 }): CoursePageLesson {
   const videoPlaybackId = DEMO_VIDEO_PLAYBACK_IDS[input.videoKey];
+  const engagement = DEMO_VIDEO_ENGAGEMENT[input.videoKey];
 
   return {
     id: input.id,
@@ -56,6 +252,9 @@ function makeVideoLesson(input: {
     content: input.content ?? "",
     quiz: null,
     isAccessible: true,
+    isCompleted: false,
+    videoAiInsight: engagement.videoAiInsight,
+    placeholderComments: engagement.placeholderComments,
   };
 }
 
@@ -82,6 +281,9 @@ function makeTextLesson(input: {
     content: input.content,
     quiz: null,
     isAccessible: true,
+    isCompleted: false,
+    videoAiInsight: null,
+    placeholderComments: [],
   };
 }
 
@@ -107,6 +309,9 @@ function makeDownloadLesson(input: {
     content: input.content,
     quiz: null,
     isAccessible: true,
+    isCompleted: false,
+    videoAiInsight: null,
+    placeholderComments: [],
   };
 }
 
@@ -138,10 +343,15 @@ function makeQuizLesson(input: {
     content: "",
     quiz: input.quiz,
     isAccessible: true,
+    isCompleted: false,
+    videoAiInsight: null,
+    placeholderComments: [],
   };
 }
 
-export function getDummyCoursePageData(): CoursePageData {
+export function getDummyCoursePageData(
+  completedLessonIds: ReadonlySet<string> = new Set(),
+): CoursePageData {
   const modules: CoursePageModule[] = [
     {
       id: "demo-mod-1",
@@ -795,6 +1005,12 @@ Escribe una propuesta de retainer para un cliente hipotético. Debe incluir entr
     Boolean,
   );
 
+  const sequentialModules = applySequentialLessonAccess(modules, {
+    hasFullAccess: true,
+    completedLessonIds,
+    enforceSequential: true,
+  });
+
   return {
     mode: "publicDemo",
     view: {
@@ -820,7 +1036,7 @@ Escribe una propuesta de retainer para un cliente hipotético. Debe incluir entr
       averageRating: 4.8,
       offersCertificate: true,
       hasFullAccess: true,
-      modules,
+      modules: sequentialModules,
       reviews: [
         {
           id: "demo-review-1",
@@ -877,7 +1093,8 @@ Escribe una propuesta de retainer para un cliente hipotético. Debe incluir entr
       ],
       muxConfigured: hasDemoVideoPlaybackIds,
       muxStreamingEnabled: hasDemoVideoPlaybackIds,
-      firstLessonSlug: DUMMY_LESSON_VIDEO,
+      firstLessonSlug:
+        findFirstAccessibleLessonSlug(sequentialModules) ?? DUMMY_LESSON_VIDEO,
     },
   };
 }

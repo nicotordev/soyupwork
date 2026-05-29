@@ -14,6 +14,19 @@ export type CoursePageQuizSummary = {
   questionCount: number;
 };
 
+export type CoursePageLessonComment = {
+  id: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
+};
+
+export type CoursePageVideoAiInsight = {
+  summary: string;
+  highlights?: string[];
+  suggestedPrompts?: string[];
+};
+
 export type CoursePageLesson = {
   id: string;
   slug: string;
@@ -28,6 +41,9 @@ export type CoursePageLesson = {
   content: string;
   quiz: CoursePageQuizSummary | null;
   isAccessible: boolean;
+  isCompleted: boolean;
+  videoAiInsight: CoursePageVideoAiInsight | null;
+  placeholderComments: CoursePageLessonComment[];
 };
 
 export type CoursePageModule = {

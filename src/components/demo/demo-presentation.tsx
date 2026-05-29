@@ -1,8 +1,18 @@
+"use client";
+
 import { CourseLandingView } from "@/components/course/course-landing-view";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
+import { applyCoursePageSequentialAccess } from "@/lib/course/apply-course-page-sequential";
 import { findLessonInView } from "@/lib/course/course-page-view";
+import { findFirstAccessibleLessonSlug } from "@/lib/course/sequential-lesson-access";
+import {
+  readDemoCompletedLessonIds,
+  writeDemoCompletedLessonIds,
+} from "@/lib/demo/demo-lesson-progress-storage";
 import type { CoursePageData } from "@/types/course-page.types";
 import type { CatalogSection } from "@/types/marketing-nav.types";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type DemoPresentationProps = {
   data: CoursePageData;
@@ -17,7 +27,26 @@ export function DemoPresentation({
   isSignedIn,
   catalogSections,
 }: DemoPresentationProps) {
-  const { view } = data;
+  const router = useRouter();
+  const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setCompletedLessonIds(readDemoCompletedLessonIds(data.view.id));
+    setHydrated(true);
+  }, [data.view.id]);
+
+  const completedSet = useMemo(
+    () => new Set(completedLessonIds),
+    [completedLessonIds],
+  );
+
+  const dataWithProgress = useMemo(
+    () => applyCoursePageSequentialAccess(data, completedSet),
+    [data, completedSet],
+  );
+
+  const { view } = dataWithProgress;
   const lesson =
     activeLessonSlug !== null ? findLessonInView(view, activeLessonSlug) : null;
 
@@ -26,18 +55,42 @@ export function DemoPresentation({
   const courseLandingHref = "/demo";
   const inLesson = lesson !== null;
 
+  useEffect(() => {
+    if (!hydrated || !activeLessonSlug || !lesson || lesson.isAccessible) {
+      return;
+    }
+
+    const firstSlug = findFirstAccessibleLessonSlug(view.modules);
+    if (firstSlug && firstSlug !== activeLessonSlug) {
+      router.replace(buildLessonHref(firstSlug));
+    }
+  }, [hydrated, activeLessonSlug, lesson, view.modules, router]);
+
+  const handleDemoLessonComplete = useCallback(
+    (lessonId: string) => {
+      setCompletedLessonIds((current) => {
+        if (current.includes(lessonId)) return current;
+        const next = [...current, lessonId];
+        writeDemoCompletedLessonIds(data.view.id, next);
+        return next;
+      });
+    },
+    [data.view.id],
+  );
+
   return inLesson && lesson ? (
     <CourseLearnShell
-      data={data}
+      data={dataWithProgress}
       lessonSlug={lesson.slug}
       lessonBasePath="/demo"
       courseLandingHref={courseLandingHref}
       lessonHrefMode="query"
       showModeBanner={false}
+      onDemoLessonComplete={handleDemoLessonComplete}
     />
   ) : (
     <CourseLandingView
-      data={data}
+      data={dataWithProgress}
       buildLessonHref={buildLessonHref}
       courseLandingHref={courseLandingHref}
       showModeBanner={false}

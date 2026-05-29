@@ -71,7 +71,7 @@ export function CourseLandingSyllabus({
                     ? buildLessonHref(lesson.slug)
                     : null;
                   const LessonIcon = LESSON_TYPE_ICONS[lesson.type] || FileText;
-                  const completed = view.hasFullAccess && lessonIndex % 4 === 0;
+                  const completed = lesson.isCompleted;
                   const row = (
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">

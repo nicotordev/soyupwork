@@ -4,6 +4,10 @@ import { courseLevelLabel } from "@/lib/catalog/course-level";
 import prisma from "@/lib/db/prisma";
 import { isMuxConfigured } from "@/lib/mux/config";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
+import {
+  applySequentialLessonAccess,
+  findFirstAccessibleLessonSlug,
+} from "@/lib/course/sequential-lesson-access";
 import type {
   CoursePageData,
   CoursePageLesson,
@@ -77,10 +81,7 @@ function instructorDisplayName(instructor: DbCoursePage["instructor"]): string {
 
 function mapLesson(
   lesson: DbCoursePage["modules"][0]["lessons"][0],
-  hasFullAccess: boolean,
 ): CoursePageLesson {
-  const isAccessible = hasFullAccess || lesson.isPreview;
-
   return {
     id: lesson.id,
     slug: lesson.slug,
@@ -101,31 +102,34 @@ function mapLesson(
           questionCount: lesson.quiz._count.questions,
         }
       : null,
-    isAccessible,
+    isAccessible: false,
+    isCompleted: false,
+    videoAiInsight: null,
+    placeholderComments: [],
   };
 }
 
 function mapModules(
   modules: DbCoursePage["modules"],
-  hasFullAccess: boolean,
+  options: {
+    hasFullAccess: boolean;
+    completedLessonIds: ReadonlySet<string>;
+    mode: CoursePageMode;
+  },
 ): CoursePageModule[] {
-  return modules.map((module) => ({
+  const mapped = modules.map((module) => ({
     id: module.id,
     title: module.title,
     description: module.description ?? "",
     position: module.position,
-    lessons: module.lessons.map((lesson) => mapLesson(lesson, hasFullAccess)),
+    lessons: module.lessons.map((lesson) => mapLesson(lesson)),
   }));
-}
 
-function findFirstAccessibleLessonSlug(
-  modules: CoursePageModule[],
-): string | null {
-  for (const module of modules) {
-    const lesson = module.lessons.find((item) => item.isAccessible);
-    if (lesson) return lesson.slug;
-  }
-  return null;
+  return applySequentialLessonAccess(mapped, {
+    hasFullAccess: options.hasFullAccess,
+    completedLessonIds: options.completedLessonIds,
+    enforceSequential: options.mode !== "adminPreview",
+  });
 }
 
 export async function mapDbCourseToCoursePageView(
@@ -133,6 +137,7 @@ export async function mapDbCourseToCoursePageView(
   options: {
     mode: CoursePageMode;
     hasFullAccess: boolean;
+    completedLessonIds?: ReadonlySet<string>;
     muxConfigured: boolean;
     muxStreamingEnabled: boolean;
   },
@@ -146,7 +151,11 @@ export async function mapDbCourseToCoursePageView(
           ).toFixed(1),
         )
       : null;
-  const modules = mapModules(dbCourse.modules, options.hasFullAccess);
+  const modules = mapModules(dbCourse.modules, {
+    hasFullAccess: options.hasFullAccess,
+    completedLessonIds: options.completedLessonIds ?? new Set(),
+    mode: options.mode,
+  });
   const lessonCount = modules.reduce(
     (total, module) => total + module.lessons.length,
     0,
@@ -193,11 +202,28 @@ export async function mapDbCourseToCoursePageView(
   };
 }
 
+export async function fetchCompletedLessonIdsForCourse(
+  userId: string,
+  courseId: string,
+): Promise<Set<string>> {
+  const rows = await prisma.lessonProgress.findMany({
+    where: {
+      userId,
+      completed: true,
+      lesson: { module: { courseId } },
+    },
+    select: { lessonId: true },
+  });
+
+  return new Set(rows.map((row) => row.lessonId));
+}
+
 export async function buildCoursePageData(
   dbCourse: DbCoursePage,
   options: {
     mode: CoursePageMode;
     hasFullAccess: boolean;
+    completedLessonIds?: ReadonlySet<string>;
   },
 ): Promise<CoursePageData> {
   const settings = await getPlatformSettings();
@@ -205,6 +231,7 @@ export async function buildCoursePageData(
   const view = await mapDbCourseToCoursePageView(dbCourse, {
     mode: options.mode,
     hasFullAccess: options.hasFullAccess,
+    completedLessonIds: options.completedLessonIds,
     muxConfigured: isMuxConfigured(),
     muxStreamingEnabled: settings.enableMuxStreaming,
   });

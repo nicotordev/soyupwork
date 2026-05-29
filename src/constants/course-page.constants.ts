@@ -9,6 +9,12 @@ export const COURSE_PAGE = {
   syllabusTitle: "Temario del curso",
   previewLessonBadge: "Vista previa",
   lockedLessonLabel: "Bloqueada",
+  lockedLessonSequential: "Completa la lección anterior para desbloquear esta.",
+  lockedLessonTitle: "Lección bloqueada",
+  lockedLessonBack: "Ir a tu lección actual",
+  markLessonComplete: "Marcar como completada",
+  lessonCompleted: "Lección completada",
+  lessonCompleteContinue: "Siguiente lección",
   backToCourse: "Volver al curso",
   backToCourses: "Mis cursos",
   enrollCta: "Inscríbete para acceder",
@@ -23,6 +29,20 @@ export const COURSE_PAGE = {
   quizPassingScore: (score: number) => `Nota mínima para aprobar: ${score}%`,
   quizQuestionCount: (count: number) =>
     count === 1 ? "1 pregunta" : `${count} preguntas`,
+  videoAiPanelTitle: "Asistente del vídeo",
+  videoAiPanelEmpty:
+    "El resumen con IA estará disponible pronto. Podrás pedir explicaciones, ejemplos y repasos del contenido.",
+  videoAiDemoNotice:
+    "Vista de demostración — las respuestas reales llegarán en una próxima versión.",
+  videoAiAskPlaceholder: "Pregunta sobre esta lección…",
+  videoAiAskSoon: "Próximamente",
+  videoAiHighlightsTitle: "Puntos clave",
+  videoAiSuggestedTitle: "Preguntas sugeridas",
+  videoCommentsTitle: "Comentarios de la lección",
+  videoCommentsEmpty:
+    "Sé el primero en comentar cuando activemos los debates en esta lección.",
+  videoCommentsPlaceholder: "Escribe un comentario…",
+  videoCommentsSubmitSoon: "Próximamente",
 } as const;
 
 export const ADMIN_COURSE_PREVIEW_PAGE = {
