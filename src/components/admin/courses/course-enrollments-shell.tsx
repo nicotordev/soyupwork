@@ -41,7 +41,6 @@ import { formatDashboardDate } from "@/lib/admin/formatters";
 import { adminBrutalButtonClass, adminInputClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { toast } from "@/lib/toast";
-import { EnrollmentStatus } from "@/generated/prisma/client";
 import { Loader2, UserPlus, UserX } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -54,16 +53,18 @@ type CourseEnrollmentsShellProps = {
   enrollments: AdminCourseEnrollmentRow[];
 };
 
-const STATUS_LABELS: Record<EnrollmentStatus, string> = {
+type EnrollmentStatusValue = AdminCourseEnrollmentRow["status"];
+
+const STATUS_LABELS: Record<EnrollmentStatusValue, string> = {
   ACTIVE: "Activa",
   COMPLETED: "Completada",
   CANCELLED: "Revocada",
   EXPIRED: "Expirada",
 };
 
-function statusVariant(status: EnrollmentStatus) {
-  if (status === EnrollmentStatus.ACTIVE) return "default";
-  if (status === EnrollmentStatus.COMPLETED) return "secondary";
+function statusVariant(status: EnrollmentStatusValue) {
+  if (status === "ACTIVE") return "default";
+  if (status === "COMPLETED") return "secondary";
   return "outline";
 }
 
@@ -243,8 +244,8 @@ export function CourseEnrollmentsShell({
                       {formatDashboardDate(enrollment.createdAt)}
                     </TableCell>
                     <TableCell>
-                      {enrollment.status === EnrollmentStatus.ACTIVE ||
-                      enrollment.status === EnrollmentStatus.COMPLETED ? (
+                      {enrollment.status === "ACTIVE" ||
+                      enrollment.status === "COMPLETED" ? (
                         <Button
                           type="button"
                           variant="outline"
