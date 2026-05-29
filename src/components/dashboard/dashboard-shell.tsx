@@ -3,7 +3,6 @@
 import { StudentHeader } from "@/components/dashboard/student-header";
 import { StudentSidebar } from "@/components/dashboard/student-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { COURSE_PAGE } from "@/constants/course-page.constants";
 import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -59,28 +58,6 @@ export function DashboardShell({ children }: DashboardShellProps) {
         </AnimatePresence>
       </SidebarInset>
     </SidebarProvider>
-  );
-}
-
-export function DashboardPageHeader({
-  title,
-  description,
-}: {
-  title: string;
-  description?: string;
-}) {
-  return (
-    <div className="border-b-2 border-foreground bg-muted/20 px-4 py-6">
-      <div className="mx-auto max-w-6xl space-y-1">
-        <p className="font-mono text-[10px] font-bold uppercase text-primary">
-          {COURSE_PAGE.dashboardEyebrow}
-        </p>
-        <h1 className="text-2xl font-extrabold tracking-tight">{title}</h1>
-        {description ? (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        ) : null}
-      </div>
-    </div>
   );
 }
 

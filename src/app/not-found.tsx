@@ -3,15 +3,8 @@
 import { AppEmptyState } from "@/components/app-state/app-empty-state";
 import MarketingFooter from "@/components/marketing-footer";
 import { MarketingNavServer } from "@/components/marketing-nav";
-import type { Metadata } from "next";
 import { useClerk } from "@clerk/nextjs";
 import useCatalogSections from "@/hooks/use-catalog-sections";
-
-export const metadata: Metadata = {
-  title: "Página no encontrada | SoyUpwork",
-  description:
-    "No pudimos encontrar el recurso o página que estás buscando en SoyUpwork.",
-};
 
 export default function NotFound() {
   const { isSignedIn } = useClerk();
