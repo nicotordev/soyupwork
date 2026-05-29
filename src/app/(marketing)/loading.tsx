@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 function HeroLoading() {
   return (
-    <section className="relative mx-auto w-full max-w-6xl overflow-x-hidden px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+    <section className="relative mx-auto w-full overflow-x-hidden px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,var(--border)_1px,transparent_1px),linear-gradient(to_bottom,var(--border)_1px,transparent_1px)] bg-size-[3rem_3rem] opacity-20" />
 
       <div className="mx-auto flex max-w-4xl flex-col items-center space-y-8 text-center">

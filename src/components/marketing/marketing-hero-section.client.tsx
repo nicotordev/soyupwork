@@ -10,7 +10,7 @@ const { hero } = MARKETING_PAGE;
 
 export function MarketingHeroSectionClient() {
   return (
-    <section className="relative mx-auto w-full max-w-6xl overflow-x-hidden px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
+    <section className="relative mx-auto w-full overflow-x-hidden px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(to_right,oklch(0.153_0.006_107.1/8%)_1px,transparent_1px),linear-gradient(to_bottom,oklch(0.153_0.006_107.1/8%)_1px,transparent_1px)] bg-size-[3rem_3rem] opacity-45" />
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,var(--primary),transparent)] opacity-15" />
 
