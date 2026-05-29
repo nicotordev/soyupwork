@@ -6,7 +6,7 @@ import { CourseLessonVideoEngagement } from "@/components/course/video-engagemen
 import { CourseQuizPlayer } from "@/components/course/quiz/course-quiz-player";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
 import { adminPanelClass } from "@/lib/admin/styles";
-import { findNextAccessibleLesson } from "@/lib/course/course-page-view";
+import { computeNextLessonHref } from "@/lib/course/compute-next-lesson-href";
 import { cn } from "@/lib/utils";
 import type {
   CoursePageLesson,
@@ -25,16 +25,6 @@ type CourseLessonContentProps = {
   onDemoLessonComplete?: (lessonId: string) => void;
 };
 
-function buildLessonHref(
-  lessonBasePath: string,
-  lessonHrefMode: "path" | "query",
-  slug: string,
-): string {
-  return lessonHrefMode === "query"
-    ? `${lessonBasePath}?leccion=${encodeURIComponent(slug)}`
-    : `${lessonBasePath}/${slug}`;
-}
-
 export function CourseLessonContent({
   view,
   lesson,
@@ -43,16 +33,22 @@ export function CourseLessonContent({
   lessonHrefMode = "path",
   onDemoLessonComplete,
 }: CourseLessonContentProps) {
-  const nextLesson = findNextAccessibleLesson(view, lesson.slug);
-  const nextLessonHref = nextLesson
-    ? buildLessonHref(lessonBasePath, lessonHrefMode, nextLesson.slug)
-    : null;
+  const nextLessonHref = computeNextLessonHref({
+    view,
+    mode,
+    currentLessonSlug: lesson.slug,
+    lessonBasePath,
+    lessonHrefMode,
+  });
 
   const progressFooter = (
     <CourseLessonProgressFooter
+      view={view}
       lesson={lesson}
       mode={mode}
       courseSlug={view.slug}
+      lessonBasePath={lessonBasePath}
+      lessonHrefMode={lessonHrefMode}
       nextLessonHref={nextLessonHref}
       onDemoLessonComplete={onDemoLessonComplete}
     />
