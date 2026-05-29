@@ -11,6 +11,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <ClerkProvider
       appearance={clerkProviderAppearance}
       localization={clerkLocalization}
+      afterSignOutUrl={process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL ?? "/"}
     >
       <TooltipProvider>
         <UiSoundsProvider>

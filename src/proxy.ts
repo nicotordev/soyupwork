@@ -10,6 +10,9 @@ import { NextResponse } from "next/server";
 const isPublicRoute = createRouteMatcher(["/api/webhooks(.*)"]);
 const isInternalApiRoute = createRouteMatcher(["/api/internal(.*)"]);
 const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+const isCourseLessonRoute = createRouteMatcher([
+  "/courses/:courseSlug/lessons/:lessonSlug(.*)",
+]);
 
 async function fetchPlatformGateAction(
   origin: string,
@@ -119,6 +122,10 @@ export default clerkMiddleware(async (auth, req) => {
     if (!isAdmin) {
       return NextResponse.redirect(new URL("/", req.url));
     }
+  }
+
+  if (isCourseLessonRoute(req)) {
+    await auth.protect();
   }
 
   return NextResponse.next();

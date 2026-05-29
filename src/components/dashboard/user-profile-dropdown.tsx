@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { adminBrutalButtonClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
-import { useUser, SignOutButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 import { IconLogout, IconUser } from "@tabler/icons-react";
 import Image from "next/image";
@@ -208,20 +208,18 @@ export function UserProfileDropdown({
         <DropdownNavSection label="Cuenta" items={STUDENT_ACCOUNT_NAV} />
 
         <DropdownMenuSeparator className="bg-foreground/15 my-1" />
-        <SignOutButton redirectUrl="/">
-          <DropdownMenuItem asChild>
-            <button
-              type="button"
-              className={cn(
-                menuLinkClassName,
-                "w-full text-destructive hover:bg-destructive/10 hover:border-destructive/20 focus:bg-destructive/10 focus:text-destructive",
-              )}
-            >
-              <IconLogout className="size-3.5" stroke={2.5} />
-              Cerrar sesión
-            </button>
-          </DropdownMenuItem>
-        </SignOutButton>
+        <DropdownMenuItem asChild>
+          <Link
+            href="/sign-out"
+            className={cn(
+              menuLinkClassName,
+              "w-full text-destructive hover:bg-destructive/10 hover:border-destructive/20 focus:bg-destructive/10 focus:text-destructive",
+            )}
+          >
+            <IconLogout className="size-3.5" stroke={2.5} />
+            Cerrar sesión
+          </Link>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

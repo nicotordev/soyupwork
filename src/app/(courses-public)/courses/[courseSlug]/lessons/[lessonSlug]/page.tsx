@@ -2,6 +2,7 @@ import { getCoursePageForStudent } from "@/app/actions/course-page.actions";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
 import { findLessonInView } from "@/lib/course/course-page-view";
 import { findFirstAccessibleLessonSlug } from "@/lib/course/sequential-lesson-access";
+import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
@@ -24,9 +25,11 @@ export async function generateMetadata({
 }
 
 export default async function DashboardCourseLessonPage({ params }: PageProps) {
+  await auth.protect();
+
   const { courseSlug, lessonSlug } = await params;
 
-  const data = await getCoursePageForStudent(courseSlug).catch(() => null);
+  const data = await getCoursePageForStudent(courseSlug);
 
   if (!data) {
     notFound();
@@ -41,9 +44,7 @@ export default async function DashboardCourseLessonPage({ params }: PageProps) {
   if (!lesson.isAccessible) {
     const firstAccessible = findFirstAccessibleLessonSlug(data.view.modules);
     if (firstAccessible && firstAccessible !== lessonSlug) {
-      redirect(
-        `/courses/${data.view.slug}/lessons/${firstAccessible}`,
-      );
+      redirect(`/courses/${data.view.slug}/lessons/${firstAccessible}`);
     }
     notFound();
   }

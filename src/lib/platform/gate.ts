@@ -9,6 +9,7 @@ const GATE_EXEMPT_PREFIXES = [
   "/waitlist",
   "/sign-in",
   "/sign-up",
+  "/sign-out",
   "/admin",
   "/api",
   "/__clerk",

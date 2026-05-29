@@ -1,7 +1,7 @@
 import { AuthIllustration } from "@/components/auth/auth-illustration";
 import Link from "next/link";
 
-type AuthSplitVariant = "sign-in" | "sign-up";
+type AuthSplitVariant = "sign-in" | "sign-up" | "sign-out";
 
 const panelCopy: Record<
   AuthSplitVariant,
@@ -18,6 +18,12 @@ const panelCopy: Record<
     title: "Empieza a aprender hoy",
     description:
       "Crea tu perfil y desbloquea el catálogo, compras y tu ruta de aprendizaje.",
+  },
+  "sign-out": {
+    eyebrow: "Cerrar sesión",
+    title: "Hasta pronto",
+    description:
+      "Tu progreso queda guardado. Podés volver cuando quieras retomar tus cursos.",
   },
 };
 
