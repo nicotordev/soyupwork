@@ -1,9 +1,9 @@
 "use client";
 
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { IconCheck, IconLoader2 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { mapClientTurnstileErrorCode } from "@/lib/turnstile/error-codes";
-import { loadTurnstileScript } from "@/lib/turnstile/load-turnstile-script";
 import { cn } from "@/lib/utils";
 
 const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
@@ -32,120 +32,87 @@ export function TurnstileField({
   resetKey = 0,
   action,
 }: TurnstileFieldProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const widgetIdRef = useRef<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
   const [mounted, setMounted] = useState(false);
-  const [scriptReady, setScriptReady] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [verified, setVerified] = useState(false);
-  const [waiting, setWaiting] = useState(false);
+  const [waiting, setWaiting] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted || !isTurnstileEnabled()) return;
-
-    let cancelled = false;
-
-    loadTurnstileScript()
-      .then(() => {
-        if (!cancelled) {
-          setScriptReady(true);
-          setLoadError(null);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setLoadError(
-            "No se pudo cargar Cloudflare Turnstile. Revisa bloqueadores o red.",
-          );
-          onError?.(
-            "No se pudo cargar Cloudflare Turnstile. Revisa bloqueadores o red.",
-          );
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [mounted, onError]);
-
-  const clearWidget = useCallback(() => {
-    if (widgetIdRef.current && window.turnstile) {
-      window.turnstile.remove(widgetIdRef.current);
-      widgetIdRef.current = null;
-    }
-  }, []);
-
-  const renderWidget = useCallback(() => {
-    if (
-      !scriptReady ||
-      !containerRef.current ||
-      !siteKey ||
-      !window.turnstile
-    ) {
-      return;
-    }
-
-    clearWidget();
-
-    setWaiting(true);
     setVerified(false);
+    setWaiting(true);
     setLoadError(null);
+    turnstileRef.current?.reset();
+  }, [resetKey]);
 
-    widgetIdRef.current = window.turnstile.render(containerRef.current, {
-      sitekey: siteKey,
-      theme: "auto",
-      action,
-      retry: "auto",
-      "refresh-expired": "auto",
-      callback: (token: string) => {
-        setVerified(true);
-        setWaiting(false);
-        onToken(token);
-      },
-      "expired-callback": () => {
-        widgetIdRef.current = null;
-        setVerified(false);
-        setWaiting(true);
-        onExpire?.();
-      },
-      "error-callback": (errorCode?: string) => {
-        setVerified(false);
-        setWaiting(false);
-        const message = errorCode
-          ? mapClientTurnstileErrorCode(errorCode)
-          : "La verificación de seguridad falló. Intenta de nuevo.";
-        if (process.env.NODE_ENV !== "production") {
-          console.warn("[Turnstile]", errorCode ?? "unknown", message);
-        }
-        onError?.(message);
-      },
-    });
-  }, [scriptReady, clearWidget, onToken, onExpire, onError, action]);
+  const handleSuccess = useCallback(
+    (token: string) => {
+      setVerified(true);
+      setWaiting(false);
+      setLoadError(null);
+      onToken(token);
+    },
+    [onToken],
+  );
 
-  useEffect(() => {
-    if (!mounted) return;
-    renderWidget();
-    return clearWidget;
-  }, [mounted, renderWidget, resetKey, clearWidget]);
+  const handleExpire = useCallback(() => {
+    setVerified(false);
+    setWaiting(true);
+    onExpire?.();
+  }, [onExpire]);
 
-  if (!mounted || !isTurnstileEnabled()) {
+  const handleError = useCallback(
+    (errorCode?: string) => {
+      setVerified(false);
+      setWaiting(false);
+      const message = errorCode
+        ? mapClientTurnstileErrorCode(errorCode)
+        : "La verificación de seguridad falló. Intenta de nuevo.";
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("[Turnstile]", errorCode ?? "unknown", message);
+      }
+      onError?.(message);
+    },
+    [onError],
+  );
+
+  const handleScriptError = useCallback(() => {
+    const message =
+      "No se pudo cargar Cloudflare Turnstile. Revisa bloqueadores o red.";
+    setLoadError(message);
+    setWaiting(false);
+    onError?.(message);
+  }, [onError]);
+
+  if (!mounted || !isTurnstileEnabled() || !siteKey) {
     return null;
   }
 
   return (
     <div className={cn("space-y-2", className)}>
-      <div
-        ref={containerRef}
+      <Turnstile
+        ref={turnstileRef}
+        siteKey={siteKey}
+        onSuccess={handleSuccess}
+        onExpire={handleExpire}
+        onError={handleError}
+        scriptOptions={{ onError: handleScriptError }}
+        options={{
+          action,
+          theme: "auto",
+          retry: "auto",
+          refreshExpired: "auto",
+          language: "es",
+        }}
         className="flex min-h-[65px] justify-center"
-        aria-label="Verificación de seguridad Cloudflare Turnstile"
       />
       {verified ? (
         <p className="flex items-center justify-center gap-1.5 text-xs font-mono font-bold text-primary">
-          <IconCheck className="h-3.5 w-3.5 stroke-[3]" aria-hidden />
+          <IconCheck className="h-3.5 w-3.5 stroke-3" aria-hidden />
           Verificación completada
         </p>
       ) : waiting && !loadError ? (
