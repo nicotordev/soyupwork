@@ -1,6 +1,9 @@
 interface TurnstileRenderOptions {
   sitekey: string;
   theme?: "light" | "dark" | "auto";
+  action?: string;
+  retry?: "auto" | "never";
+  "refresh-expired"?: "auto" | "manual" | "never";
   callback?: (token: string) => void;
   "expired-callback"?: () => void;
   "error-callback"?: (errorCode?: string) => void;

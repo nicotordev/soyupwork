@@ -95,7 +95,7 @@ export async function getTurnstileDiagnostics(
       id: "site-key",
       status: "fail",
       message:
-        "NEXT_PUBLIC_TURNSTILE_SITE_KEY no está definida. En Docker debe pasarse como --build-arg al construir la imagen.",
+        "NEXT_PUBLIC_TURNSTILE_SITE_KEY no está en el entorno del servidor. El widget del cliente depende del --build-arg; este check valida runtime/diagnóstico.",
     });
   } else {
     checks.push({

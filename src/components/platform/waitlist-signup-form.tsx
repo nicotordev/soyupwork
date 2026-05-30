@@ -227,6 +227,7 @@ export function WaitlistSignupForm() {
           />
 
           <TurnstileField
+            action="waitlist-signup"
             resetKey={turnstileKey}
             onToken={setTurnstileToken}
             onExpire={() => setTurnstileToken(null)}
@@ -290,6 +291,7 @@ export function WaitlistSignupForm() {
                 Para reenviar el código
               </p>
               <TurnstileField
+                action="waitlist-resend"
                 resetKey={turnstileKey}
                 onToken={setTurnstileToken}
                 onExpire={() => setTurnstileToken(null)}

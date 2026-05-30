@@ -1,5 +1,6 @@
 "use client";
 
+import { IconCheck, IconLoader2 } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { mapClientTurnstileErrorCode } from "@/lib/turnstile/error-codes";
 import { loadTurnstileScript } from "@/lib/turnstile/load-turnstile-script";
@@ -14,6 +15,7 @@ type TurnstileFieldProps = {
   onError?: (message?: string) => void;
   className?: string;
   resetKey?: number;
+  action?: string;
 };
 
 export function isTurnstileEnabled(): boolean {
@@ -28,12 +30,15 @@ export function TurnstileField({
   onError,
   className,
   resetKey = 0,
+  action,
 }: TurnstileFieldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [scriptReady, setScriptReady] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [verified, setVerified] = useState(false);
+  const [waiting, setWaiting] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -86,15 +91,30 @@ export function TurnstileField({
 
     clearWidget();
 
+    setWaiting(true);
+    setVerified(false);
+    setLoadError(null);
+
     widgetIdRef.current = window.turnstile.render(containerRef.current, {
       sitekey: siteKey,
       theme: "auto",
-      callback: (token: string) => onToken(token),
+      action,
+      retry: "auto",
+      "refresh-expired": "auto",
+      callback: (token: string) => {
+        setVerified(true);
+        setWaiting(false);
+        onToken(token);
+      },
       "expired-callback": () => {
         widgetIdRef.current = null;
+        setVerified(false);
+        setWaiting(true);
         onExpire?.();
       },
       "error-callback": (errorCode?: string) => {
+        setVerified(false);
+        setWaiting(false);
         const message = errorCode
           ? mapClientTurnstileErrorCode(errorCode)
           : "La verificación de seguridad falló. Intenta de nuevo.";
@@ -104,7 +124,7 @@ export function TurnstileField({
         onError?.(message);
       },
     });
-  }, [scriptReady, clearWidget, onToken, onExpire, onError]);
+  }, [scriptReady, clearWidget, onToken, onExpire, onError, action]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -123,8 +143,21 @@ export function TurnstileField({
         className="flex min-h-[65px] justify-center"
         aria-label="Verificación de seguridad Cloudflare Turnstile"
       />
+      {verified ? (
+        <p className="flex items-center justify-center gap-1.5 text-xs font-mono font-bold text-primary">
+          <IconCheck className="h-3.5 w-3.5 stroke-[3]" aria-hidden />
+          Verificación completada
+        </p>
+      ) : waiting && !loadError ? (
+        <p className="flex items-center justify-center gap-1.5 text-xs font-mono text-muted-foreground">
+          <IconLoader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+          Completando verificación de seguridad…
+        </p>
+      ) : null}
       {loadError ? (
-        <p className="text-xs font-mono font-bold text-destructive">{loadError}</p>
+        <p className="text-xs font-mono font-bold text-destructive">
+          {loadError}
+        </p>
       ) : null}
     </div>
   );

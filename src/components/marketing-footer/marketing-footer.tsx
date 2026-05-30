@@ -169,6 +169,7 @@ export function MarketingFooter() {
                     </p>
                   )}
                   <TurnstileField
+                    action="newsletter-footer"
                     resetKey={turnstileKey}
                     onToken={setTurnstileToken}
                     onExpire={() => setTurnstileToken(null)}
