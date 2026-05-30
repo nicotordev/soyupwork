@@ -17,16 +17,20 @@ import { useState } from "react";
 type SignUpFormProps = {
   allowOAuthSignIn?: boolean;
   defaultCallbackUrl?: string;
+  lockedEmail?: string | null;
+  hasValidInvite?: boolean;
 };
 
 export function SignUpForm({
   allowOAuthSignIn = true,
   defaultCallbackUrl = "/onboarding",
+  lockedEmail = null,
+  hasValidInvite = false,
 }: SignUpFormProps) {
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(lockedEmail ?? "");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,7 +92,9 @@ export function SignUpForm({
           Crear cuenta
         </h2>
         <p className="text-sm text-muted-foreground">
-          Registrate para acceder al catálogo y tu panel de estudiante.
+          {hasValidInvite
+            ? "Completá tu registro con el correo de tu invitación."
+            : "Registrate para acceder al catálogo y tu panel de estudiante."}
         </p>
       </div>
 
@@ -146,6 +152,8 @@ export function SignUpForm({
             onChange={(event) => setEmail(event.target.value)}
             className={adminInputClass}
             required
+            readOnly={Boolean(lockedEmail)}
+            disabled={Boolean(lockedEmail)}
           />
         </div>
 

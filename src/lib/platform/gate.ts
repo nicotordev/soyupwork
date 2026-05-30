@@ -1,6 +1,7 @@
 import "server-only";
 
 import { isAdminByUserId } from "@/lib/auth/admin";
+import { hasAcceptedWaitlistInviteForUser } from "@/lib/waitlist/invite-access";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
 import type { PlatformGateAction } from "@/types/platform-settings.types";
 
@@ -48,6 +49,10 @@ export async function resolvePlatformGateAction(
 
   if (settings.waitlistMode) {
     if (isAdmin) {
+      return "none";
+    }
+
+    if (userId && (await hasAcceptedWaitlistInviteForUser(userId))) {
       return "none";
     }
 

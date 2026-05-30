@@ -2,6 +2,7 @@ export const GUEST_ONLY_AUTH_ROUTE_PREFIXES = [
   "/sign-in",
   "/sign-up",
   "/waitlist",
+  "/invite",
 ] as const;
 
 /** Default when platform settings are unavailable (e.g. proxy edge). */

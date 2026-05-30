@@ -9,6 +9,8 @@ import {
   isPublicWaitlistMode,
   isStaffSignInBypass,
 } from "@/lib/platform/public-waitlist-mode";
+import { WAITLIST_INVITE } from "@/lib/waitlist/invite.constants";
+import { verifyWaitlistInviteSessionToken } from "@/lib/waitlist/invite-session-verify";
 import type { PlatformGateAction } from "@/types/platform-settings.types";
 import authConfig from "@/auth.config";
 import NextAuth from "next-auth";
@@ -92,6 +94,15 @@ function buildSignInRedirect(reqUrl: URL, returnPath: string): URL {
   return signInUrl;
 }
 
+async function hasValidWaitlistInviteSession(
+  req: NextRequest,
+): Promise<boolean> {
+  const raw = req.cookies.get(WAITLIST_INVITE.sessionCookieName)?.value;
+  if (!raw) return false;
+  const payload = await verifyWaitlistInviteSessionToken(raw);
+  return Boolean(payload);
+}
+
 async function handleProtectedRoutes(
   req: NextRequest,
   pathname: string,
@@ -148,13 +159,16 @@ export default auth(async (req) => {
     }
 
     if (isPublicWaitlistMode()) {
-      if (pathname.startsWith("/sign-up")) {
+      const hasInviteSession = await hasValidWaitlistInviteSession(req);
+
+      if (pathname.startsWith("/sign-up") && !hasInviteSession) {
         return NextResponse.redirect(new URL("/waitlist", req.url));
       }
 
       if (
         pathname.startsWith("/sign-in") &&
-        !isStaffSignInBypass(req.nextUrl.searchParams)
+        !isStaffSignInBypass(req.nextUrl.searchParams) &&
+        !hasInviteSession
       ) {
         return NextResponse.redirect(new URL("/waitlist", req.url));
       }

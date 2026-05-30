@@ -18,6 +18,9 @@ import {
   splitDisplayName,
 } from "@/lib/auth/user-profile";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
+import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
+import { consumeWaitlistInviteForEmail } from "@/app/actions/waitlist-invite.actions";
+import { getInviteSessionIfValidForEmail } from "@/lib/waitlist/invite-access";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
@@ -149,10 +152,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         select: { id: true },
       });
 
-      if (!existing && account?.provider === "resend") {
+      if (!existing && account?.provider !== "credentials") {
         const settings = await getPlatformSettings();
-        if (!settings.registrationsOpen) {
-          return "/sign-in?error=RegistrationDisabled";
+        const needsInvite =
+          isPublicWaitlistMode() || !settings.registrationsOpen;
+        if (needsInvite) {
+          const inviteSession =
+            await getInviteSessionIfValidForEmail(normalizedEmail);
+          if (!inviteSession) {
+            return "/sign-in?error=RegistrationDisabled";
+          }
         }
       }
 
@@ -229,6 +238,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           role: resolveRoleForAllowlistedEmail(user.email),
         },
       });
+
+      if (user.email && user.id) {
+        await consumeWaitlistInviteForEmail(user.email, user.id);
+      }
     },
     async linkAccount({ user, account }) {
       if (account.provider === "credentials") {

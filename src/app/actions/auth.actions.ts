@@ -10,6 +10,10 @@ import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
 import {
+  assertRegistrationAllowedForEmail,
+  consumeWaitlistInviteForEmail,
+} from "@/app/actions/waitlist-invite.actions";
+import {
   linkAccountParamsSchema,
   magicLinkSignInSchema,
   registerUserSchema,
@@ -67,11 +71,6 @@ export async function validateMagicLinkSignIn(
   }
 
   const email = parsed.data.email.trim().toLowerCase();
-  const settings = await getPlatformSettings();
-
-  if (settings.registrationsOpen) {
-    return { ok: true };
-  }
 
   const existing = await prisma.user.findFirst({
     where: {
@@ -81,15 +80,11 @@ export async function validateMagicLinkSignIn(
     select: { id: true },
   });
 
-  if (!existing) {
-    return {
-      ok: false,
-      error:
-        "El registro está cerrado. Solo usuarios existentes pueden iniciar sesión.",
-    };
+  if (existing) {
+    return { ok: true };
   }
 
-  return { ok: true };
+  return assertRegistrationAllowedForEmail(email);
 }
 
 export async function registerUser(
@@ -105,6 +100,11 @@ export async function registerUser(
 
   const { email, firstName, lastName, password } = parsed.data;
   const normalizedEmail = email.trim().toLowerCase();
+
+  const inviteCheck = await assertRegistrationAllowedForEmail(normalizedEmail);
+  if (!inviteCheck.ok) {
+    return inviteCheck;
+  }
 
   try {
     const existing = await prisma.user.findFirst({
@@ -129,7 +129,7 @@ export async function registerUser(
       email: normalizedEmail,
     });
 
-    await prisma.user.create({
+    const created = await prisma.user.create({
       data: {
         email: normalizedEmail,
         emailVerified: new Date(),
@@ -139,7 +139,10 @@ export async function registerUser(
         passwordHash,
         role: resolveRoleForAllowlistedEmail(normalizedEmail),
       },
+      select: { id: true },
     });
+
+    await consumeWaitlistInviteForEmail(normalizedEmail, created.id);
 
     log.info({ email: normalizedEmail }, "User registered via credentials");
 

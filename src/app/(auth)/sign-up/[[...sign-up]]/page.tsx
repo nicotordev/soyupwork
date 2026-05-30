@@ -1,3 +1,4 @@
+import { getWaitlistInviteSignUpContext } from "@/app/actions/waitlist-invite.actions";
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { SignUpForm } from "@/components/auth/sign-up-form";
 import { redirectIfAuthenticatedFromGuestAuthPage } from "@/lib/auth/guest-auth-pages";
@@ -15,13 +16,15 @@ export const metadata: Metadata = {
 export default async function SignUpPage() {
   await redirectIfAuthenticatedFromGuestAuthPage();
 
-  if (isPublicWaitlistMode()) {
+  const inviteContext = await getWaitlistInviteSignUpContext();
+
+  if (isPublicWaitlistMode() && !inviteContext.hasValidInvite) {
     redirect("/waitlist");
   }
 
   const settings = await getPlatformSettings();
 
-  if (!settings.registrationsOpen) {
+  if (!settings.registrationsOpen && !inviteContext.hasValidInvite) {
     redirect(settings.waitlistMode ? "/waitlist" : "/sign-in");
   }
 
@@ -30,6 +33,8 @@ export default async function SignUpPage() {
       <SignUpForm
         allowOAuthSignIn={settings.allowOAuthSignIn}
         defaultCallbackUrl={settings.afterSignUpUrl}
+        lockedEmail={inviteContext.email}
+        hasValidInvite={inviteContext.hasValidInvite}
       />
     </AuthSplitLayout>
   );

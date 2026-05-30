@@ -7,6 +7,7 @@ import {
   IconSettings,
   IconUsers,
   IconUsersGroup,
+  IconMail,
 } from "@tabler/icons-react";
 
 import type { AdminNavItem } from "@/types/dashboard.types";
@@ -43,6 +44,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     href: "/admin/users",
     icon: IconUsers,
     description: "Estudiantes y permisos",
+  },
+  {
+    label: "Lista de espera",
+    href: "/admin/waitlist",
+    icon: IconMail,
+    description: "Registros e invitaciones de acceso",
   },
   {
     label: "Ventas",

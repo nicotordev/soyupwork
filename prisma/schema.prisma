@@ -119,6 +119,13 @@ enum LeadStatus {
   UNSUBSCRIBED
 }
 
+enum WaitlistInviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
 enum AnalyticsEventType {
   PAGE_VIEW
   COURSE_VIEW
@@ -210,6 +217,8 @@ model User {
   affiliate         Affiliate?
   emailLogs         EmailLog[]
   auditLogs         AuditLog[]         @relation("AuditActor")
+  waitlistInvitesSent     WaitlistInvite[] @relation("WaitlistInvitesSent")
+  waitlistInvitesAccepted WaitlistInvite[] @relation("WaitlistInvitesAccepted")
   courseDiscussions CourseDiscussion[]
   accounts          Account[]
   sessions          Session[]
@@ -1241,7 +1250,32 @@ model WaitlistEntry {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
+  invites WaitlistInvite[]
+
   @@index([createdAt])
+}
+
+model WaitlistInvite {
+  id              String               @id @default(uuid()) @db.Uuid
+  email           String
+  tokenHash       String               @unique
+  status          WaitlistInviteStatus @default(PENDING)
+  waitlistEntryId String?              @db.Uuid
+  invitedById     String               @db.Uuid
+  expiresAt       DateTime             @db.Timestamp(6)
+  acceptedAt      DateTime?            @db.Timestamp(6)
+  acceptedUserId  String?              @db.Uuid
+  revokedAt       DateTime?            @db.Timestamp(6)
+  createdAt       DateTime             @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime             @updatedAt @db.Timestamp(6)
+
+  waitlistEntry WaitlistEntry? @relation(fields: [waitlistEntryId], references: [id], onDelete: SetNull)
+  invitedBy     User           @relation("WaitlistInvitesSent", fields: [invitedById], references: [id])
+  acceptedUser  User?          @relation("WaitlistInvitesAccepted", fields: [acceptedUserId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([status])
+  @@index([expiresAt])
 }
 
 /// Pending waitlist signup until email OTP is verified (Resend).
