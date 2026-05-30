@@ -3,6 +3,7 @@ import {
   type CheckoutCancelCourse,
 } from "@/components/checkout/checkout-cancel-view";
 import { CourseStatus } from "@/generated/prisma/client";
+import { formatPriceLabel } from "@/lib/format-price-label";
 import prisma from "@/lib/db/prisma";
 import type { Metadata } from "next";
 
@@ -15,16 +16,6 @@ export const metadata: Metadata = {
 type PageProps = {
   searchParams: Promise<{ course?: string }>;
 };
-
-function formatPriceLabel(priceCents: number, currency: string): string {
-  if (priceCents === 0) return "Gratis";
-  const amount = priceCents / 100;
-  const code = currency.toUpperCase();
-  if (code === "USD") {
-    return `$${amount.toFixed(2)} USD`;
-  }
-  return `${amount.toFixed(2)} ${code}`;
-}
 
 async function getCancelCourse(
   courseSlug: string | undefined,

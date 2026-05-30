@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { EnrollmentStatus } from "@/generated/prisma/client";
 import { courseLevelLabel } from "@/lib/catalog/course-level";
+import { formatPriceLabel } from "@/lib/format-price-label";
 import prisma from "@/lib/db/prisma";
 import { isMuxConfigured } from "@/lib/mux/config";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
@@ -60,16 +61,6 @@ export const coursePageInclude = {
 export type DbCoursePage = Prisma.CourseGetPayload<{
   include: typeof coursePageInclude;
 }>;
-
-function formatPriceLabel(priceCents: number, currency: string): string {
-  if (priceCents === 0) return "Gratis";
-  const amount = priceCents / 100;
-  const code = currency.toUpperCase();
-  if (code === "USD") {
-    return `$${amount % 1 === 0 ? amount.toFixed(0) : amount.toFixed(2)} USD`;
-  }
-  return `${amount.toFixed(2)} ${code}`;
-}
 
 function instructorDisplayName(instructor: DbCoursePage["instructor"]): string {
   if (!instructor) return "SoyUpwork";
