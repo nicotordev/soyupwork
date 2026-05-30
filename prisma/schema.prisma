@@ -294,6 +294,7 @@ model Course {
   cohorts           Cohort[]
   courseDiscussions CourseDiscussion[]
   seoMetadata       SeoMetadata?
+  analyticsEvents   AnalyticsEvent[]
 
   @@index([status])
   @@index([slug])
@@ -374,12 +375,13 @@ model Lesson {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  module      CourseModule       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  progress    LessonProgress[]
-  bookmarks   LessonBookmark[]
-  quiz        Quiz?
-  assets      LessonAsset[]
-  discussions CourseDiscussion[]
+  module          CourseModule       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress        LessonProgress[]
+  bookmarks       LessonBookmark[]
+  quiz            Quiz?
+  assets          LessonAsset[]
+  discussions     CourseDiscussion[]
+  analyticsEvents AnalyticsEvent[]
 
   @@unique([moduleId, slug])
   @@unique([moduleId, position])
@@ -838,10 +840,13 @@ model AnalyticsEvent {
   createdAt DateTime @default(now()) @db.Timestamp(6)
 
   user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  course   Course?   @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  lesson   Lesson?   @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   blogPost BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: SetNull)
 
   @@index([type, createdAt])
   @@index([blogPostId])
+  @@index([lessonId, createdAt])
   @@index([userId, createdAt])
   @@index([courseId, createdAt])
   @@index([sessionId])
