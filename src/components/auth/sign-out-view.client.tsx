@@ -2,10 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { adminPanelClass } from "@/lib/admin/styles";
+import { getAfterSignOutUrl } from "@/lib/auth/redirect-url";
 import { cn } from "@/lib/utils";
-import { useClerk } from "@clerk/nextjs";
 import { IconLoader2, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { useState } from "react";
 
 type SignOutViewProps = {
@@ -13,13 +14,14 @@ type SignOutViewProps = {
 };
 
 export function SignOutView({ redirectUrl }: SignOutViewProps) {
-  const { signOut } = useClerk();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
-      await signOut(redirectUrl ? { redirectUrl } : undefined);
+      await signOut({
+        callbackUrl: redirectUrl ?? getAfterSignOutUrl(),
+      });
     } catch {
       setIsSigningOut(false);
     }

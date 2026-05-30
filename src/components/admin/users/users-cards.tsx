@@ -59,7 +59,7 @@ export function UsersCards({ users, currentAdminUserId }: UsersCardsProps) {
     <>
       <AdminListingPanel
         title="Vista de tarjetas"
-        description="Miembros sincronizados desde Clerk"
+        description="Miembros registrados en la plataforma"
         className="border-b-0 rounded-b-none pb-0"
       />
 

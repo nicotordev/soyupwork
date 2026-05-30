@@ -2,7 +2,7 @@ import { DemoPresentation } from "@/components/demo/demo-presentation";
 import { loadDemoCoursePage } from "@/lib/demo/load-demo-course";
 import type { Metadata } from "next";
 import { getCatalogNavSections } from "@/app/actions/catalog.actions";
-import { getClerkSession } from "@/lib/clerk/session";
+import { getAuthSession } from "@/lib/auth/session";
 import { Suspense } from "react";
 
 export const metadata: Metadata = {
@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 };
 
 export default async function DemoPage() {
-  const [clerkSession, catalogSections, data] = await Promise.all([
-    getClerkSession(),
+  const [authSession, catalogSections, data] = await Promise.all([
+    getAuthSession(),
     getCatalogNavSections(),
     loadDemoCoursePage(),
   ]);
-  const { isSignedIn } = clerkSession ?? {};
+  const { isSignedIn } = authSession ?? {};
 
   return (
     <Suspense fallback={null}>

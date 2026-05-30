@@ -41,7 +41,7 @@ export function UsersEmptyState({ hasFilters }: UsersEmptyStateProps) {
           <EmptyDescription>
             {hasFilters
               ? "Probá con otros términos o limpiá los filtros para ver todos los miembros."
-              : "Cuando los usuarios se registren vía Clerk, aparecerán aquí sincronizados en la base de datos."}
+              : "Cuando los usuarios se registren, aparecerán aquí en la base de datos."}
           </EmptyDescription>
         </EmptyHeader>
         {hasFilters ? (

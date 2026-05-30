@@ -1,7 +1,7 @@
 import "server-only";
 
 import { LOG_LEVELS } from "@/lib/logger/types";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 import { z } from "zod";
 
 const MAX_BODY_BYTES = Number(process.env.LOG_INGEST_MAX_BODY_BYTES ?? 16_384);
@@ -148,7 +148,8 @@ export async function assertLogIngestAllowed(
   }
 
   if (REQUIRE_AUTH) {
-    const { userId } = await auth();
+    const session = await auth();
+    const userId = session?.user?.id;
     if (!userId) {
       return { ok: false, reason: "unauthorized" };
     }

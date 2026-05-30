@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { adminBrutalButtonClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { IconLogout, IconUser } from "@tabler/icons-react";
 import Image from "next/image";
@@ -84,7 +84,10 @@ export function UserProfileDropdown({
   role = "student",
 }: UserProfileDropdownProps) {
   const [hasMounted, setHasMounted] = useState(false);
-  const { user, isLoaded, isSignedIn } = useUser();
+  const { data: session, status } = useSession();
+  const isLoaded = status !== "loading";
+  const isSignedIn = status === "authenticated";
+  const user = session?.user;
 
   useEffect(() => {
     setHasMounted(true);
@@ -116,15 +119,13 @@ export function UserProfileDropdown({
   const userDisplayName =
     profile?.firstName || profile?.lastName
       ? `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim()
-      : user.firstName || user.lastName
+      : user?.firstName || user?.lastName
         ? `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim()
-        : (user.primaryEmailAddress?.emailAddress.split("@")[0] ??
-          "Estudiante");
+        : (user?.email?.split("@")[0] ?? "Estudiante");
 
-  const userEmail =
-    profile?.email ?? user.primaryEmailAddress?.emailAddress ?? "";
+  const userEmail = profile?.email ?? user?.email ?? "";
 
-  const avatarUrl = profile?.imageUrl ?? user.imageUrl ?? null;
+  const avatarUrl = profile?.imageUrl ?? user?.imageUrl ?? user?.image ?? null;
 
   return (
     <DropdownMenu>

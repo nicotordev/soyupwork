@@ -1,8 +1,7 @@
 "use server";
 
-import { clerkClient } from "@clerk/nextjs/server";
-import { isClerkAPIResponseError } from "@clerk/shared/error";
 import { requireStudent } from "@/lib/auth/student";
+import { buildUserDisplayName } from "@/lib/auth/user-profile";
 import prisma from "@/lib/db/prisma";
 import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
@@ -39,10 +38,7 @@ const profileSelect = {
   bio: true,
 } as const;
 
-function clerkErrorMessage(error: unknown): string {
-  if (isClerkAPIResponseError(error)) {
-    return error.errors[0]?.longMessage ?? error.message;
-  }
+function actionErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
   }
@@ -145,7 +141,10 @@ export async function setStudentAvatar(
 
     const updated = await prisma.user.update({
       where: { id: student.id },
-      data: { imageUrl: parsed.data.imageUrl },
+      data: {
+        imageUrl: parsed.data.imageUrl,
+        image: parsed.data.imageUrl,
+      },
       select: profileSelect,
     });
 
@@ -177,16 +176,11 @@ export async function updateStudentProfile(
     }
 
     const { firstName, lastName, bio } = parsed.data;
-
-    const client = await clerkClient();
-    await client.users.updateUser(student.clerkId, {
-      firstName,
-      lastName,
-    });
+    const name = buildUserDisplayName({ firstName, lastName });
 
     const updated = await prisma.user.update({
       where: { id: student.id },
-      data: { firstName, lastName, bio },
+      data: { firstName, lastName, bio, name },
       select: profileSelect,
     });
 
@@ -197,7 +191,7 @@ export async function updateStudentProfile(
     return { ok: true, profile: updated };
   } catch (error) {
     log.error(serializeError(error), "Failed to update student profile");
-    return { ok: false, error: clerkErrorMessage(error) };
+    return { ok: false, error: actionErrorMessage(error) };
   }
 }
 

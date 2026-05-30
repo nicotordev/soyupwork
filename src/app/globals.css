@@ -123,20 +123,6 @@
   --decoration-circle: #6ee7b7;
   --decoration-plus: #c7d2fe;
   --decoration-triangle: #fbcfe8;
-
-  /* Clerk theme bridge (https://clerk.com/docs/guides/customizing-clerk/appearance-prop/variables) */
-  --clerk-color-primary: var(--primary);
-  --clerk-color-danger: var(--destructive);
-  --clerk-color-success: var(--primary);
-  --clerk-color-warning: var(--destructive);
-  --clerk-color-neutral: var(--muted-foreground);
-  --clerk-color-foreground: var(--foreground);
-  --clerk-color-background: var(--card);
-  --clerk-color-input: var(--background);
-  --clerk-color-input-foreground: var(--foreground);
-  --clerk-border-radius: var(--radius-lg);
-  --clerk-font-family:
-    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
@@ -171,16 +157,6 @@
   --sidebar-accent-foreground: oklch(0.988 0.003 106.5);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.58 0.031 107.3);
-
-  --clerk-color-primary: var(--primary);
-  --clerk-color-danger: var(--destructive);
-  --clerk-color-success: var(--primary);
-  --clerk-color-warning: var(--destructive);
-  --clerk-color-neutral: var(--muted-foreground);
-  --clerk-color-foreground: var(--foreground);
-  --clerk-color-background: var(--card);
-  --clerk-color-input: var(--background);
-  --clerk-color-input-foreground: var(--foreground);
 
   --decoration-star: #ca8a04;
   --decoration-circle: #059669;

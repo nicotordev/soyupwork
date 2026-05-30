@@ -4,12 +4,12 @@ export const ADMIN_USERS_PAGE = {
   description: "Gestión de alumnos, roles y permisos de acceso.",
   createUserTitle: "Crear miembro",
   createUserDescription:
-    "Se creará la cuenta en Clerk y se sincronizará en la base de datos.",
+    "Se creará la cuenta con correo y contraseña en la base de datos.",
   createUserSuccess: (name: string) => `${name} fue creado correctamente.`,
   createUserError: "No se pudo crear el usuario.",
   editUserTitle: "Editar miembro",
   editUserDescription:
-    "Actualizá nombre y apellido. Los cambios se sincronizan en Clerk y base de datos.",
+    "Actualizá nombre y apellido. Los cambios se guardan en la base de datos.",
   editUserSuccess: (name: string) => `${name} fue actualizado correctamente.`,
   editUserError: "No se pudo actualizar el usuario.",
 } as const;

@@ -1,4 +1,4 @@
-import { isAdminByClerkId } from "@/lib/auth/admin";
+import { isAdminByUserId } from "@/lib/auth/admin";
 import apiResponse from "@/lib/api/api-response";
 
 export async function GET(request: Request) {
@@ -9,13 +9,13 @@ export async function GET(request: Request) {
     return apiResponse.unauthorized();
   }
 
-  const clerkUserId = new URL(request.url).searchParams.get("clerkUserId");
+  const userId = new URL(request.url).searchParams.get("userId");
 
-  if (!clerkUserId) {
-    return apiResponse.badRequest(undefined, "clerkUserId is required");
+  if (!userId) {
+    return apiResponse.badRequest(undefined, "userId is required");
   }
 
-  const isAdmin = await isAdminByClerkId(clerkUserId);
+  const isAdmin = await isAdminByUserId(userId);
 
   return apiResponse.success({ isAdmin }, "Success", {
     headers: {

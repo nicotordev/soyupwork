@@ -2,7 +2,7 @@ import { MarketingFooter } from "@/components/marketing-footer";
 import { MarketingNavServer } from "@/components/marketing-nav/marketing-nav-server";
 import { PlatformAnnouncementBanner } from "@/components/platform/platform-announcement-banner";
 import { getCatalogNavSections } from "@/app/actions/catalog.actions";
-import { getClerkSession } from "@/lib/clerk/session";
+import { getAuthSession } from "@/lib/auth/session";
 
 export default async function MarketingLayout({
   children,
@@ -10,7 +10,7 @@ export default async function MarketingLayout({
   children: React.ReactNode;
 }) {
   const [{ isSignedIn }, catalogSections] = await Promise.all([
-    getClerkSession(),
+    getAuthSession(),
     getCatalogNavSections(),
   ]);
 

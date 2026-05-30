@@ -12,11 +12,11 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const pathname = searchParams.get("pathname") ?? "/";
-  const clerkUserId = searchParams.get("clerkUserId");
+  const userId = searchParams.get("userId");
 
   const action: PlatformGateAction = await resolvePlatformGateAction(
     pathname,
-    clerkUserId,
+    userId,
   );
 
   return apiResponse.success({ action }, "Success", {

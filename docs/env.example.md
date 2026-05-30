@@ -5,7 +5,7 @@ The architecture is based on:
 
 - Next.js App Router
 - Prisma + PostgreSQL
-- Clerk
+- Auth.js (NextAuth v5)
 - Stripe
 - Resend
 - Cloudflare R2
@@ -87,36 +87,77 @@ DATABASE_URL=postgresql://user:password@ep-xxx.us-east-1.aws.neon.tech/dbname?ss
 
 ---
 
-# 3. CLERK
+# 3. AUTH.JS
 
 ```env
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-CLERK_SECRET_KEY=
+AUTH_SECRET=
+AUTH_URL=
 
-CLERK_WEBHOOK_SECRET=
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
 
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=
+AUTH_GITHUB_ID=
+AUTH_GITHUB_SECRET=
 
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=
+NEXT_PUBLIC_AUTH_SIGN_OUT_URL=
+AUTH_SIGN_OUT_URL=
 ```
 
-Clerk handles:
+Auth.js handles:
 
 - authentication
-- sessions
-- OAuth
-- email verification
-- social login
+- sessions (JWT)
+- OAuth (Google, GitHub)
+- credentials (email + password)
 
-The app does not store passwords.
+Generate `AUTH_SECRET` with:
+
+```bash
+openssl rand -base64 32
+```
+
+Post-login redirects are configured in **Admin → Settings → Auth** (`afterSignInUrl`, `afterSignUpUrl`).
 
 ---
 
-## `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+## `AUTH_SECRET`
 
-Frontend public key.
+Required in production. Used to sign session tokens.
+
+---
+
+## `AUTH_URL`
+
+Canonical app URL for Auth.js callbacks (usually same as `NEXT_PUBLIC_APP_URL`).
+
+---
+
+## OAuth providers
+
+```env
+AUTH_GOOGLE_ID=
+AUTH_GOOGLE_SECRET=
+AUTH_GITHUB_ID=
+AUTH_GITHUB_SECRET=
+```
+
+Register callback URLs:
+
+- `{AUTH_URL}/api/auth/callback/google`
+- `{AUTH_URL}/api/auth/callback/github`
+
+---
+
+## Sign-out redirect
+
+```env
+NEXT_PUBLIC_AUTH_SIGN_OUT_URL=/
+AUTH_SIGN_OUT_URL=/
+```
+
+---
+
+# 4. STRIPE (was section 4 — renumber below as needed)
 
 Starts with:
 

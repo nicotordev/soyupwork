@@ -48,7 +48,6 @@ import type {
 } from "@/types/platform-settings.types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { syncEmailToClerkWaitlist } from "@/lib/clerk/waitlist";
 import { sendWaitlistVerificationEmail } from "@/lib/email/send-waitlist-verification";
 import { validateOptionalE164Phone } from "@/lib/phone/validate";
 import { addEmailToResendWaitlistAudience } from "@/lib/resend/waitlist-audience";
@@ -297,14 +296,6 @@ async function completeVerifiedWaitlistJoin(input: {
     return { ok: false, error: "No se pudo registrar tu correo." };
   }
 
-  const clerkSync = await syncEmailToClerkWaitlist(email);
-  if (!clerkSync.ok) {
-    log.warn(
-      { email, error: clerkSync.error },
-      "Waitlist saved in database; Clerk waitlist sync failed",
-    );
-  }
-
   const resendSync = await addEmailToResendWaitlistAudience({
     email,
     name: input.name,
@@ -406,7 +397,7 @@ export async function requestWaitlistVerification(input: {
   return { ok: true };
 }
 
-/** Step 2: confirm OTP, then register in DB, Clerk and Resend audience. */
+/** Step 2: confirm OTP, then register in DB and Resend audience. */
 export async function confirmWaitlistVerification(input: {
   email: string;
   code: string;

@@ -4,9 +4,9 @@ import { AppErrorState } from "@/components/app-state/app-error-state";
 import "./globals.css";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { MarketingNavServer } from "@/components/marketing-nav";
-import { useClerk } from "@clerk/nextjs";
 import useCatalogSections from "@/hooks/use-catalog-sections";
 import Providers from "./providers";
+import { useSession } from "next-auth/react";
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -14,7 +14,8 @@ interface ErrorProps {
 }
 
 export default function GlobalRouteError({ error, reset }: ErrorProps) {
-  const { isSignedIn } = useClerk();
+  const { status } = useSession();
+  const isSignedIn = status === "authenticated";
   const catalogSectionsQuery = useCatalogSections();
   const catalogSections = catalogSectionsQuery.data ?? [];
 

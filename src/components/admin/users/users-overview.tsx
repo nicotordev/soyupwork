@@ -37,7 +37,7 @@ export function UsersOverview({ data }: UsersOverviewProps) {
         <EmptyState
           icon={Users}
           title="Aún no hay miembros"
-          description="Cuando los usuarios se registren vía Clerk, aparecerán aquí sincronizados en la base de datos."
+          description="Cuando los usuarios se registren, aparecerán aquí en la base de datos."
           hasFilters={hasActiveFilters}
           onClearFilters={
             hasActiveFilters

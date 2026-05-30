@@ -66,7 +66,7 @@ export function UsersTable({ users, currentAdminUserId }: UsersTableProps) {
     <>
       <AdminListingPanel
         title="Registro de miembros"
-        description="Miembros sincronizados desde Clerk · datos en base de datos"
+        description="Miembros registrados · datos en base de datos"
       >
         <Table>
           <TableHeader>

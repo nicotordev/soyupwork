@@ -26,7 +26,7 @@ export const ADMIN_SETTINGS_GENERAL_PAGE = {
 export const ADMIN_SETTINGS_AUTH_PAGE = {
   eyebrow: "Configuración",
   title: "Autenticación",
-  description: "Registro, OAuth, verificación y redirecciones con Clerk.",
+  description: "Registro, OAuth, verificación y redirecciones con Auth.js.",
 } as const;
 
 export const ADMIN_SETTINGS_PAYMENTS_PAGE = {
@@ -82,7 +82,7 @@ export const ADMIN_SETTINGS_SECTIONS: AdminSettingsSection[] = [
   {
     id: "auth",
     label: "Autenticación",
-    description: "Inicio de sesión, registro y flujos post-login con Clerk.",
+    description: "Inicio de sesión, registro y flujos post-login con Auth.js.",
     icon: IconShield,
     status: "available",
     href: "/admin/settings/auth",
@@ -131,8 +131,8 @@ export const ADMIN_SETTINGS_SECTIONS: AdminSettingsSection[] = [
 
 export const ADMIN_SETTINGS_INTEGRATIONS = [
   {
-    id: "clerk",
-    label: "Clerk",
+    id: "auth",
+    label: "Auth.js",
     description: "Autenticación y gestión de usuarios",
   },
   {

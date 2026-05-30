@@ -1,5 +1,5 @@
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
-import { getClerkSession } from "@/lib/clerk/session";
+import { getAuthSession } from "@/lib/auth/session";
 import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
@@ -16,7 +16,7 @@ export default async function DashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { isSignedIn } = await getClerkSession();
+  const { isSignedIn } = await getAuthSession();
 
   if (!isSignedIn) {
     redirect(isPublicWaitlistMode() ? "/waitlist" : "/sign-in");

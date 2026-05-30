@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Autenticación",
-  description: "Ajustes de registro, OAuth y redirecciones con Clerk.",
+  description: "Ajustes de registro, OAuth y redirecciones con Auth.js.",
 };
 
 export default async function AdminAuthSettingsPage() {

@@ -16,7 +16,7 @@ export function resolveSafeAppRedirectPath(
 
 export function getAfterSignOutUrl(): string {
   return resolveSafeAppRedirectPath(
-    process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL,
+    process.env.AUTH_SIGN_OUT_URL ?? process.env.NEXT_PUBLIC_AUTH_SIGN_OUT_URL,
     DEFAULT_AFTER_SIGN_OUT_URL,
   );
 }

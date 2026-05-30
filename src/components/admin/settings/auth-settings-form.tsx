@@ -45,7 +45,7 @@ export function AuthSettingsForm({ initialValues }: AuthSettingsFormProps) {
       <SettingsPanel
         icon={<IconShield className="size-4 text-primary" stroke={2.5} />}
         title="Acceso y registro"
-        description="Control de sign-up y verificación con Clerk"
+        description="Control de sign-up y verificación con Auth.js"
       >
         <div className="space-y-4 p-4">
           <SettingsToggleRow

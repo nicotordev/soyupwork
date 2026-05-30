@@ -7,9 +7,10 @@ function isConfigured(value: string | undefined): boolean {
 
 export function getAdminSettingsIntegrations(): AdminSettingsIntegrationStatus[] {
   const configuredById = {
-    clerk:
-      isConfigured(process.env.CLERK_SECRET_KEY) &&
-      isConfigured(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY),
+    auth:
+      isConfigured(process.env.AUTH_SECRET) &&
+      (isConfigured(process.env.AUTH_GOOGLE_ID) ||
+        isConfigured(process.env.AUTH_GITHUB_ID)),
     stripe: isConfigured(process.env.STRIPE_SECRET_KEY),
     resend: isConfigured(process.env.RESEND_API_KEY),
     r2:

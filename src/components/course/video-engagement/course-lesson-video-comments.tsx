@@ -28,7 +28,7 @@ import {
 } from "@/lib/course/lesson-discussion-tree";
 import { cn } from "@/lib/utils";
 import type { CoursePageLessonComment } from "@/types/course-page.types";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import {
   IconCornerDownRight,
   IconMessageCircle,
@@ -336,7 +336,8 @@ export function CourseLessonVideoComments({
   isDemo = false,
   currentUserId,
 }: CourseLessonVideoCommentsProps) {
-  const { user } = useUser();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [comments, setComments] =
     useState<CoursePageLessonComment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
@@ -345,10 +346,10 @@ export function CourseLessonVideoComments({
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const currentUserName =
-    user?.fullName?.trim() ||
+    user?.name?.trim() ||
     [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
     "Tú";
-  const currentUserImageUrl = user?.imageUrl ?? null;
+  const currentUserImageUrl = user?.imageUrl ?? user?.image ?? null;
   const effectiveCurrentUserId = isDemo
     ? DEMO_LESSON_COMMENT_AUTHOR_ID
     : (currentUserId ?? null);

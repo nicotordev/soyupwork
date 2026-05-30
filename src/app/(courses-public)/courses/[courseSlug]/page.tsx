@@ -4,7 +4,7 @@ import { PlatformAnnouncementBanner } from "@/components/platform/platform-annou
 import { MarketingFooter } from "@/components/marketing-footer";
 import { MarketingNavServer } from "@/components/marketing-nav/marketing-nav-server";
 import { buildSignInRedirectUrl } from "@/lib/auth/build-sign-in-redirect";
-import { getClerkSession } from "@/lib/clerk/session";
+import { getAuthSession } from "@/lib/auth/session";
 import { getCatalogNavSections } from "@/app/actions/catalog.actions";
 import { getPublishedCourseSeoMetadata } from "@/lib/seo/fetch-public-seo";
 import type { Metadata } from "next";
@@ -34,7 +34,7 @@ export default async function PublicCourseLandingPage({ params }: PageProps) {
   const { courseSlug } = await params;
 
   const [{ userId, isSignedIn }, data, catalogSections] = await Promise.all([
-    getClerkSession(),
+    getAuthSession(),
     getCoursePageForPublicLanding(courseSlug),
     getCatalogNavSections(),
   ]);

@@ -8,13 +8,9 @@ const CODE_TTL_MS = WAITLIST_VERIFICATION.ttlMinutes * 60 * 1000;
 const MAX_ATTEMPTS = WAITLIST_VERIFICATION.maxAttempts;
 
 function getVerificationSecret(): string {
-  const secret =
-    process.env.WAITLIST_VERIFICATION_SECRET?.trim() ??
-    process.env.CLERK_SECRET_KEY?.trim();
+  const secret = process.env.WAITLIST_VERIFICATION_SECRET?.trim();
   if (!secret) {
-    throw new Error(
-      "WAITLIST_VERIFICATION_SECRET or CLERK_SECRET_KEY must be set",
-    );
+    throw new Error("WAITLIST_VERIFICATION_SECRET must be set");
   }
   return secret;
 }

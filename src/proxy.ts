@@ -4,28 +4,42 @@ import {
   isStaffSignInBypass,
 } from "@/lib/platform/public-waitlist-mode";
 import type { PlatformGateAction } from "@/types/platform-settings.types";
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import authConfig from "@/auth.config";
+import NextAuth from "next-auth";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher(["/api/webhooks(.*)"]);
-const isInternalApiRoute = createRouteMatcher(["/api/internal(.*)"]);
-const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
-const isCourseLessonRoute = createRouteMatcher([
-  "/courses/:courseSlug/lessons/:lessonSlug(.*)",
-]);
+const { auth } = NextAuth(authConfig);
+
+const isPublicRoute = (pathname: string) =>
+  pathname.startsWith("/api/webhooks") ||
+  pathname.startsWith("/api/auth") ||
+  pathname.startsWith("/sign-in") ||
+  pathname.startsWith("/sign-up") ||
+  pathname.startsWith("/sign-out") ||
+  pathname.startsWith("/waitlist") ||
+  pathname.startsWith("/maintenance");
+
+const isInternalApiRoute = (pathname: string) =>
+  pathname.startsWith("/api/internal");
+
+const isAdminRoute = (pathname: string) => pathname.startsWith("/admin");
+
+const isCourseLessonRoute = (pathname: string) =>
+  /^\/courses\/[^/]+\/lessons\/[^/]+/.test(pathname);
 
 async function fetchPlatformGateAction(
   origin: string,
   pathname: string,
-  clerkUserId: string | null,
+  userId: string | null,
 ): Promise<PlatformGateAction> {
   const secret = process.env.INTERNAL_API_SECRET;
   if (!secret) return "none";
 
   const url = new URL("/api/internal/platform-gate", origin);
   url.searchParams.set("pathname", pathname);
-  if (clerkUserId) {
-    url.searchParams.set("clerkUserId", clerkUserId);
+  if (userId) {
+    url.searchParams.set("userId", userId);
   }
 
   try {
@@ -45,15 +59,12 @@ async function fetchPlatformGateAction(
   }
 }
 
-async function fetchIsAdmin(
-  origin: string,
-  clerkUserId: string,
-): Promise<boolean> {
+async function fetchIsAdmin(origin: string, userId: string): Promise<boolean> {
   const secret = process.env.INTERNAL_API_SECRET;
   if (!secret) return false;
 
   const url = new URL("/api/internal/admin-access", origin);
-  url.searchParams.set("clerkUserId", clerkUserId);
+  url.searchParams.set("userId", userId);
 
   try {
     const response = await fetch(url.toString(), {
@@ -72,12 +83,47 @@ async function fetchIsAdmin(
   }
 }
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isPublicRoute(req) || isInternalApiRoute(req)) {
-    return;
+function buildSignInRedirect(reqUrl: URL, returnPath: string): URL {
+  const signInUrl = new URL("/sign-in", reqUrl);
+  signInUrl.searchParams.set("redirect_url", returnPath);
+  return signInUrl;
+}
+
+async function handleProtectedRoutes(
+  req: NextRequest,
+  pathname: string,
+  userId: string | null,
+): Promise<NextResponse> {
+  if (isAdminRoute(pathname)) {
+    if (!userId) {
+      if (isPublicWaitlistMode()) {
+        return NextResponse.redirect(
+          new URL("/sign-in?access=staff&redirect_url=/admin", req.url),
+        );
+      }
+
+      return NextResponse.redirect(buildSignInRedirect(req.nextUrl, "/admin"));
+    }
+
+    const isAdmin = await fetchIsAdmin(req.nextUrl.origin, userId);
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
   }
 
+  if (isCourseLessonRoute(pathname) && !userId) {
+    return NextResponse.redirect(buildSignInRedirect(req.nextUrl, pathname));
+  }
+
+  return NextResponse.next();
+}
+
+export default auth(async (req) => {
   const pathname = req.nextUrl.pathname;
+
+  if (isPublicRoute(pathname) || isInternalApiRoute(pathname)) {
+    return NextResponse.next();
+  }
 
   if (isPublicWaitlistMode()) {
     if (pathname.startsWith("/sign-up")) {
@@ -92,8 +138,9 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 
+  const userId = req.auth?.user?.id ?? null;
+
   if (shouldCheckPlatformGate(pathname)) {
-    const { userId } = await auth();
     const action = await fetchPlatformGateAction(
       req.nextUrl.origin,
       pathname,
@@ -109,32 +156,12 @@ export default clerkMiddleware(async (auth, req) => {
     }
   }
 
-  if (isAdminRoute(req)) {
-    const { userId } = await auth();
-    if (!userId) {
-      const signInUrl = isPublicWaitlistMode()
-        ? "/sign-in?access=staff&redirect_url=/admin"
-        : "/sign-in";
-      return NextResponse.redirect(new URL(signInUrl, req.url));
-    }
-
-    const isAdmin = await fetchIsAdmin(req.nextUrl.origin, userId);
-    if (!isAdmin) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-  }
-
-  if (isCourseLessonRoute(req)) {
-    await auth.protect();
-  }
-
-  return NextResponse.next();
+  return handleProtectedRoutes(req, pathname, userId);
 });
 
 export const config = {
   matcher: [
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/__clerk/(.*)",
     "/(api|trpc)(.*)",
   ],
 };

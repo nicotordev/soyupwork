@@ -1,6 +1,6 @@
 import { UserRole } from "@/generated/prisma/client";
 import prisma from "@/lib/db/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 
 export class AdminAuthError extends Error {
   constructor(message: string) {
@@ -12,14 +12,12 @@ export class AdminAuthError extends Error {
 const adminUserSelect = {
   id: true,
   role: true,
-  clerkId: true,
   email: true,
 } as const;
 
 type AdminUser = {
   id: string;
   role: UserRole;
-  clerkId: string;
   email: string | null;
 };
 
@@ -75,14 +73,14 @@ async function ensureAdminRole(user: AdminUser): Promise<AdminUser | null> {
 }
 
 export async function requireAdmin() {
-  const { userId } = await auth();
+  const session = await auth();
 
-  if (!userId) {
+  if (!session?.user?.id) {
     throw new AdminAuthError("Debes iniciar sesión para acceder al panel.");
   }
 
   const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
+    where: { id: session.user.id },
     select: adminUserSelect,
   });
 
@@ -100,11 +98,11 @@ export async function requireAdmin() {
 }
 
 export async function isCurrentUserAdmin(): Promise<boolean> {
-  const { userId } = await auth();
-  if (!userId) return false;
+  const session = await auth();
+  if (!session?.user?.id) return false;
 
   const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
+    where: { id: session.user.id },
     select: adminUserSelect,
   });
 
@@ -113,9 +111,9 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
   return (await ensureAdminRole(user)) !== null;
 }
 
-export async function isAdminByClerkId(clerkId: string): Promise<boolean> {
+export async function isAdminByUserId(userId: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
-    where: { clerkId },
+    where: { id: userId },
     select: adminUserSelect,
   });
 

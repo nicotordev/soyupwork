@@ -1,8 +1,7 @@
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
-import { clerkSignUpAppearance } from "@/lib/clerk/appearance";
+import { SignUpForm } from "@/components/auth/sign-up-form";
 import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
-import { SignUp } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -25,11 +24,9 @@ export default async function SignUpPage() {
 
   return (
     <AuthSplitLayout variant="sign-up">
-      <SignUp
-        appearance={clerkSignUpAppearance}
-        routing="path"
-        path="/sign-up"
-        signInUrl="/sign-in"
+      <SignUpForm
+        allowOAuthSignIn={settings.allowOAuthSignIn}
+        defaultCallbackUrl={settings.afterSignUpUrl}
       />
     </AuthSplitLayout>
   );

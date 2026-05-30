@@ -1,0 +1,205 @@
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { UserRole } from "@/generated/prisma/client";
+import authConfig from "@/auth.config";
+import prisma from "@/lib/db/prisma";
+import { verifyPassword } from "@/lib/auth/password";
+import {
+  buildUserDisplayName,
+  splitDisplayName,
+} from "@/lib/auth/user-profile";
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
+
+const sessionUserSelect = {
+  id: true,
+  email: true,
+  name: true,
+  firstName: true,
+  lastName: true,
+  image: true,
+  imageUrl: true,
+  role: true,
+  deletedAt: true,
+} as const;
+
+async function loadSessionUser(userId: string) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: sessionUserSelect,
+  });
+}
+
+export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
+  adapter: PrismaAdapter(prisma),
+  providers: [
+    Google({
+      allowDangerousEmailAccountLinking: true,
+    }),
+    GitHub({
+      allowDangerousEmailAccountLinking: true,
+    }),
+    Credentials({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      authorize: async (credentials) => {
+        const email =
+          typeof credentials?.email === "string"
+            ? credentials.email.trim().toLowerCase()
+            : "";
+        const password =
+          typeof credentials?.password === "string" ? credentials.password : "";
+
+        if (!email || !password) {
+          return null;
+        }
+
+        const user = await prisma.user.findFirst({
+          where: {
+            email: { equals: email, mode: "insensitive" },
+            deletedAt: null,
+          },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            firstName: true,
+            lastName: true,
+            image: true,
+            imageUrl: true,
+            passwordHash: true,
+            role: true,
+          },
+        });
+
+        if (!user?.passwordHash) {
+          return null;
+        }
+
+        const isValid = await verifyPassword(password, user.passwordHash);
+        if (!isValid) {
+          return null;
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: buildUserDisplayName(user),
+          image: user.image ?? user.imageUrl,
+          role: user.role,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          imageUrl: user.imageUrl,
+        };
+      },
+    }),
+  ],
+  callbacks: {
+    async signIn({ user, account }) {
+      if (!user.email || account?.provider === "credentials") {
+        return true;
+      }
+
+      const existing = await prisma.user.findFirst({
+        where: {
+          email: { equals: user.email, mode: "insensitive" },
+          deletedAt: null,
+        },
+        select: { id: true },
+      });
+
+      if (existing && user.id && existing.id !== user.id) {
+        user.id = existing.id;
+      }
+
+      return true;
+    },
+    async jwt({ token, user }) {
+      const userId =
+        typeof user?.id === "string"
+          ? user.id
+          : typeof token.id === "string"
+            ? token.id
+            : null;
+
+      if (!userId) {
+        return token;
+      }
+
+      const dbUser = await loadSessionUser(userId);
+      if (!dbUser || dbUser.deletedAt) {
+        return token;
+      }
+
+      token.id = dbUser.id;
+      token.email = dbUser.email;
+      token.name = buildUserDisplayName(dbUser);
+      token.picture = dbUser.image ?? dbUser.imageUrl;
+      token.role = dbUser.role;
+      token.firstName = dbUser.firstName;
+      token.lastName = dbUser.lastName;
+      token.imageUrl = dbUser.imageUrl;
+
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user && typeof token.id === "string") {
+        session.user.id = token.id;
+        session.user.role =
+          typeof token.role === "string"
+            ? (token.role as UserRole)
+            : UserRole.STUDENT;
+        session.user.firstName =
+          typeof token.firstName === "string" ? token.firstName : null;
+        session.user.lastName =
+          typeof token.lastName === "string" ? token.lastName : null;
+        session.user.imageUrl =
+          typeof token.imageUrl === "string" ? token.imageUrl : null;
+        session.user.email =
+          typeof token.email === "string" ? token.email : session.user.email;
+        session.user.name =
+          typeof token.name === "string" ? token.name : session.user.name;
+        session.user.image =
+          typeof token.picture === "string"
+            ? token.picture
+            : session.user.image;
+      }
+
+      return session;
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      const { firstName, lastName } = splitDisplayName(user.name);
+      await prisma.user.update({
+        where: { id: user.id! },
+        data: {
+          firstName,
+          lastName,
+          name: user.name ?? buildUserDisplayName({ firstName, lastName }),
+          image: user.image ?? null,
+          imageUrl: user.image ?? null,
+          emailVerified: user.email ? new Date() : null,
+          role: UserRole.STUDENT,
+        },
+      });
+    },
+    async linkAccount({ user, account }) {
+      if (account.provider === "credentials") {
+        return;
+      }
+
+      await prisma.user.update({
+        where: { id: user.id! },
+        data: {
+          emailVerified: user.email ? new Date() : undefined,
+        },
+      });
+    },
+  },
+});

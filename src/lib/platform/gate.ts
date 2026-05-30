@@ -1,6 +1,6 @@
 import "server-only";
 
-import { isAdminByClerkId } from "@/lib/auth/admin";
+import { isAdminByUserId } from "@/lib/auth/admin";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
 import type { PlatformGateAction } from "@/types/platform-settings.types";
 
@@ -12,7 +12,6 @@ const GATE_EXEMPT_PREFIXES = [
   "/sign-out",
   "/admin",
   "/api",
-  "/__clerk",
 ] as const;
 
 export function isPlatformGateExemptPath(pathname: string): boolean {
@@ -30,14 +29,14 @@ export function shouldCheckPlatformGate(pathname: string): boolean {
 
 export async function resolvePlatformGateAction(
   pathname: string,
-  clerkUserId?: string | null,
+  userId?: string | null,
 ): Promise<PlatformGateAction> {
   if (!shouldCheckPlatformGate(pathname)) {
     return "none";
   }
 
   const settings = await getPlatformSettings();
-  const isAdmin = clerkUserId ? await isAdminByClerkId(clerkUserId) : false;
+  const isAdmin = userId ? await isAdminByUserId(userId) : false;
 
   if (isAdmin && settings.maintenanceAllowAdmins) {
     return "none";

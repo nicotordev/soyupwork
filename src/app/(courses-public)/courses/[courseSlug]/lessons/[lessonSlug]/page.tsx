@@ -5,7 +5,6 @@ import { requireStudent, StudentAuthError } from "@/lib/auth/student";
 import { findLessonInView } from "@/lib/course/course-page-view";
 import { fetchLessonDiscussions } from "@/lib/course/lesson-discussions";
 import { findFirstAccessibleLessonSlug } from "@/lib/course/sequential-lesson-access";
-import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
@@ -31,8 +30,6 @@ export async function generateMetadata({
 }
 
 export default async function DashboardCourseLessonPage({ params }: PageProps) {
-  await auth.protect();
-
   const { courseSlug, lessonSlug } = await params;
   const lessonPath = `/courses/${courseSlug}/lessons/${lessonSlug}`;
 

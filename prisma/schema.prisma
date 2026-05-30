@@ -160,15 +160,19 @@ enum CohortStatus {
 }
 
 model User {
-  id        String   @id @default(uuid()) @db.Uuid
-  clerkId   String   @unique
-  email     String?  @unique
-  username  String?  @unique
-  firstName String?
-  lastName  String?
-  imageUrl  String?
-  bio       String?
-  role      UserRole @default(STUDENT)
+  id            String    @id @default(uuid()) @db.Uuid
+  clerkId       String?   @unique
+  email         String?   @unique
+  emailVerified DateTime? @db.Timestamp(6)
+  name          String?
+  image         String?
+  username      String?   @unique
+  firstName     String?
+  lastName      String?
+  imageUrl      String?
+  passwordHash  String?
+  bio           String?
+  role          UserRole  @default(STUDENT)
 
   countryCode     String?
   timezone        String?
@@ -207,11 +211,52 @@ model User {
   emailLogs         EmailLog[]
   auditLogs         AuditLog[]         @relation("AuditActor")
   courseDiscussions CourseDiscussion[]
+  accounts          Account[]
+  sessions          Session[]
 
   @@index([deletedAt])
   @@index([role])
   @@index([suspendedAt])
   @@index([bannedAt])
+}
+
+model Account {
+  id                String  @id @default(uuid()) @db.Uuid
+  userId            String  @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique
+  userId       String   @db.Uuid
+  expires      DateTime @db.Timestamp(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime @db.Timestamp(6)
+
+  @@unique([identifier, token])
 }
 
 model CourseCategory {
@@ -1143,7 +1188,7 @@ model PlatformSettings {
   showAnnouncementBanner Boolean @default(false)
   announcementMessage    String?
 
-  // Auth (Clerk UX — secrets remain in env)
+  // Auth UX — secrets remain in env
   afterSignInUrl       String  @default("/dashboard")
   afterSignUpUrl       String  @default("/onboarding")
   requireVerifiedEmail Boolean @default(false)

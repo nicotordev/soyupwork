@@ -13,7 +13,7 @@ import { adminBrutalButtonClass, adminInputClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { updateStudentProfileSchema } from "@/schemas/profile";
 import type { StudentProfileQueryData } from "@/types/student-profile.types";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "next-auth/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   IconLoader,
@@ -42,7 +42,7 @@ export function UserProfileSettingsForm({
   onSaved,
   onCancel,
 }: UserProfileSettingsFormProps) {
-  const { user } = useUser();
+  const { data: session, update: updateSession } = useSession();
   const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
   const [firstName, setFirstName] = useState("");
@@ -93,7 +93,7 @@ export function UserProfileSettingsForm({
       },
     );
     void queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
-    void user?.reload();
+    void updateSession();
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -131,7 +131,7 @@ export function UserProfileSettingsForm({
         },
       );
 
-      await user?.reload();
+      await updateSession();
       toast.success("Perfil actualizado");
       onSaved?.();
     });
@@ -156,9 +156,13 @@ export function UserProfileSettingsForm({
   }
 
   // Live preview dynamic state properties
-  const previewName = `${firstName.trim()} ${lastName.trim()}`.trim() || "Tu Nombre";
-  const previewBio = bio.trim() || "Aún no has escrito tu biografía. ¡Cuéntanos algo interesante sobre ti en tu perfil!";
-  const previewAvatar = avatarUrl || user?.imageUrl || null;
+  const previewName =
+    `${firstName.trim()} ${lastName.trim()}`.trim() || "Tu Nombre";
+  const previewBio =
+    bio.trim() ||
+    "Aún no has escrito tu biografía. ¡Cuéntanos algo interesante sobre ti en tu perfil!";
+  const previewAvatar =
+    avatarUrl || session?.user?.imageUrl || session?.user?.image || null;
   const previewEmail = profile.email || "correo@ejemplo.com";
 
   // Reusable Form Element
@@ -181,7 +185,8 @@ export function UserProfileSettingsForm({
             Editar información de perfil
           </h2>
           <p className="text-xs text-muted-foreground mt-1">
-            Esta información se mostrará públicamente en la comunidad de SoyUpwork.
+            Esta información se mostrará públicamente en la comunidad de
+            SoyUpwork.
           </p>
         </div>
       )}
@@ -203,7 +208,10 @@ export function UserProfileSettingsForm({
       {/* Email Input Field (Disabled) */}
       {profile.email ? (
         <div className="space-y-1.5">
-          <Label htmlFor="profile-email" className="font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+          <Label
+            htmlFor="profile-email"
+            className="font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+          >
             <span className="inline-block size-2 rounded-full bg-muted-foreground/50" />
             Correo electrónico
           </Label>
@@ -215,11 +223,15 @@ export function UserProfileSettingsForm({
               id="profile-email"
               value={profile.email}
               disabled
-              className={cn(adminInputClass, "pl-9 opacity-70 cursor-not-allowed bg-muted/20")}
+              className={cn(
+                adminInputClass,
+                "pl-9 opacity-70 cursor-not-allowed bg-muted/20",
+              )}
             />
           </div>
           <p className="font-mono text-[9px] text-muted-foreground">
-            El correo no se puede cambiar directamente. Se gestiona desde tu cuenta.
+            El correo no se puede cambiar directamente. Se gestiona desde tu
+            cuenta.
           </p>
         </div>
       ) : null}
@@ -227,7 +239,10 @@ export function UserProfileSettingsForm({
       {/* First Name & Last Name Input fields */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="profile-first-name" className="font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+          <Label
+            htmlFor="profile-first-name"
+            className="font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+          >
             <span className="inline-block size-2 rounded-full bg-primary" />
             Nombre
           </Label>
@@ -247,7 +262,10 @@ export function UserProfileSettingsForm({
           </div>
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="profile-last-name" className="font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+          <Label
+            htmlFor="profile-last-name"
+            className="font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+          >
             <span className="inline-block size-2 rounded-full bg-primary" />
             Apellido
           </Label>
@@ -270,7 +288,10 @@ export function UserProfileSettingsForm({
 
       {/* Biography Input field */}
       <div className="space-y-1.5">
-        <Label htmlFor="profile-bio" className="font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+        <Label
+          htmlFor="profile-bio"
+          className="font-mono text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+        >
           <span className="inline-block size-2 rounded-full bg-primary" />
           Biografía o descripción
         </Label>
@@ -293,10 +314,14 @@ export function UserProfileSettingsForm({
           <span className="text-[10px] text-muted-foreground font-mono">
             Usa este espacio para presentarte ante otros freelancers.
           </span>
-          <span className={cn(
-            "font-mono text-[10px] px-1.5 py-0.5 rounded border border-foreground/10 bg-muted/40",
-            bio.length >= 280 ? "text-destructive font-bold bg-destructive/10" : "text-muted-foreground"
-          )}>
+          <span
+            className={cn(
+              "font-mono text-[10px] px-1.5 py-0.5 rounded border border-foreground/10 bg-muted/40",
+              bio.length >= 280
+                ? "text-destructive font-bold bg-destructive/10"
+                : "text-muted-foreground",
+            )}
+          >
             {bio.length}/300
           </span>
         </div>
@@ -326,11 +351,7 @@ export function UserProfileSettingsForm({
             Cancelar
           </Button>
         ) : null}
-        <Button
-          type="submit"
-          disabled={isPending}
-          className="w-full sm:w-auto"
-        >
+        <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
           {isPending ? (
             <IconLoader className="mr-2 size-4 animate-spin" />
           ) : null}
@@ -355,18 +376,21 @@ export function UserProfileSettingsForm({
 
       {/* Neobrutalist Pass Card Container */}
       <div className="group relative select-none rounded-2xl border-4 border-foreground bg-card text-foreground shadow-[8px_8px_0px_0px_var(--foreground)] transition-all duration-300 hover:-translate-x-1 hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_var(--foreground)] overflow-hidden">
-        
         {/* Floating gradient accent */}
-        <div aria-hidden className="absolute -right-6 -bottom-6 size-24 rounded-full bg-primary/10 blur-xl pointer-events-none" />
-        
+        <div
+          aria-hidden
+          className="absolute -right-6 -bottom-6 size-24 rounded-full bg-primary/10 blur-xl pointer-events-none"
+        />
+
         {/* Header Cover Banner */}
         <div className="relative h-28 w-full bg-gradient-to-r from-primary/70 via-secondary/80 to-primary/45 border-b-4 border-foreground overflow-hidden">
           {/* Brutalist diagonal lines / grid bg */}
-          <div 
+          <div
             className="absolute inset-0 opacity-15 pointer-events-none"
             style={{
-              backgroundImage: 'linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)',
-              backgroundSize: '12px 12px'
+              backgroundImage:
+                "linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)",
+              backgroundSize: "12px 12px",
             }}
           />
           {/* Card OS visual decoration */}
@@ -395,7 +419,10 @@ export function UserProfileSettingsForm({
               />
             ) : (
               <div className="flex size-full items-center justify-center bg-muted text-muted-foreground">
-                <IconUser className="size-10 text-muted-foreground/60" stroke={1.5} />
+                <IconUser
+                  className="size-10 text-muted-foreground/60"
+                  stroke={1.5}
+                />
               </div>
             )}
           </div>
@@ -413,11 +440,11 @@ export function UserProfileSettingsForm({
                 ★ TALENTO ACTIVO
               </span>
             </div>
-            
+
             <h2 className="font-heading text-2xl font-black tracking-tight text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-350">
               {previewName}
             </h2>
-            
+
             <div className="font-mono text-[10px] text-muted-foreground flex items-center gap-1.5 border-b border-dashed border-border pb-3">
               <IconMail className="size-3.5 text-foreground/75" />
               {previewEmail}
@@ -441,7 +468,10 @@ export function UserProfileSettingsForm({
           <div className="flex items-end justify-between pt-2.5 border-t-2 border-foreground/10">
             {/* Simulated custom vector barcode */}
             <div className="space-y-1">
-              <div aria-hidden className="flex items-center gap-[2px] h-6 opacity-80 group-hover:opacity-100 transition-opacity">
+              <div
+                aria-hidden
+                className="flex items-center gap-[2px] h-6 opacity-80 group-hover:opacity-100 transition-opacity"
+              >
                 <div className="w-[1.5px] h-full bg-foreground" />
                 <div className="w-[3px] h-full bg-foreground" />
                 <div className="w-[0.5px] h-full bg-foreground" />
@@ -465,7 +495,9 @@ export function UserProfileSettingsForm({
             <div className="relative flex items-center justify-center size-14 rounded-full border-2 border-dashed border-primary/70 bg-primary/5 text-primary text-[8px] font-mono font-black uppercase tracking-widest rotate-[-6deg] group-hover:rotate-6 group-hover:scale-105 transition-all duration-500 shadow-[1px_1px_0px_0px_var(--primary)] select-none">
               <div className="text-center leading-none">
                 <div>SOYUP</div>
-                <div className="text-[10px] text-foreground font-bold leading-normal">100%</div>
+                <div className="text-[10px] text-foreground font-bold leading-normal">
+                  100%
+                </div>
                 <div>VERIFIED</div>
               </div>
               <IconStar className="absolute size-3 -top-1.5 -right-1 text-yellow-400 fill-yellow-400 border border-foreground rounded-full p-px bg-card shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] animate-spin-slow" />
@@ -481,14 +513,10 @@ export function UserProfileSettingsForm({
     return (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Left Side: Configuration Form */}
-        <div className="lg:col-span-7">
-          {formElement}
-        </div>
-        
+        <div className="lg:col-span-7">{formElement}</div>
+
         {/* Right Side: Interactive Live Card Preview */}
-        <div className="lg:col-span-5">
-          {previewCardElement}
-        </div>
+        <div className="lg:col-span-5">{previewCardElement}</div>
       </div>
     );
   }
@@ -496,4 +524,3 @@ export function UserProfileSettingsForm({
   // Dialog view returns just the form for compact spaces
   return formElement;
 }
-

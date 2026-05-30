@@ -1,5 +1,5 @@
 import prisma from "@/lib/db/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 
 export class StudentAuthError extends Error {
   constructor(message: string) {
@@ -9,15 +9,15 @@ export class StudentAuthError extends Error {
 }
 
 export async function requireStudent() {
-  const { userId } = await auth();
+  const session = await auth();
 
-  if (!userId) {
+  if (!session?.user?.id) {
     throw new StudentAuthError("Debes iniciar sesión para acceder al curso.");
   }
 
   const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-    select: { id: true, clerkId: true, email: true },
+    where: { id: session.user.id },
+    select: { id: true, email: true },
   });
 
   if (!user) {

@@ -12,7 +12,7 @@ import {
 } from "@/lib/course/get-course-page-data";
 import prisma from "@/lib/db/prisma";
 import type { CoursePageData } from "@/types/course-page.types";
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@/auth";
 
 export async function getCoursePageForAdminPreview(
   courseId: string,
@@ -51,7 +51,7 @@ export async function getCoursePageForPublicDemo(
 
 export async function getCoursePageForPublicLanding(
   courseSlug: string,
-  clerkUserId?: string | null,
+  userId?: string | null,
 ): Promise<CoursePageData | null> {
   const course = await prisma.course.findUnique({
     where: { slug: courseSlug, status: CourseStatus.PUBLISHED },
@@ -60,10 +60,11 @@ export async function getCoursePageForPublicLanding(
 
   if (!course) return null;
 
-  const resolvedClerkUserId =
-    clerkUserId !== undefined ? clerkUserId : (await auth()).userId;
+  const session = await auth();
+  const resolvedUserId =
+    userId !== undefined ? userId : (session?.user?.id ?? null);
 
-  if (!resolvedClerkUserId) {
+  if (!resolvedUserId) {
     return buildCoursePageData(course, {
       mode: "student",
       hasFullAccess: false,
@@ -71,7 +72,7 @@ export async function getCoursePageForPublicLanding(
   }
 
   const user = await prisma.user.findUnique({
-    where: { clerkId: resolvedClerkUserId },
+    where: { id: resolvedUserId },
     select: { id: true },
   });
 

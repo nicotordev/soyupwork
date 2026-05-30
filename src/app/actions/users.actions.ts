@@ -1,8 +1,8 @@
 "use server";
 
-import { clerkClient } from "@clerk/nextjs/server";
-import { isClerkAPIResponseError } from "@clerk/shared/error";
 import { UserRole } from "@/generated/prisma/client";
+import { hashPassword } from "@/lib/auth/password";
+import { buildUserDisplayName } from "@/lib/auth/user-profile";
 import {
   adminUserListSelect,
   adminUserListSelectLegacy,
@@ -15,7 +15,6 @@ import prisma from "@/lib/db/prisma";
 import { displayName } from "@/lib/user/display-name";
 import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
-import { getPrimaryEmail } from "@/lib/webhooks/shared";
 import {
   createAdminUserSchema,
   setUserActiveSchema,
@@ -156,14 +155,9 @@ async function countActiveAdmins(excludeUserId?: string): Promise<number> {
   });
 }
 
-function clerkErrorMessage(error: unknown): string {
-  if (isClerkAPIResponseError(error)) {
-    const first = error.errors[0];
-    if (first?.longMessage) return first.longMessage;
-    if (first?.message) return first.message;
-  }
+function actionErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message) return error.message;
-  return "No se pudo completar la operación en Clerk.";
+  return "No se pudo completar la operación.";
 }
 
 export async function createAdminUser(
@@ -181,9 +175,16 @@ export async function createAdminUser(
     }
 
     const { email, firstName, lastName, password, role } = parsed.data;
+    const normalizedEmail = email.trim().toLowerCase();
+    const passwordHash = await hashPassword(password);
+    const name = buildUserDisplayName({
+      firstName,
+      lastName,
+      email: normalizedEmail,
+    });
 
     const existing = await prisma.user.findFirst({
-      where: { email: { equals: email, mode: "insensitive" } },
+      where: { email: { equals: normalizedEmail, mode: "insensitive" } },
       select: { id: true, deletedAt: true },
     });
 
@@ -194,60 +195,54 @@ export async function createAdminUser(
       };
     }
 
-    const client = await clerkClient();
-    const clerkUser = await client.users.createUser({
-      emailAddress: [email],
-      firstName,
-      lastName,
-      password,
-      skipPasswordChecks: false,
-    });
-
-    const clerkEmail = getPrimaryEmail(
-      clerkUser.emailAddresses.map((entry) => ({
-        email_address: entry.emailAddress,
-      })),
-    );
-
-    const dbUser = await prisma.user.upsert({
-      where: { clerkId: clerkUser.id },
-      create: {
-        clerkId: clerkUser.id,
-        email: clerkEmail ?? email,
-        firstName,
-        lastName,
-        imageUrl: clerkUser.imageUrl ?? null,
-        role,
-      },
-      update: {
-        email: clerkEmail ?? email,
-        firstName,
-        lastName,
-        imageUrl: clerkUser.imageUrl ?? null,
-        role,
-        deletedAt: null,
-      },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-      },
-    });
+    const dbUser = existing
+      ? await prisma.user.update({
+          where: { id: existing.id },
+          data: {
+            email: normalizedEmail,
+            firstName,
+            lastName,
+            name,
+            passwordHash,
+            role,
+            emailVerified: new Date(),
+            deletedAt: null,
+          },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        })
+      : await prisma.user.create({
+          data: {
+            email: normalizedEmail,
+            firstName,
+            lastName,
+            name,
+            passwordHash,
+            role,
+            emailVerified: new Date(),
+          },
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        });
 
     revalidatePath("/admin/users");
 
-    const name = displayName(dbUser);
+    const userDisplayName = displayName(dbUser);
 
-    log.info(
-      { userId: dbUser.id, clerkId: clerkUser.id, role },
-      "Admin created user via Clerk",
-    );
+    log.info({ userId: dbUser.id, role }, "Admin created user");
 
-    return { ok: true, userId: dbUser.id, displayName: name };
+    return { ok: true, userId: dbUser.id, displayName: userDisplayName };
   } catch (error) {
     log.error(serializeError(error), "Failed to create admin user");
-    return { ok: false, error: clerkErrorMessage(error) };
+    return { ok: false, error: actionErrorMessage(error) };
   }
 }
 
@@ -334,7 +329,6 @@ export async function updateAdminUserProfile(
       where: { id: userId },
       select: {
         id: true,
-        clerkId: true,
         email: true,
         firstName: true,
         lastName: true,
@@ -369,18 +363,16 @@ export async function updateAdminUserProfile(
       };
     }
 
-    const client = await clerkClient();
-    await client.users.updateUser(existing.clerkId, {
-      firstName,
-      lastName,
-    });
+    const name = buildUserDisplayName({ firstName, lastName });
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         firstName,
         lastName,
+        name,
         imageUrl,
+        image: imageUrl,
         bio,
         role,
         deletedAt: active ? null : (existing.deletedAt ?? new Date()),
@@ -389,13 +381,13 @@ export async function updateAdminUserProfile(
     });
 
     revalidatePath("/admin/users");
-    const name = displayName(updatedUser);
+    const updatedDisplayName = displayName(updatedUser);
 
     log.info({ userId }, "Admin updated user profile");
-    return { ok: true, displayName: name };
+    return { ok: true, displayName: updatedDisplayName };
   } catch (error) {
     log.error(serializeError(error), "Failed to update admin user profile");
-    return { ok: false, error: clerkErrorMessage(error) };
+    return { ok: false, error: actionErrorMessage(error) };
   }
 }
 

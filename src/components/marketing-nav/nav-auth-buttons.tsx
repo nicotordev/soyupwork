@@ -1,10 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { UserMenu } from "@/components/auth/user-menu";
 import { MARKETING_PAGE } from "@/constants/marketing.constants";
 import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
 import { cn } from "@/lib/utils";
-import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 
 type NavAuthButtonsProps = {
@@ -29,9 +29,7 @@ function SignedInActions({ layout }: { layout: "row" | "column" }) {
       >
         <Link href="/dashboard">Panel</Link>
       </Button>
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-foreground bg-secondary shadow-[2px_2px_0px_0px_var(--foreground)]">
-        <UserButton />
-      </div>
+      <UserMenu />
     </div>
   );
 }

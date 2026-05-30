@@ -3,8 +3,8 @@ import { SignOutView } from "@/components/auth/sign-out-view.client";
 import {
   getAfterSignOutUrl,
   resolveSafeAppRedirectPath,
-} from "@/lib/clerk/redirect-url";
-import { getClerkSession } from "@/lib/clerk/session";
+} from "@/lib/auth/redirect-url";
+import { getAuthSession } from "@/lib/auth/session";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
@@ -25,7 +25,7 @@ export default async function SignOutPage({ searchParams }: SignOutPageProps) {
     typeof params.redirect_url === "string"
       ? resolveSafeAppRedirectPath(params.redirect_url, getAfterSignOutUrl())
       : null;
-  const { isSignedIn } = await getClerkSession();
+  const { isSignedIn } = await getAuthSession();
 
   if (!isSignedIn) {
     redirect(explicitRedirect ?? getAfterSignOutUrl());
