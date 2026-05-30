@@ -1,6 +1,9 @@
 "use client";
 
-import { revokeWaitlistInvite, sendWaitlistInvite } from "@/app/actions/waitlist-invite.actions";
+import {
+  revokeWaitlistInvite,
+  sendWaitlistInvite,
+} from "@/app/actions/waitlist-invite.actions";
 import type { AdminTableActionItem } from "@/types/admin-listing.types";
 import type { AdminWaitlistEntryRow } from "@/types/admin-waitlist.types";
 import { WAITLIST_INVITE_STATUS } from "@/constants/waitlist-admin.constants";
@@ -38,7 +41,9 @@ export function useWaitlistRowActions() {
     });
   };
 
-  const getRowActions = (entry: AdminWaitlistEntryRow): AdminTableActionItem[] => {
+  const getRowActions = (
+    entry: AdminWaitlistEntryRow,
+  ): AdminTableActionItem[] => {
     const actions: AdminTableActionItem[] = [];
 
     if (!entry.hasUserAccount) {

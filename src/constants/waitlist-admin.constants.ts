@@ -54,7 +54,10 @@ export const WAITLIST_INVITE_STATUS = {
   REVOKED: "REVOKED",
 } as const satisfies Record<AppWaitlistInviteStatus, AppWaitlistInviteStatus>;
 
-export const WAITLIST_INVITE_STATUS_LABELS: Record<AppWaitlistInviteStatus, string> = {
+export const WAITLIST_INVITE_STATUS_LABELS: Record<
+  AppWaitlistInviteStatus,
+  string
+> = {
   PENDING: "Pendiente",
   ACCEPTED: "Aceptada",
   EXPIRED: "Expirada",

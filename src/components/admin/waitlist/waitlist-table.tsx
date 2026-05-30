@@ -38,7 +38,8 @@ function inviteBadgeVariant(
   if (!invite) return "outline";
   if (invite.status === WAITLIST_INVITE_STATUS.ACCEPTED) return "default";
   if (invite.status === WAITLIST_INVITE_STATUS.PENDING) {
-    if (new Date(invite.expiresAt).getTime() <= Date.now()) return "destructive";
+    if (new Date(invite.expiresAt).getTime() <= Date.now())
+      return "destructive";
     return "secondary";
   }
   return "outline";
