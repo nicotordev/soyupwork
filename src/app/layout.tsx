@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SITE_BRAND } from "@/constants/site-brand.constants";
 import { MARKETING_PAGE } from "@/constants/marketing.constants";
@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     title: SITE_BRAND.shortName,
     statusBarStyle: "black-translucent",
   },
+};
+
+export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: SITE_BRAND.themeColor },
     { media: "(prefers-color-scheme: dark)", color: SITE_BRAND.themeColor },
