@@ -1,5 +1,7 @@
 import type { LessonType } from "@/generated/prisma/client";
 
+import { CERTIFICATE_COPY } from "@/constants/certificate.constants";
+
 export const COURSE_PAGE = {
   dashboardEyebrow: "Mis cursos",
   dashboardTitle: "Cursos",

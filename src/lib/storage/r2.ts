@@ -5,7 +5,11 @@ import {
   IMAGE_UPLOAD_CONTENT_TYPES,
   type ImageUploadContentType,
 } from "@/lib/storage/image-upload.constants";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export {
@@ -22,6 +26,7 @@ export class StorageConfigError extends Error {
 
 const COURSE_THUMBNAIL_PREFIX = "courses/";
 const USER_AVATAR_PREFIX = "users/avatars/";
+export const CERTIFICATE_PDF_PREFIX = "certificates/";
 
 /** @deprecated Use IMAGE_UPLOAD_CONTENT_TYPES */
 export const COURSE_THUMBNAIL_CONTENT_TYPES = IMAGE_UPLOAD_CONTENT_TYPES;
@@ -198,6 +203,70 @@ export async function createUserAvatarUploadUrl(input: {
   const uploadUrl = await getSignedUrl(client, command, { expiresIn: 600 });
 
   return { uploadUrl, imageUrl, objectKey };
+}
+
+export function buildCertificatePdfObjectKey(certificateId: string): string {
+  return `${CERTIFICATE_PDF_PREFIX}${certificateId}.pdf`;
+}
+
+export async function putObjectBuffer(input: {
+  objectKey: string;
+  body: Buffer;
+  contentType: string;
+}): Promise<{ publicUrl: string | null; objectKey: string }> {
+  if (!isR2Configured()) {
+    return { publicUrl: null, objectKey: input.objectKey };
+  }
+
+  const bucket = process.env.R2_BUCKET?.trim();
+  if (!bucket) {
+    throw new StorageConfigError("R2_BUCKET debe estar configurado.");
+  }
+
+  const client = getR2Client();
+  await client.send(
+    new PutObjectCommand({
+      Bucket: bucket,
+      Key: input.objectKey,
+      Body: input.body,
+      ContentType: input.contentType,
+    }),
+  );
+
+  const publicBaseUrl = await getResolvedStoragePublicUrl();
+  const publicUrl = publicBaseUrl
+    ? buildPublicObjectUrl(publicBaseUrl, input.objectKey)
+    : null;
+
+  return { publicUrl, objectKey: input.objectKey };
+}
+
+export async function getObjectBuffer(
+  objectKey: string,
+): Promise<Buffer | null> {
+  if (!isR2Configured()) {
+    return null;
+  }
+
+  const bucket = process.env.R2_BUCKET?.trim();
+  if (!bucket) {
+    return null;
+  }
+
+  const client = getR2Client();
+  const response = await client.send(
+    new GetObjectCommand({
+      Bucket: bucket,
+      Key: objectKey,
+    }),
+  );
+
+  if (!response.Body) {
+    return null;
+  }
+
+  const bytes = await response.Body.transformToByteArray();
+  return Buffer.from(bytes);
 }
 
 export async function assertUserAvatarUrlAllowed(

@@ -10,6 +10,8 @@ import {
 import { requireAdmin } from "@/lib/auth/admin";
 import { requireStudent } from "@/lib/auth/student";
 import { userHasActiveEnrollment } from "@/lib/course/get-course-page-data";
+import { handleCourseProgressUpdate } from "@/lib/course/handle-course-progress-update";
+import { upsertLessonProgressComplete } from "@/lib/course/upsert-lesson-progress-complete";
 import prisma from "@/lib/db/prisma";
 import {
   gradeQuizAnswerSchema,
@@ -395,6 +397,12 @@ export async function submitQuizAttempt(input: {
         : 0;
     const passed = score >= quiz.passingScore;
 
+    let progressUpdate = {
+      courseCompleted: false,
+      certificateIssued: false,
+      newlyIssuedCertificate: false,
+    };
+
     if (access.saveAttempts && "userId" in access && access.userId) {
       await prisma.quizAttempt.create({
         data: {
@@ -405,6 +413,23 @@ export async function submitQuizAttempt(input: {
           answers: answersPayload,
         },
       });
+
+      if (passed) {
+        await upsertLessonProgressComplete(access.userId, parsed.data.lessonId);
+
+        const course = await prisma.course.findUnique({
+          where: { id: parsed.data.courseId },
+          select: { slug: true },
+        });
+
+        if (course) {
+          progressUpdate = await handleCourseProgressUpdate({
+            userId: access.userId,
+            courseId: parsed.data.courseId,
+            courseSlug: course.slug,
+          });
+        }
+      }
     }
 
     return {
@@ -413,6 +438,9 @@ export async function submitQuizAttempt(input: {
       passed,
       correctCount,
       totalQuestions,
+      courseCompleted: progressUpdate.courseCompleted,
+      certificateIssued: progressUpdate.certificateIssued,
+      newlyIssuedCertificate: progressUpdate.newlyIssuedCertificate,
     };
   } catch {
     return { ok: false, error: "No se pudo guardar el intento." };

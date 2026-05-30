@@ -4,12 +4,8 @@ import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-heade
 import { Button } from "@/components/ui/button";
 import { adminBrutalButtonClass, adminPanelClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
-import {
-  IconAward,
-  IconCertificate,
-  IconChevronRight,
-  IconCompass,
-} from "@tabler/icons-react";
+import { CertificateCardActions } from "@/components/dashboard/certificate-card-actions.client";
+import { IconAward, IconCertificate, IconCompass } from "@tabler/icons-react";
 import Link from "next/link";
 
 export async function StudentCertificatesView() {
@@ -111,30 +107,17 @@ export async function StudentCertificatesView() {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2.5 border-t border-foreground/15 pt-2.5 mt-0.5 min-[400px]:flex-row min-[400px]:items-center min-[400px]:justify-between min-[400px]:gap-3.5 min-[400px]:pt-3 min-[400px]:mt-1">
+                  <div className="flex flex-col gap-3 border-t border-foreground/15 pt-2.5 mt-0.5 min-[400px]:pt-3 min-[400px]:mt-1">
                     <span className="font-mono text-[10px] text-muted-foreground">
                       Emitido el:{" "}
                       {new Date(cert.issuedAt).toLocaleDateString("es", {
                         dateStyle: "medium",
                       })}
                     </span>
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className={cn(
-                        adminBrutalButtonClass,
-                        "bg-background py-1 px-3 h-8 w-full min-[400px]:w-auto shrink-0",
-                      )}
-                    >
-                      <Link
-                        href={`/courses/${cert.courseSlug}`}
-                        className="inline-flex items-center justify-center gap-1 font-mono text-[10px] font-extrabold uppercase"
-                      >
-                        Ver curso
-                        <IconChevronRight className="size-3.5" stroke={2.5} />
-                      </Link>
-                    </Button>
+                    <CertificateCardActions
+                      certificateId={cert.id}
+                      code={cert.code}
+                    />
                   </div>
                 </li>
               ))}

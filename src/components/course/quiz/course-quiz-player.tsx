@@ -18,7 +18,10 @@ import {
 import type { CoursePageMode } from "@/types/course-page.types";
 import type { QuizAnswerInput, QuizPlayData } from "@/types/quiz-play.types";
 import { AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { toast as sonnerToast } from "sonner";
+import { CERTIFICATE_COPY } from "@/constants/certificate.constants";
 import { toast } from "@/lib/toast";
 
 type GamePhase = "loading" | "intro" | "question" | "feedback" | "results";
@@ -36,6 +39,7 @@ export function CourseQuizPlayer({
   lessonTitle,
   mode,
 }: CourseQuizPlayerProps) {
+  const router = useRouter();
   const previewAccess = useMemo(
     () => ({
       adminPreview: isAdminPreviewMode(mode),
@@ -136,6 +140,12 @@ export function CourseQuizPlayer({
           return;
         }
 
+        if (submit.newlyIssuedCertificate) {
+          sonnerToast.success(CERTIFICATE_COPY.certificateIssuedToast);
+        } else if (submit.courseCompleted) {
+          sonnerToast.success(CERTIFICATE_COPY.courseCompletedToast);
+        }
+
         setResults({
           score: submit.score,
           passed: submit.passed,
@@ -143,6 +153,10 @@ export function CourseQuizPlayer({
           totalQuestions: submit.totalQuestions,
         });
         setPhase("results");
+
+        if (submit.passed && !previewMode) {
+          router.refresh();
+        }
       })();
       return;
     }
@@ -152,7 +166,16 @@ export function CourseQuizPlayer({
     setSecondsLeft(QUIZ_PLAY.timerSeconds);
     timedOutHandledRef.current = false;
     setPhase("question");
-  }, [quiz, questionIndex, answers, lessonId, courseId, previewAccess]);
+  }, [
+    quiz,
+    questionIndex,
+    answers,
+    lessonId,
+    courseId,
+    previewAccess,
+    previewMode,
+    router,
+  ]);
 
   const confirmAnswer = useCallback(
     async (timedOut = false) => {

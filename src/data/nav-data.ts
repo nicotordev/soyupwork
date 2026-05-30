@@ -8,46 +8,22 @@ export const catalogDescriptionShort =
 
 export const navSections: readonly NavSection[] = [
   {
-    label: "Catálogo",
-    items: [],
-  },
-  {
     label: "Recursos",
     items: [
       {
         title: "Guías",
-        href: "/recursos/guias",
+        href: "/resources/guias",
         description: "Material práctico para freelancers",
       },
       {
         title: "Plantillas",
-        href: "/recursos/plantillas",
+        href: "/resources/plantillas",
         description: "Propuestas y documentos listos",
       },
       {
         title: "Blog",
-        href: "/recursos/blog",
+        href: "/resources/blog",
         description: "Artículos y novedades",
-      },
-    ],
-  },
-  {
-    label: "Comunidad",
-    items: [
-      {
-        title: "Foro",
-        href: "/comunidad/foro",
-        description: "Pregunta y comparte experiencias",
-      },
-      {
-        title: "Eventos",
-        href: "/comunidad/eventos",
-        description: "Sesiones en vivo y workshops",
-      },
-      {
-        title: "Historias",
-        href: "/comunidad/historias",
-        description: "Casos de éxito de alumnos",
       },
     ],
   },
@@ -56,17 +32,12 @@ export const navSections: readonly NavSection[] = [
     items: [
       {
         title: "Planes",
-        href: "/precios",
+        href: "/pricing",
         description: "Compara opciones de acceso",
       },
       {
-        title: "Empresas",
-        href: "/precios/empresas",
-        description: "Formación para equipos",
-      },
-      {
         title: "Preguntas frecuentes",
-        href: "/precios#faq",
+        href: "/pricing#faq",
         description: "Dudas sobre pagos y acceso",
       },
     ],

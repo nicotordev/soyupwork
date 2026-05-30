@@ -2,6 +2,8 @@
 
 import { requireStudent } from "@/lib/auth/student";
 import { userHasActiveEnrollment } from "@/lib/course/get-course-page-data";
+import { handleCourseProgressUpdate } from "@/lib/course/handle-course-progress-update";
+import { upsertLessonProgressComplete } from "@/lib/course/upsert-lesson-progress-complete";
 import prisma from "@/lib/db/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -12,7 +14,15 @@ type MarkLessonCompleteInput = {
 
 export async function markLessonComplete(
   input: MarkLessonCompleteInput,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<
+  | {
+      ok: true;
+      courseCompleted?: boolean;
+      certificateIssued?: boolean;
+      newlyIssuedCertificate?: boolean;
+    }
+  | { ok: false; error: string }
+> {
   const user = await requireStudent();
 
   const lesson = await prisma.lesson.findFirst({
@@ -41,26 +51,21 @@ export async function markLessonComplete(
 
   const now = new Date();
 
-  await prisma.lessonProgress.upsert({
-    where: {
-      userId_lessonId: { userId: user.id, lessonId: lesson.id },
-    },
-    create: {
-      userId: user.id,
-      lessonId: lesson.id,
-      completed: true,
-      completedAt: now,
-      lastSeenAt: now,
-    },
-    update: {
-      completed: true,
-      completedAt: now,
-      lastSeenAt: now,
-    },
+  await upsertLessonProgressComplete(user.id, lesson.id, prisma, now);
+
+  const progressUpdate = await handleCourseProgressUpdate({
+    userId: user.id,
+    courseId: lesson.module.courseId,
+    courseSlug: input.courseSlug,
   });
 
   revalidatePath(`/courses/${input.courseSlug}`);
   revalidatePath(`/courses/${input.courseSlug}/lessons`);
 
-  return { ok: true };
+  return {
+    ok: true,
+    courseCompleted: progressUpdate.courseCompleted,
+    certificateIssued: progressUpdate.certificateIssued,
+    newlyIssuedCertificate: progressUpdate.newlyIssuedCertificate,
+  };
 }

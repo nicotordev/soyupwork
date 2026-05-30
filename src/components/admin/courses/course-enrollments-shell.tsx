@@ -233,9 +233,17 @@ export function CourseEnrollmentsShell({
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={statusVariant(enrollment.status)}>
-                        {STATUS_LABELS[enrollment.status]}
-                      </Badge>
+                      <div className="space-y-1">
+                        <Badge variant={statusVariant(enrollment.status)}>
+                          {STATUS_LABELS[enrollment.status]}
+                        </Badge>
+                        {enrollment.status === "COMPLETED" &&
+                        enrollment.completedAt ? (
+                          <p className="font-mono text-[10px] text-muted-foreground">
+                            {formatDashboardDate(enrollment.completedAt)}
+                          </p>
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell className="text-sm capitalize">
                       {enrollment.source ?? "—"}

@@ -27,6 +27,7 @@ export type AdminCourseEnrollmentRow = {
   userName: string;
   userEmail: string | null;
   status: EnrollmentStatus;
+  completedAt: string | null;
   source: string | null;
   createdAt: string;
   updatedAt: string;
@@ -82,6 +83,7 @@ export async function getCourseEnrollmentsPageData(
       userName: displayName(enrollment.user),
       userEmail: enrollment.user.email,
       status: enrollment.status,
+      completedAt: enrollment.completedAt?.toISOString() ?? null,
       source: enrollment.source,
       createdAt: enrollment.createdAt.toISOString(),
       updatedAt: enrollment.updatedAt.toISOString(),

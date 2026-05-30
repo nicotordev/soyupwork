@@ -60,3 +60,9 @@ export function shouldSendPurchaseConfirmation(
 export function shouldSendEnrollmentEmail(settings: PlatformSettings): boolean {
   return settings.sendEnrollmentEmail;
 }
+
+export function shouldNotifyStudentOnCertificate(
+  settings: PlatformSettings,
+): boolean {
+  return settings.notifyStudentOnCertificate;
+}

@@ -2,6 +2,7 @@
 
 import { markLessonComplete } from "@/app/actions/lesson-progress.actions";
 import { Button } from "@/components/ui/button";
+import { CERTIFICATE_COPY } from "@/constants/certificate.constants";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
 import { adminPanelClass } from "@/lib/admin/styles";
 import { computeNextLessonHref } from "@/lib/course/compute-next-lesson-href";
@@ -114,7 +115,13 @@ export function CourseLessonProgressFooter({
       }
 
       setLocalCompletedLessonId(lesson.id);
-      toast.success(COURSE_PAGE.lessonCompleted);
+      if (result.newlyIssuedCertificate) {
+        sonnerToast.success(CERTIFICATE_COPY.certificateIssuedToast);
+      } else if (result.courseCompleted) {
+        sonnerToast.success(CERTIFICATE_COPY.courseCompletedToast);
+      } else {
+        toast.success(COURSE_PAGE.lessonCompleted);
+      }
       router.refresh();
     });
   };

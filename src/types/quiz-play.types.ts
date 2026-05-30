@@ -44,6 +44,9 @@ export type SubmitQuizAttemptResult =
       passed: boolean;
       correctCount: number;
       totalQuestions: number;
+      courseCompleted?: boolean;
+      certificateIssued?: boolean;
+      newlyIssuedCertificate?: boolean;
     }
   | { ok: false; error: string };
 

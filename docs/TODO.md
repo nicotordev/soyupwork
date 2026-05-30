@@ -117,14 +117,14 @@
 
 ### Certificados (P0 — bloqueante)
 
-- [ ] **Auto-emisión** al completar curso (100% lecciones o reglas configurables)
-- [ ] **`prisma.certificate.create`** con código único verificable
-- [ ] **Página pública** `/certificados/verificar/[code]`
-- [ ] **PDF descargable** (generación server-side o servicio)
-- [ ] Email "certificado emitido"
-- [ ] Marcar `Enrollment` como `COMPLETED` con timestamp
+- [x] **Auto-emisión** al completar curso (100% lecciones o reglas configurables)
+- [x] **`prisma.certificate.create`** con código único verificable
+- [x] **Página pública** `/certificados/verificar/[code]`
+- [x] **PDF descargable** (generación server-side o servicio)
+- [x] Email "certificado emitido"
+- [x] Marcar `Enrollment` como `COMPLETED` con timestamp
 
-**Evidencia gap:** solo `certificate.findMany` en dashboard; sin `certificate.create`.
+**Implementado en:** `evaluate-course-completion`, `finalize-course-completion`, `handle-course-progress-update`, `/certificados/verificar/[code]`, `/api/certificates/[id]/pdf`, `send-certificate-issued`.
 
 ### Páginas públicas & SEO (P1)
 

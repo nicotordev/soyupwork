@@ -27,7 +27,12 @@ function buildImageRemotePatterns(): NonNullable<
 const nextConfig: NextConfig = {
   output: "standalone",
   reactCompiler: true,
-  serverExternalPackages: ["pino", "pino-pretty", "thread-stream"],
+  serverExternalPackages: [
+    "pino",
+    "pino-pretty",
+    "thread-stream",
+    "@react-pdf/renderer",
+  ],
   images: {
     remotePatterns: buildImageRemotePatterns(),
   },
