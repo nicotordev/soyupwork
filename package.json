@@ -12,6 +12,7 @@
     "sounds:fetch": "bun scripts/fetch-ui-sounds.ts",
     "demo:mux-videos": "bun scripts/create-demo-mux-videos.ts",
     "emojis:flags": "bun scripts/download-apple-country-flags.ts",
+    "brand:assets": "bun scripts/generate-brand-assets.ts",
     "resend:waitlist-segment": "bun scripts/setup-resend-waitlist-segment.ts",
     "tunnel": "cloudflared tunnel run soyupwork-local"
   },
