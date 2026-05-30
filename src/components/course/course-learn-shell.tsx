@@ -11,9 +11,19 @@ import {
   isAdminPreviewMode,
   isPublicDemoMode,
 } from "@/lib/course/course-page-mode";
-import type { CoursePageData } from "@/types/course-page.types";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import type {
+  CoursePageData,
+  CoursePageLessonComment,
+} from "@/types/course-page.types";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { COURSE_PAGE } from "@/constants/course-page.constants";
 import { IconMenu2 } from "@tabler/icons-react";
 
 type CourseLearnShellProps = {
@@ -24,6 +34,7 @@ type CourseLearnShellProps = {
   lessonHrefMode?: "path" | "query";
   showModeBanner?: boolean;
   onDemoLessonComplete?: (lessonId: string) => void;
+  lessonComments?: CoursePageLessonComment[];
 };
 
 export function CourseLearnShell({
@@ -34,6 +45,7 @@ export function CourseLearnShell({
   lessonHrefMode = "path",
   showModeBanner = true,
   onDemoLessonComplete,
+  lessonComments,
 }: CourseLearnShellProps) {
   const { view, mode } = data;
   const lesson = findLessonInView(view, lessonSlug);
@@ -94,6 +106,9 @@ export function CourseLearnShell({
             side="left"
             className="p-0 w-80 max-w-[85vw] border-r-2 border-foreground bg-background"
           >
+            <SheetHeader className="sr-only">
+              <SheetTitle>{COURSE_PAGE.syllabusTitle}</SheetTitle>
+            </SheetHeader>
             <div className="h-full overflow-y-auto">
               <CourseLessonSidebar
                 view={view}
@@ -108,15 +123,6 @@ export function CourseLearnShell({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div className="hidden lg:block lg:w-72 lg:max-w-[18rem] lg:shrink-0">
-          <CourseLessonSidebar
-            view={view}
-            activeLessonSlug={lessonSlug}
-            lessonBasePath={lessonBasePath}
-            courseLandingHref={courseLandingHref}
-            lessonHrefMode={lessonHrefMode}
-          />
-        </div>
         <main className="min-w-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           <CourseLessonContent
             view={view}
@@ -125,8 +131,19 @@ export function CourseLearnShell({
             lessonBasePath={lessonBasePath}
             lessonHrefMode={lessonHrefMode}
             onDemoLessonComplete={onDemoLessonComplete}
+            lessonComments={lessonComments}
           />
         </main>
+        <div className="hidden lg:block lg:w-80 lg:max-w-[20rem] lg:shrink-0">
+          <CourseLessonSidebar
+            view={view}
+            activeLessonSlug={lessonSlug}
+            lessonBasePath={lessonBasePath}
+            courseLandingHref={courseLandingHref}
+            lessonHrefMode={lessonHrefMode}
+            className="lg:border-l-2"
+          />
+        </div>
       </div>
     </div>
   );

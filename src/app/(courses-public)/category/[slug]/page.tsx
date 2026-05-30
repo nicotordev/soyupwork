@@ -49,13 +49,11 @@ export default async function CategoryCatalogPage({
   });
 
   return (
-    <Suspense fallback={<CatalogPageSkeleton />}>
-      <CatalogShell
-        {...viewModel}
-        pageTitle={`Cursos de ${category.name}`}
-        pageDescription={CATALOG_PAGE.categoryPageDescription(category.name)}
-        scopedCategoryName={category.name}
-      />
-    </Suspense>
+    <CatalogShell
+      {...viewModel}
+      pageTitle={`Cursos de ${category.name}`}
+      pageDescription={CATALOG_PAGE.categoryPageDescription(category.name)}
+      scopedCategoryName={category.name}
+    />
   );
 }

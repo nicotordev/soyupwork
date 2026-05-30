@@ -391,6 +391,16 @@ export async function updateLesson(
     const previousType = existingLesson.type;
     const nextType = parsed.data.type;
 
+    const rawPublishedAt = parsed.data.videoPublishedAt?.trim();
+    const videoPublishedAt =
+      nextType === "VIDEO" && rawPublishedAt
+        ? new Date(
+            rawPublishedAt.includes("T")
+              ? rawPublishedAt
+              : `${rawPublishedAt}T12:00:00`,
+          )
+        : null;
+
     await prisma.lesson.update({
       where: { id: parsed.data.id },
       data: {
@@ -399,6 +409,11 @@ export async function updateLesson(
         description: parsed.data.description?.trim() || null,
         type: nextType,
         isPreview: parsed.data.isPreview,
+        videoPublishedAt: nextType === "VIDEO" ? videoPublishedAt : null,
+        videoAuthorName:
+          nextType === "VIDEO"
+            ? parsed.data.videoAuthorName?.trim() || null
+            : null,
         ...lessonTypeData(nextType, parsed.data.content),
         ...(nextType !== "VIDEO" ? videoClearData : {}),
       },

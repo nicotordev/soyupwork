@@ -53,6 +53,12 @@ export function LessonEditPanel({
   );
   const [content, setContent] = useState(lesson.content);
   const [isPreview, setIsPreview] = useState(lesson.isPreview);
+  const [videoPublishedAt, setVideoPublishedAt] = useState(
+    lesson.videoPublishedAt ? lesson.videoPublishedAt.slice(0, 10) : "",
+  );
+  const [videoAuthorName, setVideoAuthorName] = useState(
+    lesson.videoAuthorName ?? "",
+  );
 
   const handleTitleChange = (value: string) => {
     setTitle(value);
@@ -83,6 +89,8 @@ export function LessonEditPanel({
         type,
         content: content.trim(),
         isPreview,
+        videoPublishedAt: type === "VIDEO" ? videoPublishedAt : undefined,
+        videoAuthorName: type === "VIDEO" ? videoAuthorName : undefined,
       });
 
       if (!result.ok) {
@@ -143,15 +151,50 @@ export function LessonEditPanel({
           </select>
         </div>
         <div className="space-y-1.5 sm:col-span-2">
-          <Label htmlFor={`lesson-desc-${lesson.id}`}>Descripción</Label>
+          <Label htmlFor={`lesson-desc-${lesson.id}`}>
+            {type === "VIDEO" ? "Descripción del vídeo" : "Descripción"}
+          </Label>
           <Textarea
             id={`lesson-desc-${lesson.id}`}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className={cn(adminInputClass, "min-h-16 resize-y")}
-            rows={2}
+            rows={type === "VIDEO" ? 4 : 2}
+            placeholder={
+              type === "VIDEO"
+                ? "Texto visible bajo el reproductor (estilo YouTube)."
+                : undefined
+            }
           />
         </div>
+        {type === "VIDEO" ? (
+          <>
+            <div className="space-y-1.5">
+              <Label htmlFor={`lesson-video-date-${lesson.id}`}>
+                Fecha de publicación
+              </Label>
+              <Input
+                id={`lesson-video-date-${lesson.id}`}
+                type="date"
+                value={videoPublishedAt}
+                onChange={(e) => setVideoPublishedAt(e.target.value)}
+                className={adminInputClass}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`lesson-video-author-${lesson.id}`}>
+                Autor del vídeo
+              </Label>
+              <Input
+                id={`lesson-video-author-${lesson.id}`}
+                value={videoAuthorName}
+                onChange={(e) => setVideoAuthorName(e.target.value)}
+                className={adminInputClass}
+                placeholder="Opcional — si está vacío se usa el instructor del curso"
+              />
+            </div>
+          </>
+        ) : null}
       </div>
 
       <label className="flex cursor-pointer items-center gap-2.5">

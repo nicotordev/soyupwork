@@ -103,6 +103,8 @@ function mapLesson(
     videoStatus: lesson.videoStatus,
     videoPlaybackId: lesson.videoPlaybackId,
     durationSec: lesson.durationSec,
+    videoPublishedAt: lesson.videoPublishedAt?.toISOString() ?? null,
+    videoAuthorName: lesson.videoAuthorName ?? null,
     quiz: lesson.quiz ? mapQuiz(lesson.quiz) : null,
   };
 }

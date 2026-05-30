@@ -38,6 +38,8 @@ export type AdminCurriculumLesson = {
   videoStatus: LessonVideoStatus | null;
   videoPlaybackId: string | null;
   durationSec: number | null;
+  videoPublishedAt: string | null;
+  videoAuthorName: string | null;
   quiz: AdminCurriculumQuiz | null;
 };
 

@@ -39,7 +39,7 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
   VideoKey,
   {
     videoAiInsight: CoursePageVideoAiInsight;
-    placeholderComments: CoursePageLessonComment[];
+    comments: CoursePageLessonComment[];
   }
 > = {
   welcome: {
@@ -56,18 +56,31 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
         "Resume el curso en 3 pasos accionables.",
       ],
     },
-    placeholderComments: [
+    comments: [
       {
         id: "demo-comment-welcome-1",
         authorName: "María G.",
         body: "¿Conviene ver todo el curso antes de aplicar o ir módulo por módulo?",
         createdAt: "2026-05-27T14:20:00.000Z",
+        parentId: null,
+        replies: [
+          {
+            id: "demo-comment-welcome-1-reply",
+            authorName: "Diego R.",
+            body: "Yo fui módulo por módulo y apliqué en paralelo.",
+            createdAt: "2026-05-27T15:00:00.000Z",
+            parentId: "demo-comment-welcome-1",
+            replies: [],
+          },
+        ],
       },
       {
         id: "demo-comment-welcome-2",
         authorName: "Diego R.",
         body: "Me ayudó entender que no es solo perfil: también jobs y propuestas.",
         createdAt: "2026-05-26T09:10:00.000Z",
+        parentId: null,
+        replies: [],
       },
     ],
   },
@@ -85,18 +98,22 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
         "Dame un checklist de 5 minutos antes de aplicar.",
       ],
     },
-    placeholderComments: [
+    comments: [
       {
         id: "demo-comment-profile-1",
         authorName: "Ana L.",
         body: "¿El título en inglés o español si busco clientes de EE.UU.?",
         createdAt: "2026-05-28T11:45:00.000Z",
+        parentId: null,
+        replies: [],
       },
       {
         id: "demo-comment-profile-2",
         authorName: "Carlos M.",
         body: "Revisé mi overview con el checklist y ya se lee más claro.",
         createdAt: "2026-05-25T16:30:00.000Z",
+        parentId: null,
+        replies: [],
       },
     ],
   },
@@ -114,18 +131,22 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
         "¿Cómo priorizo si tengo pocos Connects esta semana?",
       ],
     },
-    placeholderComments: [
+    comments: [
       {
         id: "demo-comment-jobs-1",
         authorName: "Lucía P.",
         body: "La regla de los 5 minutos para la apertura me ahorró varias aplicaciones malas.",
         createdAt: "2026-05-27T08:00:00.000Z",
+        parentId: null,
+        replies: [],
       },
       {
         id: "demo-comment-jobs-2",
         authorName: "Tomás V.",
         body: "¿La matriz sirve también para trabajos por hora de largo plazo?",
         createdAt: "2026-05-24T19:15:00.000Z",
+        parentId: null,
+        replies: [],
       },
     ],
   },
@@ -143,24 +164,30 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
         "Dame un ejemplo de cierre con pregunta.",
       ],
     },
-    placeholderComments: [
+    comments: [
       {
         id: "demo-comment-proposal-1",
         authorName: "Sofía N.",
         body: "¿El bloque de evidencia puede ser un enlace al portfolio aunque no sea el mismo nicho?",
         createdAt: "2026-05-28T13:20:00.000Z",
+        parentId: null,
+        replies: [],
       },
       {
         id: "demo-comment-proposal-2",
         authorName: "Javier H.",
         body: "Probé la estructura de 5 bloques y tuve dos respuestas en la misma semana.",
         createdAt: "2026-05-23T10:05:00.000Z",
+        parentId: null,
+        replies: [],
       },
       {
         id: "demo-comment-proposal-3",
         authorName: "Paula S.",
         body: "¿Conviene adjuntar un Loom en la primera propuesta o esperar a que respondan?",
         createdAt: "2026-05-22T17:40:00.000Z",
+        parentId: null,
+        replies: [],
       },
     ],
   },
@@ -178,18 +205,22 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
         "¿Cómo manejar 'está fuera de presupuesto' sin bajar tarifa de golpe?",
       ],
     },
-    placeholderComments: [
+    comments: [
       {
         id: "demo-comment-interview-1",
         authorName: "Renata C.",
         body: "¿Grabar la llamada está bien o suena poco profesional?",
         createdAt: "2026-05-27T15:55:00.000Z",
+        parentId: null,
+        replies: [],
       },
       {
         id: "demo-comment-interview-2",
         authorName: "Mateo F.",
         body: "El cierre por escrito después de la call me salvó un malentendido de alcance.",
         createdAt: "2026-05-26T12:00:00.000Z",
+        parentId: null,
+        replies: [],
       },
     ],
   },
@@ -207,18 +238,22 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
         "¿Cómo proponer continuidad sin presionar?",
       ],
     },
-    placeholderComments: [
+    comments: [
       {
         id: "demo-comment-onboarding-1",
         authorName: "Valentina T.",
         body: "¿El mismo mensaje sirve para fixed price y por hora?",
         createdAt: "2026-05-28T09:30:00.000Z",
+        parentId: null,
+        replies: [],
       },
       {
         id: "demo-comment-onboarding-2",
         authorName: "Andrés K.",
         body: "Implementé el check-in semanal y el cliente renovó el segundo mes.",
         createdAt: "2026-05-25T20:10:00.000Z",
+        parentId: null,
+        replies: [],
       },
     ],
   },
@@ -254,7 +289,9 @@ function makeVideoLesson(input: {
     isAccessible: true,
     isCompleted: false,
     videoAiInsight: engagement.videoAiInsight,
-    placeholderComments: engagement.placeholderComments,
+    comments: engagement.comments,
+    videoPublishedAt: "2026-05-20T12:00:00.000Z",
+    videoAuthorName: "Equipo SoyUpwork",
   };
 }
 
@@ -278,12 +315,14 @@ function makeTextLesson(input: {
     durationSec: null,
     videoPlaybackId: null,
     videoStatus: null,
+    videoPublishedAt: null,
+    videoAuthorName: null,
     content: input.content,
     quiz: null,
     isAccessible: true,
     isCompleted: false,
     videoAiInsight: null,
-    placeholderComments: [],
+    comments: [],
   };
 }
 
@@ -306,12 +345,14 @@ function makeDownloadLesson(input: {
     durationSec: null,
     videoPlaybackId: null,
     videoStatus: null,
+    videoPublishedAt: null,
+    videoAuthorName: null,
     content: input.content,
     quiz: null,
     isAccessible: true,
     isCompleted: false,
     videoAiInsight: null,
-    placeholderComments: [],
+    comments: [],
   };
 }
 
@@ -340,12 +381,14 @@ function makeQuizLesson(input: {
     durationSec: null,
     videoPlaybackId: null,
     videoStatus: null,
+    videoPublishedAt: null,
+    videoAuthorName: null,
     content: "",
     quiz: input.quiz,
     isAccessible: true,
     isCompleted: false,
     videoAiInsight: null,
-    placeholderComments: [],
+    comments: [],
   };
 }
 

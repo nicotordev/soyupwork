@@ -15,17 +15,26 @@ import { IconRobot, IconSparkles } from "@tabler/icons-react";
 type CourseLessonVideoAiPanelProps = {
   insight: CoursePageVideoAiInsight | null;
   mode: CoursePageMode;
+  className?: string;
+  isSheet?: boolean;
 };
 
 export function CourseLessonVideoAiPanel({
   insight,
   mode,
+  className,
+  isSheet = false,
 }: CourseLessonVideoAiPanelProps) {
   const isDemo = mode === "publicDemo";
 
   return (
     <section
-      className={cn(adminPanelClass, "overflow-hidden")}
+      className={cn(
+        isSheet 
+          ? "h-full flex flex-col bg-background" 
+          : cn(adminPanelClass, "overflow-hidden"),
+        className
+      )}
       aria-labelledby="video-ai-panel-title"
     >
       <header className="flex flex-wrap items-center gap-2 border-b-2 border-foreground px-4 py-3">
@@ -49,7 +58,7 @@ export function CourseLessonVideoAiPanel({
         ) : null}
       </header>
 
-      <div className="space-y-4 p-4 sm:p-5">
+      <div className={cn("space-y-4 p-4 sm:p-5", isSheet && "flex-1 overflow-y-auto min-h-0")}>
         {insight ? (
           <>
             <p className="text-sm leading-relaxed text-foreground">

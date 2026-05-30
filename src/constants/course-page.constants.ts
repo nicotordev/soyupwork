@@ -38,9 +38,9 @@ export const COURSE_PAGE = {
   videoAiAskSoon: "Próximamente",
   videoAiHighlightsTitle: "Puntos clave",
   videoAiSuggestedTitle: "Preguntas sugeridas",
+  videoPublishedRecently: "Publicado recientemente",
   videoCommentsTitle: "Comentarios de la lección",
-  videoCommentsEmpty:
-    "Sé el primero en comentar cuando activemos los debates en esta lección.",
+  videoCommentsEmpty: "Sé el primero en comentar esta lección.",
   videoCommentsPlaceholder: "Escribe un comentario…",
   videoCommentsSubmitSoon: "Próximamente",
 } as const;

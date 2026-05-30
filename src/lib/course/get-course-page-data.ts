@@ -93,6 +93,8 @@ function mapLesson(
     durationSec: lesson.durationSec,
     videoPlaybackId: lesson.videoPlaybackId,
     videoStatus: lesson.videoStatus,
+    videoPublishedAt: lesson.videoPublishedAt?.toISOString() ?? null,
+    videoAuthorName: lesson.videoAuthorName ?? null,
     content: lesson.content ?? "",
     quiz: lesson.quiz
       ? {
@@ -105,7 +107,7 @@ function mapLesson(
     isAccessible: false,
     isCompleted: false,
     videoAiInsight: null,
-    placeholderComments: [],
+    comments: [],
   };
 }
 

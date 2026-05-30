@@ -24,6 +24,7 @@ type CourseLessonSidebarProps = {
   lessonBasePath: string;
   courseLandingHref: string;
   lessonHrefMode?: "path" | "query";
+  className?: string;
 };
 
 function LessonTypeIcon({ type }: { type: CoursePageLesson["type"] }) {
@@ -43,13 +44,14 @@ export function CourseLessonSidebar({
   lessonBasePath,
   courseLandingHref,
   lessonHrefMode = "path",
+  className,
 }: CourseLessonSidebarProps) {
   const lessonHref = (slug: string) =>
     lessonHrefMode === "query"
       ? `${lessonBasePath}?leccion=${encodeURIComponent(slug)}`
       : `${lessonBasePath}/${slug}`;
   return (
-    <aside className="flex h-full flex-col border-foreground bg-muted/20 font-sans lg:border-r-2">
+    <aside className={cn("flex h-full flex-col border-foreground bg-muted/20 font-sans", className)}>
       <div className="border-b-2 border-foreground px-3 py-3">
         <Link
           href={courseLandingHref}

@@ -53,6 +53,15 @@ export const updateLessonSchema = z.object({
   type: curriculumLessonTypeSchema,
   content: z.string().trim().max(50000).optional(),
   isPreview: z.boolean(),
+  videoPublishedAt: z
+    .string()
+    .trim()
+    .optional()
+    .refine(
+      (value) => !value || !Number.isNaN(Date.parse(value)),
+      "Fecha de publicación inválida.",
+    ),
+  videoAuthorName: z.string().trim().max(120).optional(),
 });
 
 export const deleteLessonSchema = z.object({

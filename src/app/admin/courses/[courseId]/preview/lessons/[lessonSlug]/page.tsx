@@ -1,6 +1,7 @@
 import { getCoursePageForAdminPreview } from "@/app/actions/course-page.actions";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
 import { findLessonInView } from "@/lib/course/course-page-view";
+import { fetchLessonDiscussions } from "@/lib/course/lesson-discussions";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
@@ -38,12 +39,15 @@ export default async function AdminCoursePreviewLessonPage({
     notFound();
   }
 
+  const lessonComments = await fetchLessonDiscussions(lesson.id);
+
   return (
     <CourseLearnShell
       data={data}
       lessonSlug={lessonSlug}
       lessonBasePath={`/admin/courses/${courseId}/preview/lessons`}
       courseLandingHref={`/admin/courses/${courseId}/preview`}
+      lessonComments={lessonComments}
     />
   );
 }

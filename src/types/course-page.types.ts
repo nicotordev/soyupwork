@@ -19,6 +19,8 @@ export type CoursePageLessonComment = {
   authorName: string;
   body: string;
   createdAt: string;
+  parentId: string | null;
+  replies: CoursePageLessonComment[];
 };
 
 export type CoursePageVideoAiInsight = {
@@ -38,12 +40,14 @@ export type CoursePageLesson = {
   durationSec: number | null;
   videoPlaybackId: string | null;
   videoStatus: LessonVideoStatus | null;
+  videoPublishedAt: string | null;
+  videoAuthorName: string | null;
   content: string;
   quiz: CoursePageQuizSummary | null;
   isAccessible: boolean;
   isCompleted: boolean;
   videoAiInsight: CoursePageVideoAiInsight | null;
-  placeholderComments: CoursePageLessonComment[];
+  comments: CoursePageLessonComment[];
 };
 
 export type CoursePageModule = {

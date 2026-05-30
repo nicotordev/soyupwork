@@ -270,8 +270,6 @@ model Course {
   publishedAt          DateTime? @db.Timestamp(6)
   dripEnabled          Boolean   @default(false)
   minCompletionPercent Int       @default(100)
-  seoTitle             String?
-  seoDescription       String?
   previewVideoUrl      String?
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
@@ -288,6 +286,7 @@ model Course {
   communityPosts    CommunityPost[]
   cohorts           Cohort[]
   courseDiscussions CourseDiscussion[]
+  seoMetadata       SeoMetadata?
 
   @@index([status])
   @@index([slug])
@@ -350,11 +349,13 @@ model Lesson {
   description String?
   type        LessonType @default(VIDEO)
 
-  videoProvider   String?
-  videoAssetId    String?
-  videoPlaybackId String?
-  videoUrl        String?
-  videoStatus     LessonVideoStatus?
+  videoProvider    String?
+  videoAssetId     String?
+  videoPlaybackId  String?
+  videoUrl         String?
+  videoStatus      LessonVideoStatus?
+  videoPublishedAt DateTime?          @db.Timestamp(6)
+  videoAuthorName  String?
 
   content         String?
   durationSec     Int?
@@ -677,25 +678,76 @@ model Lead {
 }
 
 model BlogPost {
-  id             String         @id @default(uuid()) @db.Uuid
-  slug           String         @unique
-  title          String
-  excerpt        String?
-  content        String
-  coverImageUrl  String?
-  status         BlogPostStatus @default(DRAFT)
-  publishedAt    DateTime?      @db.Timestamp(6)
-  authorId       String?        @db.Uuid
-  seoTitle       String?
-  seoDescription String?
+  id            String         @id @default(uuid()) @db.Uuid
+  slug          String         @unique
+  title         String
+  excerpt       String?
+  content       String
+  coverImageUrl String?
+  status        BlogPostStatus @default(DRAFT)
+  publishedAt   DateTime?      @db.Timestamp(6)
+  authorId      String?        @db.Uuid
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  author User? @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  author      User?        @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  seoMetadata SeoMetadata?
 
   @@index([status, publishedAt])
   @@index([authorId])
+}
+
+/// Stores Next.js `Metadata` fields for public courses and blog posts.
+/// JSON columns match shapes from `next/dist/lib/metadata/types/*`.
+model SeoMetadata {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  courseId   String? @unique @db.Uuid
+  blogPostId String? @unique @db.Uuid
+
+  title           String?
+  titleTemplate   String?
+  titleAbsolute   String?
+  description     String?
+  applicationName String?
+  generator       String?
+  creator         String?
+  publisher       String?
+  keywords        String[] @default([])
+  referrer        String?
+  abstract        String?
+  category        String?
+  classification  String?
+  manifest        String?
+
+  robots          Json?
+  alternates      Json?
+  icons           Json?
+  openGraph       Json?
+  twitter         Json?
+  facebook        Json?
+  pinterest       Json?
+  verification    Json?
+  authors         Json?
+  appleWebApp     Json?
+  formatDetection Json?
+  itunes          Json?
+  appLinks        Json?
+  pagination      Json?
+  other           Json?
+
+  archives  String[] @default([])
+  assets    String[] @default([])
+  bookmarks String[] @default([])
+
+  course   Course?   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  blogPost BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+  @@index([blogPostId])
 }
 
 model AnalyticsEvent {
@@ -854,18 +906,22 @@ model CourseDiscussion {
   courseId String  @db.Uuid
   userId   String  @db.Uuid
   lessonId String? @db.Uuid
+  parentId String? @db.Uuid
   body     String
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  course Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lesson Lesson? @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  course  Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user    User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson  Lesson?            @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  parent  CourseDiscussion?  @relation("CourseDiscussionThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies CourseDiscussion[] @relation("CourseDiscussionThread")
 
   @@index([courseId])
   @@index([userId])
   @@index([lessonId])
+  @@index([parentId])
 }
 
 // --- Cohorts (MVP v2) ---
