@@ -17,6 +17,7 @@ import {
   IconVideo,
 } from "@tabler/icons-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type CourseLessonSidebarProps = {
   view: CoursePageView;
@@ -25,6 +26,7 @@ type CourseLessonSidebarProps = {
   courseLandingHref: string;
   lessonHrefMode?: "path" | "query";
   className?: string;
+  onNavigate?: () => void;
 };
 
 function LessonTypeIcon({ type }: { type: CoursePageLesson["type"] }) {
@@ -45,16 +47,47 @@ export function CourseLessonSidebar({
   courseLandingHref,
   lessonHrefMode = "path",
   className,
+  onNavigate,
 }: CourseLessonSidebarProps) {
+  const router = useRouter();
+
   const lessonHref = (slug: string) =>
     lessonHrefMode === "query"
       ? `${lessonBasePath}?leccion=${encodeURIComponent(slug)}`
       : `${lessonBasePath}/${slug}`;
+
+  const handleNavigate = () => {
+    onNavigate?.();
+  };
+
+  const handleCourseLandingClick = (
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => {
+    handleNavigate();
+
+    // Same pathname with different search params (e.g. /demo?leccion=x → /demo)
+    // does not always update via soft navigation alone.
+    if (lessonHrefMode === "query") {
+      event.preventDefault();
+      router.push(courseLandingHref);
+    }
+  };
+
+  const handleLessonClick = () => {
+    handleNavigate();
+  };
+
   return (
-    <aside className={cn("flex h-full flex-col border-foreground bg-muted/20 font-sans", className)}>
+    <aside
+      className={cn(
+        "flex h-full flex-col border-foreground bg-muted/20 font-sans",
+        className,
+      )}
+    >
       <div className="border-b-2 border-foreground px-3 py-3">
         <Link
           href={courseLandingHref}
+          onClick={handleCourseLandingClick}
           className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground"
         >
           ← {view.title}
@@ -121,7 +154,11 @@ export function CourseLessonSidebar({
 
                 return (
                   <li key={lesson.id}>
-                    <Link href={lessonHref(lesson.slug)} className={itemClass}>
+                    <Link
+                      href={lessonHref(lesson.slug)}
+                      onClick={handleLessonClick}
+                      className={itemClass}
+                    >
                       {content}
                       <span className="sr-only">
                         {LESSON_TYPE_ICONS_LABEL[lesson.type]}

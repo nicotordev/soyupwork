@@ -6,7 +6,7 @@ import type {
 export type SequentialAccessOptions = {
   hasFullAccess: boolean;
   completedLessonIds: ReadonlySet<string>;
-  bookmarkedLessonIds: ReadonlySet<string>;
+  bookmarkedLessonIds?: ReadonlySet<string>;
   enforceSequential: boolean;
 };
 
@@ -22,6 +22,7 @@ export function applySequentialLessonAccess(
 ): CoursePageModule[] {
   const ordered = flattenCourseLessons(modules);
   const accessibilityById = new Map<string, boolean>();
+  const bookmarkedLessonIds = options.bookmarkedLessonIds ?? new Set<string>();
 
   for (let index = 0; index < ordered.length; index++) {
     const lesson = ordered[index]!;
@@ -56,7 +57,7 @@ export function applySequentialLessonAccess(
       ...lesson,
       isAccessible: accessibilityById.get(lesson.id) ?? false,
       isCompleted: options.completedLessonIds.has(lesson.id),
-      isBookmarked: options.bookmarkedLessonIds.has(lesson.id),
+      isBookmarked: bookmarkedLessonIds.has(lesson.id),
     })),
   }));
 }

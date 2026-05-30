@@ -76,12 +76,12 @@ export function PhoneInputField<T extends PhoneFieldValues>({
         ) : null}
       </Label>
 
-      <div className="flex min-w-0 gap-2">
+      <div className="flex items-center min-w-0 gap-2">
         <Controller
           name={"phoneCountry" as Path<T>}
           control={control}
           render={({ field }) => (
-            <div className="relative shrink-0">
+            <div className="flex relative shrink-0 h-full">
               <CountryFlagEmoji
                 country={field.value as CountryCode}
                 size={16}

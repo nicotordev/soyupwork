@@ -39,7 +39,7 @@ export const CATALOG_PAGE = {
   emptyFilteredDescription:
     "Ningún curso coincide con los criterios de filtrado seleccionados. Intenta quitar algunos filtros o cambiar la búsqueda de temas.",
   emptyFilteredCta: "Restaurar filtros",
-  valueEyebrow: "Upwork LATAM · Trabajo Remoto · Freelance Latinoamérica",
+  valueEyebrow: "Upwork LATAM · Freelance Latinoamérica",
   valueTitle:
     "Cursos de Upwork en Español: Aprende a Facturar, No Solo a Registrarse en Upwork",
   valueDescription:

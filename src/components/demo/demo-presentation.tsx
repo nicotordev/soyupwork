@@ -12,25 +12,24 @@ import {
 } from "@/lib/demo/demo-lesson-progress-storage";
 import type { CoursePageData } from "@/types/course-page.types";
 import type { CatalogSection } from "@/types/marketing-nav.types";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MarketingNavServer } from "../marketing-nav/marketing-nav-server";
 import { MarketingFooter } from "../marketing-footer";
 
 type DemoPresentationProps = {
   data: CoursePageData;
-  activeLessonSlug: string | null;
   isSignedIn: boolean;
   catalogSections: CatalogSection[];
 };
 
 export function DemoPresentation({
   data,
-  activeLessonSlug,
   isSignedIn,
   catalogSections,
 }: DemoPresentationProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
   const [hydrated, setHydrated] = useState(false);
 
@@ -50,8 +49,19 @@ export function DemoPresentation({
   );
 
   const { view } = dataWithProgress;
+
+  const resolvedActiveLessonSlug = useMemo(() => {
+    const fromUrl = searchParams.get("leccion");
+    if (fromUrl && findLessonInView(view, fromUrl)) {
+      return fromUrl;
+    }
+    return null;
+  }, [searchParams, view]);
+
   const lesson =
-    activeLessonSlug !== null ? findLessonInView(view, activeLessonSlug) : null;
+    resolvedActiveLessonSlug !== null
+      ? findLessonInView(view, resolvedActiveLessonSlug)
+      : null;
 
   const buildLessonHref = (lessonSlug: string) =>
     `/demo?leccion=${encodeURIComponent(lessonSlug)}`;
@@ -59,15 +69,20 @@ export function DemoPresentation({
   const inLesson = lesson !== null;
 
   useEffect(() => {
-    if (!hydrated || !activeLessonSlug || !lesson || lesson.isAccessible) {
+    if (
+      !hydrated ||
+      !resolvedActiveLessonSlug ||
+      !lesson ||
+      lesson.isAccessible
+    ) {
       return;
     }
 
     const firstSlug = findFirstAccessibleLessonSlug(view.modules);
-    if (firstSlug && firstSlug !== activeLessonSlug) {
+    if (firstSlug && firstSlug !== resolvedActiveLessonSlug) {
       router.replace(buildLessonHref(firstSlug));
     }
-  }, [hydrated, activeLessonSlug, lesson, view.modules, router]);
+  }, [hydrated, resolvedActiveLessonSlug, lesson, view.modules, router]);
 
   const handleDemoLessonComplete = useCallback(
     (lessonId: string) => {

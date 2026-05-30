@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
 import { IconMenu2 } from "@tabler/icons-react";
+import { useState } from "react";
 
 type CourseLearnShellProps = {
   data: CoursePageData;
@@ -49,6 +50,7 @@ export function CourseLearnShell({
   lessonComments,
   currentUserId,
 }: CourseLearnShellProps) {
+  const [syllabusOpen, setSyllabusOpen] = useState(false);
   const { view, mode } = data;
   const lesson = findLessonInView(view, lessonSlug);
 
@@ -97,7 +99,7 @@ export function CourseLearnShell({
             {lesson.title}
           </h2>
         </div>
-        <Sheet>
+        <Sheet open={syllabusOpen} onOpenChange={setSyllabusOpen}>
           <SheetTrigger asChild>
             <Button variant="outline" size="sm" className="text-[10px]">
               <IconMenu2 className="size-3.5 mr-1.5 shrink-0" stroke={2.25} />
@@ -118,6 +120,7 @@ export function CourseLearnShell({
                 lessonBasePath={lessonBasePath}
                 courseLandingHref={courseLandingHref}
                 lessonHrefMode={lessonHrefMode}
+                onNavigate={() => setSyllabusOpen(false)}
               />
             </div>
           </SheetContent>

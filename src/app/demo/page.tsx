@@ -1,9 +1,9 @@
 import { DemoPresentation } from "@/components/demo/demo-presentation";
 import { loadDemoCoursePage } from "@/lib/demo/load-demo-course";
-import { findLessonInView } from "@/lib/course/course-page-view";
 import type { Metadata } from "next";
 import { getCatalogNavSections } from "@/app/actions/catalog.actions";
 import { getClerkSession } from "@/lib/clerk/session";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Demo | SoyUpwork",
@@ -11,28 +11,21 @@ export const metadata: Metadata = {
     "Explora la plataforma en vivo: temario, lecciones, vídeo, texto y quizzes — todo en una sola página.",
 };
 
-type PageProps = {
-  searchParams: Promise<{ leccion?: string }>;
-};
-
-export default async function DemoPage({ searchParams }: PageProps) {
-  const { leccion } = await searchParams;
-  const [clerkSession, catalogSections] = await Promise.all([
+export default async function DemoPage() {
+  const [clerkSession, catalogSections, data] = await Promise.all([
     getClerkSession(),
     getCatalogNavSections(),
+    loadDemoCoursePage(),
   ]);
   const { isSignedIn } = clerkSession ?? {};
-  const data = await loadDemoCoursePage();
-
-  const activeLessonSlug =
-    leccion && findLessonInView(data.view, leccion) ? leccion : null;
 
   return (
-    <DemoPresentation
-      data={data}
-      activeLessonSlug={activeLessonSlug}
-      isSignedIn={!!isSignedIn}
-      catalogSections={catalogSections}
-    />
+    <Suspense fallback={null}>
+      <DemoPresentation
+        data={data}
+        isSignedIn={!!isSignedIn}
+        catalogSections={catalogSections}
+      />
+    </Suspense>
   );
 }
