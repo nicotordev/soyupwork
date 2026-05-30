@@ -18,7 +18,7 @@ export default async function PricingPage() {
   return (
     <div className="relative isolate min-h-screen overflow-x-hidden bg-background pb-20 font-sans text-foreground antialiased md:pb-0">
       <NeobrutalistPageDecoration shapeCount={6} seed={137} />
-      <main className="relative z-10">
+      <div className="relative z-10">
         <PricingHero hero={data.hero} waitlistMode={data.waitlistMode} />
 
         <PricingProducts
@@ -38,7 +38,7 @@ export default async function PricingPage() {
           finalCta={data.finalCta}
           waitlistMode={data.waitlistMode}
         />
-      </main>
+      </div>
 
       <PricingMobileStickyCta waitlistMode={data.waitlistMode} />
     </div>

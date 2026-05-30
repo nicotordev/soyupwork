@@ -172,10 +172,11 @@ export function MarketingFooter() {
                     resetKey={turnstileKey}
                     onToken={setTurnstileToken}
                     onExpire={() => setTurnstileToken(null)}
-                    onError={() => {
+                    onError={(message) => {
                       setTurnstileToken(null);
                       setSubmitError(
-                        "La verificación de seguridad falló. Intenta de nuevo.",
+                        message ??
+                          "La verificación de seguridad falló. Intenta de nuevo.",
                       );
                     }}
                   />

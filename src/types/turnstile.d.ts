@@ -3,7 +3,7 @@ interface TurnstileRenderOptions {
   theme?: "light" | "dark" | "auto";
   callback?: (token: string) => void;
   "expired-callback"?: () => void;
-  "error-callback"?: () => void;
+  "error-callback"?: (errorCode?: string) => void;
 }
 
 interface Window {

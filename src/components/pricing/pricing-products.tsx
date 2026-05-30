@@ -64,10 +64,7 @@ export function PricingProducts({
         {/* Mobile: single panel, flagship → mini scroll → cohort */}
         <div className="overflow-hidden rounded-xl border-2 border-foreground bg-card shadow-[3px_3px_0px_0px_var(--foreground)] md:hidden">
           {/* Flagship */}
-          <div
-            id="flagship"
-            className="scroll-mt-24 border-b-2 border-foreground bg-primary/5"
-          >
+          <div className="scroll-mt-24 border-b-2 border-foreground bg-primary/5">
             <div className="flex flex-wrap items-center gap-2 border-b-2 border-foreground bg-primary px-3 py-2">
               <Badge className="border-primary-foreground/20 bg-primary-foreground/15 font-mono text-[8px] font-bold uppercase text-primary-foreground">
                 {flagshipSection.recommendedBadge}
@@ -118,10 +115,7 @@ export function PricingProducts({
           </div>
 
           {/* Mini modules */}
-          <div
-            id="mini-modules"
-            className="scroll-mt-24 border-b-2 border-foreground"
-          >
+          <div className="scroll-mt-24 border-b-2 border-foreground">
             <div className="border-b border-foreground/20 bg-secondary px-4 py-3">
               <p className="font-mono text-[9px] font-black uppercase tracking-wider text-foreground">
                 {miniModulesSection.title}
@@ -366,4 +360,3 @@ export function PricingProducts({
     </section>
   );
 }
-

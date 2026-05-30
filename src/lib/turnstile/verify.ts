@@ -2,6 +2,7 @@ import "server-only";
 
 import { headers } from "next/headers";
 import { getServerLogger } from "@/lib/logger/server";
+import { mapSiteverifyErrorCodes } from "@/lib/turnstile/error-codes";
 
 const log = getServerLogger("turnstile");
 
@@ -68,16 +69,22 @@ export async function verifyTurnstileToken(
       },
     );
 
+    if (!res.ok) {
+      log.warn({ status: res.status }, "Turnstile siteverify HTTP error");
+      return {
+        ok: false,
+        error: "Error al contactar Cloudflare Turnstile. Intenta de nuevo.",
+      };
+    }
+
     const data = (await res.json()) as TurnstileSiteverifyResponse;
 
     if (!data.success) {
-      log.warn(
-        { errorCodes: data["error-codes"] },
-        "Turnstile siteverify failed",
-      );
+      const errorCodes = data["error-codes"] ?? [];
+      log.warn({ errorCodes }, "Turnstile siteverify failed");
       return {
         ok: false,
-        error: "No pudimos verificar que eres humano. Intenta de nuevo.",
+        error: mapSiteverifyErrorCodes(errorCodes),
       };
     }
 

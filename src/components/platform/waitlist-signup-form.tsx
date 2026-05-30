@@ -230,10 +230,11 @@ export function WaitlistSignupForm() {
             resetKey={turnstileKey}
             onToken={setTurnstileToken}
             onExpire={() => setTurnstileToken(null)}
-            onError={() => {
+            onError={(message) => {
               setTurnstileToken(null);
               toast.error(
-                "La verificación de seguridad falló. Intenta de nuevo.",
+                message ??
+                  "La verificación de seguridad falló. Intenta de nuevo.",
               );
             }}
           />
@@ -292,10 +293,11 @@ export function WaitlistSignupForm() {
                 resetKey={turnstileKey}
                 onToken={setTurnstileToken}
                 onExpire={() => setTurnstileToken(null)}
-                onError={() => {
+                onError={(message) => {
                   setTurnstileToken(null);
                   toast.error(
-                    "La verificación de seguridad falló. Intenta de nuevo.",
+                    message ??
+                      "La verificación de seguridad falló. Intenta de nuevo.",
                   );
                 }}
               />
