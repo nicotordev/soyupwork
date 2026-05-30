@@ -217,7 +217,8 @@ export async function sendWaitlistInvite(
       },
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() ?? "http://localhost:3000";
+    const appUrl =
+      process.env.NEXT_PUBLIC_APP_URL?.trim() ?? "http://localhost:3000";
     const inviteUrl = `${appUrl.replace(/\/$/, "")}/invite?token=${encodeURIComponent(rawToken)}`;
 
     await sendWaitlistInviteEmail({ to: email, inviteUrl });
@@ -295,7 +296,10 @@ export async function acceptWaitlistInviteToken(
     });
 
     if (!invite) {
-      return { ok: false, error: "Invitación no encontrada o enlace inválido." };
+      return {
+        ok: false,
+        error: "Invitación no encontrada o enlace inválido.",
+      };
     }
 
     if (invite.status === WaitlistInviteStatus.ACCEPTED) {
@@ -388,28 +392,13 @@ export async function consumeWaitlistInviteForEmail(
     return;
   }
 
-  const invite = await prisma.waitlistInvite.findUnique({
-    where: { id: session.inviteId },
-    select: {
-      id: true,
-      email: true,
-      status: true,
-      expiresAt: true,
+  const consumed = await prisma.waitlistInvite.updateMany({
+    where: {
+      id: session.inviteId,
+      status: WaitlistInviteStatus.PENDING,
+      expiresAt: { gt: new Date() },
+      email: { equals: normalizedEmail, mode: "insensitive" },
     },
-  });
-
-  if (
-    !invite ||
-    invite.status !== WaitlistInviteStatus.PENDING ||
-    invite.expiresAt.getTime() <= Date.now() ||
-    invite.email.trim().toLowerCase() !== normalizedEmail
-  ) {
-    await clearWaitlistInviteSession();
-    return;
-  }
-
-  await prisma.waitlistInvite.update({
-    where: { id: invite.id },
     data: {
       status: WaitlistInviteStatus.ACCEPTED,
       acceptedAt: new Date(),
@@ -418,6 +407,10 @@ export async function consumeWaitlistInviteForEmail(
   });
 
   await clearWaitlistInviteSession();
+
+  if (consumed.count === 0) {
+    return;
+  }
 }
 
 export async function registrationRequiresWaitlistInvite(): Promise<boolean> {

@@ -134,14 +134,10 @@ export function SignInForm({
         "email",
         parsed.data.email.trim().toLowerCase(),
       );
-      const staffAccess = searchParams.get("access");
-      const staffRedirect = searchParams.get("redirect_url");
-      if (staffAccess) {
-        verifyUrl.searchParams.set("access", staffAccess);
+      if (searchParams.get("access") === "staff") {
+        verifyUrl.searchParams.set("access", "staff");
       }
-      if (staffRedirect) {
-        verifyUrl.searchParams.set("redirect_url", staffRedirect);
-      }
+      verifyUrl.searchParams.set("redirect_url", callbackUrl);
       router.push(verifyUrl.pathname + verifyUrl.search);
     } catch {
       setError("No pudimos enviar el enlace. Intentá de nuevo.");

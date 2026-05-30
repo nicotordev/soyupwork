@@ -2,20 +2,10 @@ import "server-only";
 
 import type { WaitlistInviteSessionPayload } from "@/lib/waitlist/invite-session-payload";
 import { WAITLIST_INVITE } from "@/lib/waitlist/invite.constants";
+import { getWaitlistInviteSecretKey } from "@/lib/waitlist/invite-secret";
 import { verifyWaitlistInviteSessionToken } from "@/lib/waitlist/invite-session-verify";
 import { SignJWT } from "jose";
 import { cookies } from "next/headers";
-
-function getInviteJwtSecret(): Uint8Array {
-  const secret =
-    process.env.WAITLIST_INVITE_SECRET?.trim() ??
-    process.env.WAITLIST_VERIFICATION_SECRET?.trim() ??
-    process.env.AUTH_SECRET?.trim();
-  if (!secret) {
-    throw new Error("Missing secret for waitlist invite session JWT");
-  }
-  return new TextEncoder().encode(secret);
-}
 
 export async function createWaitlistInviteSessionToken(
   payload: WaitlistInviteSessionPayload,
@@ -25,7 +15,7 @@ export async function createWaitlistInviteSessionToken(
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${WAITLIST_INVITE.sessionMaxAgeSeconds}s`)
-    .sign(getInviteJwtSecret());
+    .sign(getWaitlistInviteSecretKey());
 }
 
 export async function setWaitlistInviteSession(
