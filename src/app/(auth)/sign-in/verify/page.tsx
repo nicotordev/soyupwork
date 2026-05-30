@@ -59,11 +59,16 @@ export default async function VerifySignInPage({
   if (query.get("access") === "staff") {
     signInParams.set("access", "staff");
   }
-  signInParams.set(
-    "redirect_url",
-    resolveSafeAppRedirectPath(query.get("redirect_url"), "/dashboard"),
-  );
-  const signInHref = `/sign-in?${signInParams.toString()}`;
+  const rawRedirectUrl = query.get("redirect_url");
+  if (rawRedirectUrl) {
+    signInParams.set(
+      "redirect_url",
+      resolveSafeAppRedirectPath(rawRedirectUrl, "/dashboard"),
+    );
+  }
+  const signInHref = signInParams.size
+    ? `/sign-in?${signInParams.toString()}`
+    : "/sign-in";
 
   return (
     <AuthSplitLayout variant="sign-in">
