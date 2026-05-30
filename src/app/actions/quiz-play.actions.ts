@@ -404,6 +404,8 @@ export async function submitQuizAttempt(input: {
     };
 
     if (access.saveAttempts && "userId" in access && access.userId) {
+      const now = new Date();
+
       await prisma.quizAttempt.create({
         data: {
           userId: access.userId,
@@ -415,7 +417,12 @@ export async function submitQuizAttempt(input: {
       });
 
       if (passed) {
-        await upsertLessonProgressComplete(access.userId, parsed.data.lessonId);
+        await upsertLessonProgressComplete(
+          access.userId,
+          parsed.data.lessonId,
+          prisma,
+          now,
+        );
 
         const course = await prisma.course.findUnique({
           where: { id: parsed.data.courseId },
