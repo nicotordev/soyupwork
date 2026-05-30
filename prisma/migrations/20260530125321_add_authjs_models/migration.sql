@@ -63,11 +63,3 @@ ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId"
 
 -- AddForeignKey
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- Backfill Auth.js fields from existing profile data
-UPDATE "User"
-SET
-  "name" = NULLIF(TRIM(CONCAT(COALESCE("firstName", ''), ' ', COALESCE("lastName", ''))), ''),
-  "image" = "imageUrl",
-  "emailVerified" = CASE WHEN "email" IS NOT NULL THEN NOW() ELSE NULL END
-WHERE "name" IS NULL AND "image" IS NULL AND "emailVerified" IS NULL;

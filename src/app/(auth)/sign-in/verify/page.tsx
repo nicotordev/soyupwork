@@ -51,7 +51,10 @@ export default async function VerifySignInPage({
         </div>
         <p className="text-xs text-muted-foreground">
           ¿No lo ves? Revisá spam o{" "}
-          <Link href="/sign-in" className="font-semibold text-foreground underline">
+          <Link
+            href="/sign-in"
+            className="font-semibold text-foreground underline"
+          >
             solicitá otro enlace
           </Link>
           .

@@ -39,10 +39,16 @@ export function SignInForm({
     defaultCallbackUrl,
   );
 
-  const initialError =
-    searchParams.get("error") === "RegistrationDisabled"
-      ? "El registro está cerrado. Solo usuarios existentes pueden iniciar sesión."
-      : null;
+  const initialError = (() => {
+    const error = searchParams.get("error");
+    if (error === "RegistrationDisabled") {
+      return "El registro está cerrado. Solo usuarios existentes pueden iniciar sesión.";
+    }
+    if (error === "OAuthAccountNotLinked") {
+      return "Ya existe una cuenta con este correo. Iniciá sesión con enlace o contraseña primero; después podés vincular Google o GitHub desde tu sesión activa.";
+    }
+    return null;
+  })();
 
   const [mode, setMode] = useState<SignInMode>(
     allowMagicLinkSignIn ? "magic-link" : "password",
@@ -124,7 +130,10 @@ export function SignInForm({
       }
 
       const verifyUrl = new URL("/sign-in/verify", window.location.origin);
-      verifyUrl.searchParams.set("email", parsed.data.email.trim().toLowerCase());
+      verifyUrl.searchParams.set(
+        "email",
+        parsed.data.email.trim().toLowerCase(),
+      );
       router.push(verifyUrl.pathname + verifyUrl.search);
     } catch {
       setError("No pudimos enviar el enlace. Intentá de nuevo.");

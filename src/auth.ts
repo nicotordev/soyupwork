@@ -38,12 +38,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
   providers: [
-    Google({
-      allowDangerousEmailAccountLinking: true,
-    }),
-    GitHub({
-      allowDangerousEmailAccountLinking: true,
-    }),
+    Google,
+    GitHub,
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY ?? process.env.RESEND_API_KEY,
       from: process.env.EMAIL_FROM,
@@ -131,10 +127,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!settings.registrationsOpen) {
           return "/sign-in?error=RegistrationDisabled";
         }
-      }
-
-      if (existing && user.id && existing.id !== user.id) {
-        user.id = existing.id;
       }
 
       return true;
