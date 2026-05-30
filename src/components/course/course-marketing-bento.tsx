@@ -6,43 +6,48 @@ export function CourseMarketingBento() {
   const bentoItems = [
     {
       colSpan: "lg:col-span-3",
-      image: "https://tailwindcss.com/plus-assets/img/component-images/bento-01-performance.png",
-      imgClass: "object-left",
+      image: "/img/courses/dashboard.webp",
+      imgClass: "object-top",
       eyebrow: "Progreso visible",
       title: "Mide avance por módulo y por lección",
-      description: "No estudias a ciegas. Sigues una ruta clara desde fundamentos, propuestas y entrevistas hasta entrega profesional.",
+      description:
+        "No estudias a ciegas. Sigues una ruta clara desde fundamentos, propuestas y entrevistas hasta entrega profesional.",
     },
     {
       colSpan: "lg:col-span-3",
-      image: "https://tailwindcss.com/plus-assets/img/component-images/bento-01-releases.png",
+      image: "/img/courses/lesson.webp",
       imgClass: "object-left lg:object-right",
       eyebrow: "Ejecución real",
       title: "Menos teoría, más decisiones aplicables",
-      description: "Cada bloque aterriza en acciones concretas para mejorar perfil, leer jobs con criterio y enviar propuestas que convierten.",
+      description:
+        "Cada bloque aterriza en acciones concretas para mejorar perfil, leer jobs con criterio y enviar propuestas que convierten.",
     },
     {
       colSpan: "lg:col-span-2",
-      image: "https://tailwindcss.com/plus-assets/img/component-images/bento-01-speed.png",
-      imgClass: "object-left",
-      eyebrow: "Connects con estrategia",
-      title: "Aprende a priorizar y proteger presupuesto",
-      description: "Evita aplicar por impulso. Usa un sistema de selección para elegir mejores oportunidades y aumentar tasa de respuesta.",
-    },
-    {
-      colSpan: "lg:col-span-2",
-      image: "https://tailwindcss.com/plus-assets/img/component-images/bento-01-integrations.png",
+      image: "/img/courses/connects.webp",
       imgClass: "object-center",
-      eyebrow: "Adaptable a tu nicho",
-      title: "Funciona para servicios tech, creativos y VA",
-      description: "No importa si eres asistente virtual, developer o editor: ajustas frameworks de propuesta, pricing y seguimiento a tu contexto.",
+      eyebrow: "Connects optimizados",
+      title: "Convierte connects en oportunidades reales",
+      description:
+        "Aprende a invertir tus connects con criterio: selecciona cuándo, dónde y por qué postular, y maximiza tu retorno siguiendo un sistema validado.",
     },
     {
       colSpan: "lg:col-span-2",
-      image: "https://tailwindcss.com/plus-assets/img/component-images/bento-01-network.png",
+      image: "/img/courses/pexels-zayed-hossain-52728970-36706459.webp",
       imgClass: "object-center",
-      eyebrow: "Base para escalar",
-      title: "De primer cliente a operación sostenible",
-      description: "Construyes procesos para entrevistas, entrega y retención, con una estructura que te permite crecer sin improvisar.",
+      eyebrow: "Sirve para cualquier nicho Upwork",
+      title: "Desde devs hasta asistentes virtuales y creativos",
+      description:
+        "Ajusta marcos de propuesta, filtros y precios sin importar tu rol: developer, freelancer creativo, asistente o consultor. Útil en jobs para principiantes o avanzados.",
+    },
+    {
+      colSpan: "lg:col-span-2",
+      image: "/img/courses/pexels-jakubzerdzicki-34975657.webp",
+      imgClass: "object-center",
+      eyebrow: "Escala tu operación freelance",
+      title: "De primer job al flujo estable de clientes",
+      description:
+        "Construye un camino: desde landing page optimizada, entrega impecable y estructura de seguimiento sostenible. Escala paso a paso, reduce improvisación y mejora retención.",
     },
   ];
 
@@ -89,4 +94,3 @@ export function CourseMarketingBento() {
 }
 
 export default CourseMarketingBento;
-

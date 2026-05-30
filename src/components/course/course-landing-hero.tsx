@@ -177,21 +177,26 @@ export function CourseLandingHero({
           return (
             <Card
               key={stat.label}
-              className="border-2 border-foreground bg-card p-4 rounded-xl shadow-[4px_4px_0px_0px_var(--foreground)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--foreground)] transition-all flex flex-col items-center text-center justify-between min-h-[95px] select-none"
+              className="hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_0px_var(--foreground)] transition-all min-h-[95px] select-none flex flex-col items-center text-center justify-between"
+              /* utilizes Card's border/bg/shadow already */
             >
-              <Icon className="size-4 text-primary stroke-[2.5] mb-2" />
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground leading-none">
-                  {stat.label}
-                </p>
-                <p className="text-xs sm:text-sm font-black text-foreground mt-1.5 leading-none">
-                  {stat.value}
-                </p>
-              </div>
+              <CardContent className="flex flex-col items-center justify-center p-0">
+                <Icon className="size-4 text-primary stroke-[2.5] mb-2" />
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground leading-none">
+                    {stat.label}
+                  </p>
+                  <p className="text-xs sm:text-sm font-black text-foreground mt-1.5 leading-none">
+                    {stat.value}
+                  </p>
+                </div>
+              </CardContent>
             </Card>
           );
         })}
       </div>
+
+
 
       {/* 5. Neobrutalist Highlights Stats Unified Panel - MOBILE */}
       <div className="block sm:hidden mt-6 w-full max-w-md mx-auto">
