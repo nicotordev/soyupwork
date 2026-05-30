@@ -1,7 +1,7 @@
 import { AuthIllustration } from "@/components/auth/auth-illustration";
 import Link from "next/link";
 
-type AuthSplitVariant = "sign-in" | "sign-up" | "sign-out";
+type AuthSplitVariant = "sign-in" | "sign-up" | "sign-out" | "link-account";
 
 const panelCopy: Record<
   AuthSplitVariant,
@@ -24,6 +24,12 @@ const panelCopy: Record<
     title: "Hasta pronto",
     description:
       "Tu progreso queda guardado. Podés volver cuando quieras retomar tus cursos.",
+  },
+  "link-account": {
+    eyebrow: "Vincular cuenta",
+    title: "Confirmá que sos vos",
+    description:
+      "Para proteger tu cuenta, verificá tu identidad antes de conectar un inicio de sesión social.",
   },
 };
 

@@ -3,6 +3,15 @@ import { UserRole } from "@/generated/prisma/client";
 import authConfig from "@/auth.config";
 import prisma from "@/lib/db/prisma";
 import { verifyPassword } from "@/lib/auth/password";
+import {
+  applyAdminAllowlistToUser,
+  resolveRoleForAllowlistedEmail,
+} from "@/lib/auth/admin";
+import { getJwtUserId } from "@/lib/auth/jwt-session";
+import {
+  getPendingOAuthCallbackPath,
+  resolveOAuthLinkRedirect,
+} from "@/lib/auth/link-account";
 import { sendAuthMagicLinkEmail } from "@/lib/auth/send-magic-link-email";
 import {
   buildUserDisplayName,
@@ -105,6 +114,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user, account }) {
       if (account?.provider === "credentials") {
         return true;
@@ -114,9 +124,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return true;
       }
 
+      const normalizedEmail = user.email.trim().toLowerCase();
+
+      if (account?.provider === "google" || account?.provider === "github") {
+        const currentUserId = await getJwtUserId();
+        const pendingCallbackUrl = await getPendingOAuthCallbackPath();
+        const linkRedirect = await resolveOAuthLinkRedirect(
+          account.provider,
+          normalizedEmail,
+          currentUserId,
+          pendingCallbackUrl,
+        );
+
+        if (typeof linkRedirect === "string") {
+          return linkRedirect;
+        }
+      }
+
       const existing = await prisma.user.findFirst({
         where: {
-          email: { equals: user.email, mode: "insensitive" },
+          email: { equals: normalizedEmail, mode: "insensitive" },
           deletedAt: null,
         },
         select: { id: true },
@@ -148,11 +175,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         return token;
       }
 
-      token.id = dbUser.id;
-      token.email = dbUser.email;
+      const syncedUser = await applyAdminAllowlistToUser(dbUser);
+
+      token.id = syncedUser.id;
+      token.email = syncedUser.email;
       token.name = buildUserDisplayName(dbUser);
       token.picture = dbUser.image ?? dbUser.imageUrl;
-      token.role = dbUser.role;
+      token.role = syncedUser.role;
       token.firstName = dbUser.firstName;
       token.lastName = dbUser.lastName;
       token.imageUrl = dbUser.imageUrl;
@@ -197,7 +226,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           image: user.image ?? null,
           imageUrl: user.image ?? null,
           emailVerified: user.email ? new Date() : null,
-          role: UserRole.STUDENT,
+          role: resolveRoleForAllowlistedEmail(user.email),
         },
       });
     },

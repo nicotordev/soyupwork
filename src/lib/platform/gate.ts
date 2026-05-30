@@ -47,6 +47,10 @@ export async function resolvePlatformGateAction(
   }
 
   if (settings.waitlistMode) {
+    if (isAdmin) {
+      return "none";
+    }
+
     if (
       settings.waitlistAllowCatalog &&
       (pathname.startsWith("/catalog") || pathname.startsWith("/category"))

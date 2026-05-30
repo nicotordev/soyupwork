@@ -1,5 +1,6 @@
 import { PlatformStatusPage } from "@/components/platform/platform-status-page";
 import { WaitlistSignupForm } from "@/components/platform/waitlist-signup-form";
+import { redirectIfAuthenticatedFromGuestAuthPage } from "@/lib/auth/guest-auth-pages";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
 import { IconUsersGroup } from "@tabler/icons-react";
 import type { Metadata } from "next";
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default async function WaitlistPage() {
+  await redirectIfAuthenticatedFromGuestAuthPage();
+
   const settings = await getPlatformSettings();
 
   return (

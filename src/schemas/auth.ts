@@ -45,3 +45,14 @@ export const registerUserSchema = z.object({
 export type SignInInput = z.infer<typeof signInSchema>;
 export type MagicLinkSignInInput = z.infer<typeof magicLinkSignInSchema>;
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;
+
+export const linkAccountParamsSchema = z.object({
+  provider: z.enum(["google", "github"]),
+  email: z
+    .string()
+    .trim()
+    .min(1, "El correo es obligatorio.")
+    .email("Ingresá un correo válido."),
+});
+
+export type LinkAccountParamsInput = z.infer<typeof linkAccountParamsSchema>;

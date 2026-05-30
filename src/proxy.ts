@@ -1,5 +1,11 @@
 import { shouldCheckPlatformGate } from "@/lib/platform/gate";
 import {
+  DEFAULT_AUTHENTICATED_REDIRECT,
+  isGuestOnlyAuthPath,
+  isLinkAccountPath,
+} from "@/lib/auth/guest-auth-routes";
+import { resolveSafeAppRedirectPath } from "@/lib/auth/redirect-url";
+import {
   isPublicWaitlistMode,
   isStaffSignInBypass,
 } from "@/lib/platform/public-waitlist-mode";
@@ -14,10 +20,7 @@ const { auth } = NextAuth(authConfig);
 const isPublicRoute = (pathname: string) =>
   pathname.startsWith("/api/webhooks") ||
   pathname.startsWith("/api/auth") ||
-  pathname.startsWith("/sign-in") ||
-  pathname.startsWith("/sign-up") ||
   pathname.startsWith("/sign-out") ||
-  pathname.startsWith("/waitlist") ||
   pathname.startsWith("/maintenance");
 
 const isInternalApiRoute = (pathname: string) =>
@@ -120,25 +123,45 @@ async function handleProtectedRoutes(
 
 export default auth(async (req) => {
   const pathname = req.nextUrl.pathname;
+  const userId = req.auth?.user?.id ?? null;
 
-  if (isPublicRoute(pathname) || isInternalApiRoute(pathname)) {
+  if (isInternalApiRoute(pathname)) {
     return NextResponse.next();
   }
 
-  if (isPublicWaitlistMode()) {
-    if (pathname.startsWith("/sign-up")) {
-      return NextResponse.redirect(new URL("/waitlist", req.url));
-    }
-
-    if (
-      pathname.startsWith("/sign-in") &&
-      !isStaffSignInBypass(req.nextUrl.searchParams)
-    ) {
-      return NextResponse.redirect(new URL("/waitlist", req.url));
-    }
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next();
   }
 
-  const userId = req.auth?.user?.id ?? null;
+  if (isGuestOnlyAuthPath(pathname)) {
+    if (userId && !isLinkAccountPath(pathname)) {
+      const authenticatedRedirect =
+        pathname.startsWith("/sign-in") &&
+        isStaffSignInBypass(req.nextUrl.searchParams)
+          ? resolveSafeAppRedirectPath(
+              req.nextUrl.searchParams.get("redirect_url"),
+              DEFAULT_AUTHENTICATED_REDIRECT,
+            )
+          : DEFAULT_AUTHENTICATED_REDIRECT;
+
+      return NextResponse.redirect(new URL(authenticatedRedirect, req.url));
+    }
+
+    if (isPublicWaitlistMode()) {
+      if (pathname.startsWith("/sign-up")) {
+        return NextResponse.redirect(new URL("/waitlist", req.url));
+      }
+
+      if (
+        pathname.startsWith("/sign-in") &&
+        !isStaffSignInBypass(req.nextUrl.searchParams)
+      ) {
+        return NextResponse.redirect(new URL("/waitlist", req.url));
+      }
+    }
+
+    return NextResponse.next();
+  }
 
   if (shouldCheckPlatformGate(pathname)) {
     const action = await fetchPlatformGateAction(

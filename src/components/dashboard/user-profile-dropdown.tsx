@@ -30,14 +30,17 @@ type UserProfileDropdownProps = {
   role?: "student" | "admin" | "instructor";
 };
 
+const menuItemClassName =
+  "focus:bg-secondary/15 focus:text-foreground data-highlighted:bg-secondary/15 data-highlighted:text-foreground not-data-[variant=destructive]:focus:**:text-foreground data-highlighted:**:text-foreground";
+
 const menuLinkClassName =
-  "flex items-center gap-2 p-1.5 font-mono text-[10px] font-bold uppercase text-foreground hover:bg-secondary/15 hover:underline rounded border border-transparent hover:border-foreground/10 transition-colors focus:bg-secondary/15 focus:text-foreground";
+  "flex w-full items-center gap-2 p-1.5 font-mono text-[10px] font-bold uppercase text-foreground hover:underline rounded border border-transparent hover:border-foreground/10 transition-colors outline-none";
 
 function DropdownNavLink({ item }: { item: StudentNavItem }) {
   const Icon = item.icon;
 
   return (
-    <DropdownMenuItem asChild>
+    <DropdownMenuItem asChild className={menuItemClassName}>
       <Link href={item.href} className={menuLinkClassName}>
         <Icon className="size-3.5 text-primary" stroke={2.5} />
         {item.label}
@@ -192,7 +195,7 @@ export function UserProfileDropdown({
             <DropdownMenuLabel className="px-1.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
               Administración
             </DropdownMenuLabel>
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem asChild className={menuItemClassName}>
               <Link href="/admin" className={menuLinkClassName}>
                 <IconUser className="size-3.5 text-primary" stroke={2.5} />
                 Panel de Admin
@@ -209,13 +212,14 @@ export function UserProfileDropdown({
         <DropdownNavSection label="Cuenta" items={STUDENT_ACCOUNT_NAV} />
 
         <DropdownMenuSeparator className="bg-foreground/15 my-1" />
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem
+          asChild
+          variant="destructive"
+          className="focus:bg-destructive/10 focus:text-destructive data-highlighted:bg-destructive/10 data-highlighted:text-destructive focus:**:text-destructive data-highlighted:**:text-destructive"
+        >
           <Link
             href="/sign-out"
-            className={cn(
-              menuLinkClassName,
-              "w-full text-destructive hover:bg-destructive/10 hover:border-destructive/20 focus:bg-destructive/10 focus:text-destructive",
-            )}
+            className={cn(menuLinkClassName, "text-destructive")}
           >
             <IconLogout className="size-3.5" stroke={2.5} />
             Cerrar sesión

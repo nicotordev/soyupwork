@@ -1,9 +1,15 @@
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
+import { redirectIfAuthenticatedFromGuestAuthPage } from "@/lib/auth/guest-auth-pages";
+import {
+  isPublicWaitlistMode,
+  isStaffSignInBypass,
+} from "@/lib/platform/public-waitlist-mode";
 import { adminPanelClass } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
 import { IconMail } from "@tabler/icons-react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Revisá tu correo | SoyUpwork",
@@ -19,8 +25,29 @@ export default async function VerifySignInPage({
   searchParams,
 }: VerifySignInPageProps) {
   const params = await searchParams;
+  const query = {
+    get(name: string) {
+      const value = params[name];
+      return typeof value === "string" ? value : null;
+    },
+  };
+
+  if (isPublicWaitlistMode() && !isStaffSignInBypass(query)) {
+    redirect("/waitlist");
+  }
+
+  await redirectIfAuthenticatedFromGuestAuthPage(query);
+
   const email =
     typeof params.email === "string" ? params.email.trim() : undefined;
+  const signInParams = new URLSearchParams();
+  const access = query.get("access");
+  const redirectUrl = query.get("redirect_url");
+  if (access) signInParams.set("access", access);
+  if (redirectUrl) signInParams.set("redirect_url", redirectUrl);
+  const signInHref = signInParams.size
+    ? `/sign-in?${signInParams.toString()}`
+    : "/sign-in";
 
   return (
     <AuthSplitLayout variant="sign-in">
@@ -52,7 +79,7 @@ export default async function VerifySignInPage({
         <p className="text-xs text-muted-foreground">
           ¿No lo ves? Revisá spam o{" "}
           <Link
-            href="/sign-in"
+            href={signInHref}
             className="font-semibold text-foreground underline"
           >
             solicitá otro enlace

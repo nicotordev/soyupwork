@@ -1,13 +1,19 @@
 "use server";
 
-import { UserRole } from "@/generated/prisma/client";
+import { resolveRoleForAllowlistedEmail } from "@/lib/auth/admin";
+import { getJwtUserId } from "@/lib/auth/jwt-session";
+import { getLinkAccountContext } from "@/lib/auth/link-account";
 import { hashPassword } from "@/lib/auth/password";
 import { buildUserDisplayName } from "@/lib/auth/user-profile";
 import prisma from "@/lib/db/prisma";
 import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
-import { magicLinkSignInSchema, registerUserSchema } from "@/schemas/auth";
+import {
+  linkAccountParamsSchema,
+  magicLinkSignInSchema,
+  registerUserSchema,
+} from "@/schemas/auth";
 
 const log = getServerLogger("auth.actions");
 
@@ -16,6 +22,38 @@ export type RegisterUserResult = { ok: true } | { ok: false; error: string };
 export type ValidateMagicLinkSignInResult =
   | { ok: true }
   | { ok: false; error: string };
+
+export type LinkAccountContextResult =
+  | {
+      ok: true;
+      provider: "google" | "github";
+      providerLabel: string;
+      email: string;
+      hasPassword: boolean;
+      magicLinkEnabled: boolean;
+      isCurrentUser: boolean;
+      isSignedIn: boolean;
+    }
+  | { ok: false; error: string };
+
+export async function getLinkAccountPageContext(
+  input: unknown,
+): Promise<LinkAccountContextResult> {
+  const parsed = linkAccountParamsSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+    };
+  }
+
+  const currentUserId = await getJwtUserId();
+  return getLinkAccountContext(
+    parsed.data.provider,
+    parsed.data.email,
+    currentUserId,
+  );
+}
 
 export async function validateMagicLinkSignIn(
   input: unknown,
@@ -99,7 +137,7 @@ export async function registerUser(
         lastName,
         name,
         passwordHash,
-        role: UserRole.STUDENT,
+        role: resolveRoleForAllowlistedEmail(normalizedEmail),
       },
     });
 

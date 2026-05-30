@@ -45,7 +45,7 @@ export function SignInForm({
       return "El registro está cerrado. Solo usuarios existentes pueden iniciar sesión.";
     }
     if (error === "OAuthAccountNotLinked") {
-      return "Ya existe una cuenta con este correo. Iniciá sesión con enlace o contraseña primero; después podés vincular Google o GitHub desde tu sesión activa.";
+      return "Ya existe una cuenta con este correo. Te redirigimos al flujo de vinculación segura.";
     }
     return null;
   })();
@@ -134,6 +134,14 @@ export function SignInForm({
         "email",
         parsed.data.email.trim().toLowerCase(),
       );
+      const staffAccess = searchParams.get("access");
+      const staffRedirect = searchParams.get("redirect_url");
+      if (staffAccess) {
+        verifyUrl.searchParams.set("access", staffAccess);
+      }
+      if (staffRedirect) {
+        verifyUrl.searchParams.set("redirect_url", staffRedirect);
+      }
       router.push(verifyUrl.pathname + verifyUrl.search);
     } catch {
       setError("No pudimos enviar el enlace. Intentá de nuevo.");

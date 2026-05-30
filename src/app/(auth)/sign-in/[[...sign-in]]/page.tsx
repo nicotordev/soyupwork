@@ -1,5 +1,7 @@
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { SignInForm } from "@/components/auth/sign-in-form";
+import { redirectIfAuthenticatedFromGuestAuthPage } from "@/lib/auth/guest-auth-pages";
+import { resolveSafeAppRedirectPath } from "@/lib/auth/redirect-url";
 import {
   isPublicWaitlistMode,
   isStaffSignInBypass,
@@ -38,7 +40,13 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     redirect("/waitlist");
   }
 
+  await redirectIfAuthenticatedFromGuestAuthPage(query);
+
   const settings = await getPlatformSettings();
+  const callbackUrl = resolveSafeAppRedirectPath(
+    query.get("redirect_url"),
+    settings.afterSignInUrl,
+  );
 
   return (
     <AuthSplitLayout variant="sign-in">
@@ -46,7 +54,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
         <SignInForm
           allowOAuthSignIn={settings.allowOAuthSignIn}
           allowMagicLinkSignIn={isResendAuthConfigured()}
-          defaultCallbackUrl={settings.afterSignInUrl}
+          defaultCallbackUrl={callbackUrl}
           signUpUrl={isPublicWaitlistMode() ? "/waitlist" : "/sign-up"}
           registrationDisabled={!settings.registrationsOpen}
         />

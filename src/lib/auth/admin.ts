@@ -52,13 +52,23 @@ function isEmailInAdminAllowlist(email: string): boolean {
   return domain !== undefined && domains.has(domain);
 }
 
-/** Promotes allowlisted users to ADMIN when role is out of sync. */
-async function ensureAdminRole(user: AdminUser): Promise<AdminUser | null> {
-  const isAllowlisted =
-    user.email !== null && isEmailInAdminAllowlist(user.email);
+export function resolveRoleForAllowlistedEmail(
+  email: string | null | undefined,
+  fallback: UserRole = UserRole.STUDENT,
+): UserRole {
+  if (email && isEmailInAdminAllowlist(email)) {
+    return UserRole.ADMIN;
+  }
 
-  if (!isAllowlisted) {
-    return user.role === UserRole.ADMIN ? user : null;
+  return fallback;
+}
+
+/** Promotes allowlisted users to ADMIN when role is out of sync. */
+export async function applyAdminAllowlistToUser(
+  user: AdminUser,
+): Promise<AdminUser> {
+  if (user.email === null || !isEmailInAdminAllowlist(user.email)) {
+    return user;
   }
 
   if (user.role === UserRole.ADMIN) {
@@ -70,6 +80,12 @@ async function ensureAdminRole(user: AdminUser): Promise<AdminUser | null> {
     data: { role: UserRole.ADMIN },
     select: adminUserSelect,
   });
+}
+
+/** Promotes allowlisted users to ADMIN when role is out of sync. */
+async function ensureAdminRole(user: AdminUser): Promise<AdminUser | null> {
+  const synced = await applyAdminAllowlistToUser(user);
+  return synced.role === UserRole.ADMIN ? synced : null;
 }
 
 export async function requireAdmin() {

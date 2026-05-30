@@ -1,5 +1,6 @@
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { SignUpForm } from "@/components/auth/sign-up-form";
+import { redirectIfAuthenticatedFromGuestAuthPage } from "@/lib/auth/guest-auth-pages";
 import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
 import type { Metadata } from "next";
@@ -12,6 +13,8 @@ export const metadata: Metadata = {
 };
 
 export default async function SignUpPage() {
+  await redirectIfAuthenticatedFromGuestAuthPage();
+
   if (isPublicWaitlistMode()) {
     redirect("/waitlist");
   }
