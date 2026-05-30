@@ -2,6 +2,7 @@ import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { SignInForm } from "@/components/auth/sign-in-form";
 import { redirectIfAuthenticatedFromGuestAuthPage } from "@/lib/auth/guest-auth-pages";
 import { resolveSafeAppRedirectPath } from "@/lib/auth/redirect-url";
+import { hasValidWaitlistInviteAccessForEmail } from "@/lib/waitlist/invite-consume";
 import {
   isPublicWaitlistMode,
   isStaffSignInBypass,
@@ -37,7 +38,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   };
 
   if (isPublicWaitlistMode() && !isStaffSignInBypass(query)) {
-    redirect("/waitlist");
+    const hasInviteAccess = await hasValidWaitlistInviteAccessForEmail();
+    if (!hasInviteAccess) {
+      redirect("/waitlist");
+    }
   }
 
   await redirectIfAuthenticatedFromGuestAuthPage(query);

@@ -1,5 +1,10 @@
 import { AuthSplitLayout } from "@/components/auth/auth-split-layout";
 import { redirectIfAuthenticatedFromGuestAuthPage } from "@/lib/auth/guest-auth-pages";
+import { resolveSafeAppRedirectPath } from "@/lib/auth/redirect-url";
+import {
+  hasValidWaitlistInviteAccessForEmail,
+  refreshWaitlistInviteSessionIfValid,
+} from "@/lib/waitlist/invite-consume";
 import {
   isPublicWaitlistMode,
   isStaffSignInBypass,
@@ -32,22 +37,33 @@ export default async function VerifySignInPage({
     },
   };
 
-  if (isPublicWaitlistMode() && !isStaffSignInBypass(query)) {
+  const email =
+    typeof params.email === "string" ? params.email.trim() : undefined;
+
+  const hasInviteAccess = await hasValidWaitlistInviteAccessForEmail(email);
+  if (hasInviteAccess) {
+    await refreshWaitlistInviteSessionIfValid();
+  }
+
+  if (
+    isPublicWaitlistMode() &&
+    !isStaffSignInBypass(query) &&
+    !hasInviteAccess
+  ) {
     redirect("/waitlist");
   }
 
   await redirectIfAuthenticatedFromGuestAuthPage(query);
 
-  const email =
-    typeof params.email === "string" ? params.email.trim() : undefined;
   const signInParams = new URLSearchParams();
-  const access = query.get("access");
-  const redirectUrl = query.get("redirect_url");
-  if (access) signInParams.set("access", access);
-  if (redirectUrl) signInParams.set("redirect_url", redirectUrl);
-  const signInHref = signInParams.size
-    ? `/sign-in?${signInParams.toString()}`
-    : "/sign-in";
+  if (query.get("access") === "staff") {
+    signInParams.set("access", "staff");
+  }
+  signInParams.set(
+    "redirect_url",
+    resolveSafeAppRedirectPath(query.get("redirect_url"), "/dashboard"),
+  );
+  const signInHref = `/sign-in?${signInParams.toString()}`;
 
   return (
     <AuthSplitLayout variant="sign-in">

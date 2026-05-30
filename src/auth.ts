@@ -19,7 +19,7 @@ import {
 } from "@/lib/auth/user-profile";
 import { getPlatformSettings } from "@/lib/platform/settings/store";
 import { isPublicWaitlistMode } from "@/lib/platform/public-waitlist-mode";
-import { consumeWaitlistInviteForEmail } from "@/app/actions/waitlist-invite.actions";
+import { consumeWaitlistInviteForEmail } from "@/lib/waitlist/invite-consume";
 import { getInviteSessionIfValidForEmail } from "@/lib/waitlist/invite-access";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
@@ -224,6 +224,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   events: {
+    async signIn({ user, account, isNewUser }) {
+      if (
+        isNewUser &&
+        user.email &&
+        user.id &&
+        account?.provider !== "credentials"
+      ) {
+        await consumeWaitlistInviteForEmail(user.email, user.id);
+      }
+    },
     async createUser({ user }) {
       const { firstName, lastName } = splitDisplayName(user.name);
       await prisma.user.update({
@@ -238,10 +248,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           role: resolveRoleForAllowlistedEmail(user.email),
         },
       });
-
-      if (user.email && user.id) {
-        await consumeWaitlistInviteForEmail(user.email, user.id);
-      }
     },
     async linkAccount({ user, account }) {
       if (account.provider === "credentials") {

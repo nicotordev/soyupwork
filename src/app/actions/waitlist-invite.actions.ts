@@ -17,6 +17,11 @@ import {
   setWaitlistInviteSession,
 } from "@/lib/waitlist/invite-session";
 import {
+  consumeWaitlistInviteForEmail,
+  hasValidWaitlistInviteAccessForEmail,
+  refreshWaitlistInviteSessionIfValid,
+} from "@/lib/waitlist/invite-consume";
+import {
   generateInviteToken,
   getWaitlistInviteExpiry,
   hashInviteToken,
@@ -381,48 +386,11 @@ export async function getWaitlistInviteSignUpContext(): Promise<WaitlistInviteSi
   return { hasValidInvite: true, email: invite.email };
 }
 
-export async function consumeWaitlistInviteForEmail(
-  email: string,
-  userId: string,
-): Promise<void> {
-  const normalizedEmail = email.trim().toLowerCase();
-  const session = await readWaitlistInviteSession();
-
-  if (!session || session.email !== normalizedEmail) {
-    return;
-  }
-
-  const consumed = await prisma.waitlistInvite.updateMany({
-    where: {
-      id: session.inviteId,
-      status: WaitlistInviteStatus.PENDING,
-      expiresAt: { gt: new Date() },
-      email: { equals: normalizedEmail, mode: "insensitive" },
-    },
-    data: {
-      status: WaitlistInviteStatus.ACCEPTED,
-      acceptedAt: new Date(),
-      acceptedUserId: userId,
-    },
-  });
-
-  if (consumed.count === 0) {
-    const alreadyAccepted = await prisma.waitlistInvite.findFirst({
-      where: {
-        id: session.inviteId,
-        status: WaitlistInviteStatus.ACCEPTED,
-        acceptedUserId: userId,
-        email: { equals: normalizedEmail, mode: "insensitive" },
-      },
-      select: { id: true },
-    });
-    if (!alreadyAccepted) {
-      return;
-    }
-  }
-
-  await clearWaitlistInviteSession();
-}
+export {
+  consumeWaitlistInviteForEmail,
+  hasValidWaitlistInviteAccessForEmail,
+  refreshWaitlistInviteSessionIfValid,
+};
 
 export async function registrationRequiresWaitlistInvite(): Promise<boolean> {
   if (isPublicWaitlistMode()) return true;

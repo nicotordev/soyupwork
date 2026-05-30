@@ -1,5 +1,6 @@
 "use server";
 
+import { assertRegistrationAllowedForEmail } from "@/app/actions/waitlist-invite.actions";
 import { resolveRoleForAllowlistedEmail } from "@/lib/auth/admin";
 import { getJwtUserId } from "@/lib/auth/jwt-session";
 import { getLinkAccountContext } from "@/lib/auth/link-account";
@@ -8,11 +9,7 @@ import { buildUserDisplayName } from "@/lib/auth/user-profile";
 import prisma from "@/lib/db/prisma";
 import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
-import { getPlatformSettings } from "@/lib/platform/settings/store";
-import {
-  assertRegistrationAllowedForEmail,
-  consumeWaitlistInviteForEmail,
-} from "@/app/actions/waitlist-invite.actions";
+import { consumeWaitlistInviteForEmail } from "@/lib/waitlist/invite-consume";
 import {
   linkAccountParamsSchema,
   magicLinkSignInSchema,
