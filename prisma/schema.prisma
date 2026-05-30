@@ -106,6 +106,11 @@ enum BlogPostStatus {
   ARCHIVED
 }
 
+enum BlogContentFormat {
+  MARKDOWN
+  HTML
+}
+
 enum LeadStatus {
   NEW
   CONTACTED
@@ -117,6 +122,7 @@ enum LeadStatus {
 enum AnalyticsEventType {
   PAGE_VIEW
   COURSE_VIEW
+  BLOG_VIEW
   LESSON_START
   LESSON_COMPLETE
   CHECKOUT_START
@@ -677,29 +683,81 @@ model Lead {
   @@index([createdAt])
 }
 
-model BlogPost {
-  id            String         @id @default(uuid()) @db.Uuid
-  slug          String         @unique
-  title         String
-  excerpt       String?
-  content       String
-  coverImageUrl String?
-  status        BlogPostStatus @default(DRAFT)
-  publishedAt   DateTime?      @db.Timestamp(6)
-  authorId      String?        @db.Uuid
+// --- Blog ---
+
+model BlogCategory {
+  id          String  @id @default(uuid()) @db.Uuid
+  slug        String  @unique
+  name        String
+  description String?
+  icon        String?
+  position    Int     @default(0)
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  author      User?        @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: SetNull)
-  seoMetadata SeoMetadata?
+  posts BlogPost[]
+
+  @@index([position])
+}
+
+model BlogTag {
+  id   String @id @default(uuid()) @db.Uuid
+  slug String @unique
+  name String
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  posts BlogPostTag[]
+}
+
+model BlogPostTag {
+  blogPostId String @db.Uuid
+  tagId      String @db.Uuid
+
+  post BlogPost @relation(fields: [blogPostId], references: [id], onDelete: Cascade)
+  tag  BlogTag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([blogPostId, tagId])
+  @@index([tagId])
+}
+
+model BlogPost {
+  id                 String            @id @default(uuid()) @db.Uuid
+  slug               String            @unique
+  title              String
+  subtitle           String?
+  excerpt            String?
+  content            String
+  contentFormat      BlogContentFormat @default(MARKDOWN)
+  coverImageUrl      String?
+  status             BlogPostStatus    @default(DRAFT)
+  publishedAt        DateTime?         @db.Timestamp(6)
+  readingTimeMinutes Int?
+  isFeatured         Boolean           @default(false)
+
+  categoryId String?       @db.Uuid
+  authorId   String?       @db.Uuid
+  category   BlogCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  author     User?         @relation("BlogAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  tags            BlogPostTag[]
+  seoMetadata     SeoMetadata?
+  analyticsEvents AnalyticsEvent[]
 
   @@index([status, publishedAt])
+  @@index([status, isFeatured])
   @@index([authorId])
+  @@index([categoryId])
 }
 
 /// Stores Next.js `Metadata` fields for public courses and blog posts.
 /// JSON columns match shapes from `next/dist/lib/metadata/types/*`.
+/// DB enforces exactly one parent via `SeoMetadata_single_parent_check` (course XOR blog post).
 model SeoMetadata {
   id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @db.Timestamp(6)
@@ -757,13 +815,16 @@ model AnalyticsEvent {
   sessionId  String?
   courseId   String?            @db.Uuid
   lessonId   String?            @db.Uuid
+  blogPostId String?            @db.Uuid
   properties Json?
 
   createdAt DateTime @default(now()) @db.Timestamp(6)
 
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  blogPost BlogPost? @relation(fields: [blogPostId], references: [id], onDelete: SetNull)
 
   @@index([type, createdAt])
+  @@index([blogPostId])
   @@index([userId, createdAt])
   @@index([courseId, createdAt])
   @@index([sessionId])

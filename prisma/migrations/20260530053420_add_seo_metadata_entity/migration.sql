@@ -59,14 +59,14 @@ ALTER TABLE "SeoMetadata" ADD CONSTRAINT "SeoMetadata_courseId_fkey" FOREIGN KEY
 -- AddForeignKey
 ALTER TABLE "SeoMetadata" ADD CONSTRAINT "SeoMetadata_blogPostId_fkey" FOREIGN KEY ("blogPostId") REFERENCES "BlogPost"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
--- Migrate legacy seoTitle / seoDescription
-INSERT INTO "SeoMetadata" ("id", "updatedAt", "courseId", "title", "description")
-SELECT gen_random_uuid(), CURRENT_TIMESTAMP, "id", "seoTitle", "seoDescription"
+-- Migrate legacy seoTitle / seoDescription (preserve parent createdAt)
+INSERT INTO "SeoMetadata" ("id", "createdAt", "updatedAt", "courseId", "title", "description")
+SELECT gen_random_uuid(), "createdAt", "updatedAt", "id", "seoTitle", "seoDescription"
 FROM "Course"
 WHERE "seoTitle" IS NOT NULL OR "seoDescription" IS NOT NULL;
 
-INSERT INTO "SeoMetadata" ("id", "updatedAt", "blogPostId", "title", "description")
-SELECT gen_random_uuid(), CURRENT_TIMESTAMP, "id", "seoTitle", "seoDescription"
+INSERT INTO "SeoMetadata" ("id", "createdAt", "updatedAt", "blogPostId", "title", "description")
+SELECT gen_random_uuid(), "createdAt", "updatedAt", "id", "seoTitle", "seoDescription"
 FROM "BlogPost"
 WHERE "seoTitle" IS NOT NULL OR "seoDescription" IS NOT NULL;
 
