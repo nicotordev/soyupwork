@@ -406,11 +406,22 @@ export async function consumeWaitlistInviteForEmail(
     },
   });
 
-  await clearWaitlistInviteSession();
-
   if (consumed.count === 0) {
-    return;
+    const alreadyAccepted = await prisma.waitlistInvite.findFirst({
+      where: {
+        id: session.inviteId,
+        status: WaitlistInviteStatus.ACCEPTED,
+        acceptedUserId: userId,
+        email: { equals: normalizedEmail, mode: "insensitive" },
+      },
+      select: { id: true },
+    });
+    if (!alreadyAccepted) {
+      return;
+    }
   }
+
+  await clearWaitlistInviteSession();
 }
 
 export async function registrationRequiresWaitlistInvite(): Promise<boolean> {
