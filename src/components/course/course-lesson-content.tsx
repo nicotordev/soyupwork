@@ -96,9 +96,8 @@ export function CourseLessonContent({
 
   if (lesson.type === "VIDEO") {
     const canPlay =
-      view.muxConfigured &&
       view.muxStreamingEnabled &&
-      lesson.videoPlaybackId &&
+      Boolean(lesson.videoPlaybackId) &&
       lesson.videoStatus === "READY";
 
     const videoAuthorName =
@@ -130,7 +129,7 @@ export function CourseLessonContent({
         )}
       >
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground font-mono">
-          {!view.muxConfigured || !view.muxStreamingEnabled
+          {!view.muxStreamingEnabled
             ? COURSE_PAGE.muxDisabled
             : lesson.videoStatus === "PENDING"
               ? COURSE_PAGE.videoPending
