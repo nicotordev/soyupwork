@@ -3,14 +3,17 @@ import { UserRole } from "@/generated/prisma/client";
 import authConfig from "@/auth.config";
 import prisma from "@/lib/db/prisma";
 import { verifyPassword } from "@/lib/auth/password";
+import { sendAuthMagicLinkEmail } from "@/lib/auth/send-magic-link-email";
 import {
   buildUserDisplayName,
   splitDisplayName,
 } from "@/lib/auth/user-profile";
+import { getPlatformSettings } from "@/lib/platform/settings/store";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import Resend from "next-auth/providers/resend";
 
 const sessionUserSelect = {
   id: true,
@@ -40,6 +43,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
     GitHub({
       allowDangerousEmailAccountLinking: true,
+    }),
+    Resend({
+      apiKey: process.env.AUTH_RESEND_KEY ?? process.env.RESEND_API_KEY,
+      from: process.env.EMAIL_FROM,
+      maxAge: 60 * 60,
+      sendVerificationRequest: sendAuthMagicLinkEmail,
     }),
     Credentials({
       name: "credentials",
@@ -101,7 +110,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     async signIn({ user, account }) {
-      if (!user.email || account?.provider === "credentials") {
+      if (account?.provider === "credentials") {
+        return true;
+      }
+
+      if (!user.email) {
         return true;
       }
 
@@ -112,6 +125,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
         select: { id: true },
       });
+
+      if (!existing && account?.provider === "resend") {
+        const settings = await getPlatformSettings();
+        if (!settings.registrationsOpen) {
+          return "/sign-in?error=RegistrationDisabled";
+        }
+      }
 
       if (existing && user.id && existing.id !== user.id) {
         user.id = existing.id;

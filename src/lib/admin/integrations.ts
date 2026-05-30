@@ -10,7 +10,9 @@ export function getAdminSettingsIntegrations(): AdminSettingsIntegrationStatus[]
     auth:
       isConfigured(process.env.AUTH_SECRET) &&
       (isConfigured(process.env.AUTH_GOOGLE_ID) ||
-        isConfigured(process.env.AUTH_GITHUB_ID)),
+        isConfigured(process.env.AUTH_GITHUB_ID) ||
+        isConfigured(process.env.AUTH_RESEND_KEY) ||
+        isConfigured(process.env.RESEND_API_KEY)),
     stripe: isConfigured(process.env.STRIPE_SECRET_KEY),
     resend: isConfigured(process.env.RESEND_API_KEY),
     r2:

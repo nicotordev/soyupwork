@@ -5,6 +5,8 @@ import "./globals.css";
 import { MarketingFooter } from "@/components/marketing-footer";
 import { MarketingNavServer } from "@/components/marketing-nav";
 import useCatalogSections from "@/hooks/use-catalog-sections";
+import Providers from "./providers";
+import { useSession } from "next-auth/react";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -12,6 +14,20 @@ interface GlobalErrorProps {
 }
 
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
+  return (
+    <html lang="es">
+      <body className="flex min-h-full min-w-0 flex-col bg-background font-sans text-foreground antialiased">
+        <Providers>
+          <GlobalErrorContent error={error} reset={reset} />
+        </Providers>
+      </body>
+    </html>
+  );
+}
+
+function GlobalErrorContent({ error, reset }: GlobalErrorProps) {
+  const { status } = useSession();
+  const isSignedIn = status === "authenticated";
   const catalogSectionsQuery = useCatalogSections();
   const catalogSections = catalogSectionsQuery.data ?? [];
 
@@ -19,7 +35,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
     <div className="w-full min-w-0 flex-1 overflow-x-hidden bg-background">
       <div className="flex min-h-screen min-w-0 flex-col">
         <MarketingNavServer
-          isSignedIn={false}
+          isSignedIn={isSignedIn}
           catalogSections={catalogSections}
         />
         <main className="min-w-0 flex-1">

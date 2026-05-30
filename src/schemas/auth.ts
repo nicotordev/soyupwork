@@ -12,6 +12,14 @@ export const signInSchema = z.object({
     .max(72, "La contraseña es demasiado larga."),
 });
 
+export const magicLinkSignInSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .min(1, "El correo es obligatorio.")
+    .email("Ingresá un correo válido."),
+});
+
 export const registerUserSchema = z.object({
   email: z
     .string()
@@ -35,4 +43,5 @@ export const registerUserSchema = z.object({
 });
 
 export type SignInInput = z.infer<typeof signInSchema>;
+export type MagicLinkSignInInput = z.infer<typeof magicLinkSignInSchema>;
 export type RegisterUserInput = z.infer<typeof registerUserSchema>;

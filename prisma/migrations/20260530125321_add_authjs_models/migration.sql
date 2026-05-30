@@ -70,4 +70,4 @@ SET
   "name" = NULLIF(TRIM(CONCAT(COALESCE("firstName", ''), ' ', COALESCE("lastName", ''))), ''),
   "image" = "imageUrl",
   "emailVerified" = CASE WHEN "email" IS NOT NULL THEN NOW() ELSE NULL END
-WHERE "name" IS NULL OR "image" IS NULL OR "emailVerified" IS NULL;
+WHERE "name" IS NULL AND "image" IS NULL AND "emailVerified" IS NULL;

@@ -19,6 +19,12 @@ type SignInPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+function isResendAuthConfigured(): boolean {
+  return Boolean(
+    process.env.AUTH_RESEND_KEY?.trim() || process.env.RESEND_API_KEY?.trim(),
+  );
+}
+
 export default async function SignInPage({ searchParams }: SignInPageProps) {
   const params = await searchParams;
   const query = {
@@ -39,8 +45,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
       <Suspense fallback={null}>
         <SignInForm
           allowOAuthSignIn={settings.allowOAuthSignIn}
+          allowMagicLinkSignIn={isResendAuthConfigured()}
           defaultCallbackUrl={settings.afterSignInUrl}
           signUpUrl={isPublicWaitlistMode() ? "/waitlist" : "/sign-up"}
+          registrationDisabled={!settings.registrationsOpen}
         />
       </Suspense>
     </AuthSplitLayout>

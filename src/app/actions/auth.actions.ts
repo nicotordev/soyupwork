@@ -6,11 +6,53 @@ import { buildUserDisplayName } from "@/lib/auth/user-profile";
 import prisma from "@/lib/db/prisma";
 import { serializeError } from "@/lib/logger/serialize-error";
 import { getServerLogger } from "@/lib/logger/server";
-import { registerUserSchema } from "@/schemas/auth";
+import { getPlatformSettings } from "@/lib/platform/settings/store";
+import { magicLinkSignInSchema, registerUserSchema } from "@/schemas/auth";
 
 const log = getServerLogger("auth.actions");
 
 export type RegisterUserResult = { ok: true } | { ok: false; error: string };
+
+export type ValidateMagicLinkSignInResult =
+  | { ok: true }
+  | { ok: false; error: string };
+
+export async function validateMagicLinkSignIn(
+  input: unknown,
+): Promise<ValidateMagicLinkSignInResult> {
+  const parsed = magicLinkSignInSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+    };
+  }
+
+  const email = parsed.data.email.trim().toLowerCase();
+  const settings = await getPlatformSettings();
+
+  if (settings.registrationsOpen) {
+    return { ok: true };
+  }
+
+  const existing = await prisma.user.findFirst({
+    where: {
+      email: { equals: email, mode: "insensitive" },
+      deletedAt: null,
+    },
+    select: { id: true },
+  });
+
+  if (!existing) {
+    return {
+      ok: false,
+      error:
+        "El registro está cerrado. Solo usuarios existentes pueden iniciar sesión.",
+    };
+  }
+
+  return { ok: true };
+}
 
 export async function registerUser(
   input: unknown,
