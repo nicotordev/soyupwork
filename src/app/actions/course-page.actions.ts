@@ -6,6 +6,7 @@ import { requireStudent } from "@/lib/auth/student";
 import {
   buildCoursePageData,
   coursePageInclude,
+  fetchBookmarkedLessonIdsForCourse,
   fetchCompletedLessonIdsForCourse,
   userHasActiveEnrollment,
 } from "@/lib/course/get-course-page-data";
@@ -82,14 +83,18 @@ export async function getCoursePageForPublicLanding(
   }
 
   const hasFullAccess = await userHasActiveEnrollment(user.id, course.id);
-  const completedLessonIds = hasFullAccess
-    ? await fetchCompletedLessonIdsForCourse(user.id, course.id)
-    : new Set<string>();
+  const [completedLessonIds, bookmarkedLessonIds] = hasFullAccess
+    ? await Promise.all([
+        fetchCompletedLessonIdsForCourse(user.id, course.id),
+        fetchBookmarkedLessonIdsForCourse(user.id, course.id),
+      ])
+    : [new Set<string>(), new Set<string>()];
 
   return buildCoursePageData(course, {
     mode: "student",
     hasFullAccess,
     completedLessonIds,
+    bookmarkedLessonIds,
   });
 }
 
@@ -106,14 +111,18 @@ export async function getCoursePageForStudent(
   if (!course) return null;
 
   const hasFullAccess = await userHasActiveEnrollment(user.id, course.id);
-  const completedLessonIds = hasFullAccess
-    ? await fetchCompletedLessonIdsForCourse(user.id, course.id)
-    : new Set<string>();
+  const [completedLessonIds, bookmarkedLessonIds] = hasFullAccess
+    ? await Promise.all([
+        fetchCompletedLessonIdsForCourse(user.id, course.id),
+        fetchBookmarkedLessonIdsForCourse(user.id, course.id),
+      ])
+    : [new Set<string>(), new Set<string>()];
 
   return buildCoursePageData(course, {
     mode: "student",
     hasFullAccess,
     completedLessonIds,
+    bookmarkedLessonIds,
   });
 }
 

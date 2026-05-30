@@ -1,6 +1,7 @@
 "use client";
 
 import { MarkdownContent } from "@/components/common/markdown-content";
+import { CourseLessonBookmarkButton } from "@/components/course/course-lesson-bookmark-button";
 import { CourseLessonProgressFooter } from "@/components/course/course-lesson-progress-footer";
 import { CourseQuizPlayer } from "@/components/course/quiz/course-quiz-player";
 import { COURSE_PAGE } from "@/constants/course-page.constants";
@@ -28,12 +29,7 @@ import {
 } from "@/components/ui/sheet";
 import { CourseLessonVideoAiPanel } from "@/components/course/video-engagement/course-lesson-video-ai-panel";
 import { CourseLessonVideoComments } from "@/components/course/video-engagement/course-lesson-video-comments";
-import {
-  IconSparkles,
-  IconShare,
-  IconBookmark,
-  IconCheck,
-} from "@tabler/icons-react";
+import { IconSparkles, IconShare, IconCheck } from "@tabler/icons-react";
 import { toast as sonnerToast } from "sonner";
 
 type CourseLessonContentProps = {
@@ -44,6 +40,7 @@ type CourseLessonContentProps = {
   lessonHrefMode?: "path" | "query";
   onDemoLessonComplete?: (lessonId: string) => void;
   lessonComments?: CoursePageLessonComment[];
+  currentUserId?: string | null;
 };
 
 export function CourseLessonContent({
@@ -54,12 +51,15 @@ export function CourseLessonContent({
   lessonHrefMode = "path",
   onDemoLessonComplete,
   lessonComments,
+  currentUserId,
 }: CourseLessonContentProps) {
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const comments = lessonComments ?? lesson.comments;
   const isDemo = isPublicDemoMode(mode);
   const canComment =
     isDemo || (!isAdminPreviewMode(mode) && view.hasFullAccess);
+  const canBookmark =
+    !isDemo && !isAdminPreviewMode(mode) && view.hasFullAccess;
 
   const progressFooter = (
     <CourseLessonProgressFooter
@@ -219,17 +219,13 @@ export function CourseLessonContent({
                 <span>Compartir</span>
               </button>
 
-              {/* Save/Guardar */}
-              <button
-                type="button"
-                onClick={() => {
-                  sonnerToast.info("¡Clase guardada en tus marcadores!");
-                }}
-                className="flex items-center justify-center size-9 bg-background hover:bg-muted/40 text-foreground font-extrabold shadow-[2px_2px_0px_0px_var(--foreground)] border-2 border-foreground rounded-full transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-                aria-label="Guardar clase"
-              >
-                <IconBookmark className="size-4 shrink-0" stroke={2.5} />
-              </button>
+              {canBookmark ? (
+                <CourseLessonBookmarkButton
+                  courseSlug={view.slug}
+                  lessonId={lesson.id}
+                  initialBookmarked={lesson.isBookmarked}
+                />
+              ) : null}
             </div>
           </div>
         </div>
@@ -273,6 +269,7 @@ export function CourseLessonContent({
           comments={comments}
           canComment={canComment}
           isDemo={isDemo}
+          currentUserId={currentUserId}
         />
 
         {/* Footer Progress Controls */}

@@ -15,12 +15,14 @@ export {
   countLessonComments,
   formatDiscussionAuthor,
   mapDiscussionRow,
+  removeCommentFromTree,
 } from "@/lib/course/lesson-discussion-tree";
 
 const discussionUserSelect = {
   firstName: true,
   lastName: true,
   email: true,
+  imageUrl: true,
 } as const;
 
 export async function fetchLessonDiscussions(
@@ -34,6 +36,7 @@ export async function fetchLessonDiscussions(
       parentId: true,
       body: true,
       createdAt: true,
+      userId: true,
       user: { select: discussionUserSelect },
     },
   });
@@ -51,6 +54,7 @@ export async function fetchDiscussionById(
       parentId: true,
       body: true,
       createdAt: true,
+      userId: true,
       user: { select: discussionUserSelect },
     },
   });

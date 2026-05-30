@@ -95,11 +95,13 @@ export async function createLessonDiscussion(
       parentId: true,
       body: true,
       createdAt: true,
+      userId: true,
       user: {
         select: {
           firstName: true,
           lastName: true,
           email: true,
+          imageUrl: true,
         },
       },
     },
@@ -111,4 +113,72 @@ export async function createLessonDiscussion(
     ok: true,
     comment: mapDiscussionRow(created as DiscussionRow),
   };
+}
+
+const deleteLessonDiscussionSchema = z.object({
+  courseSlug: z.string().min(1),
+  lessonId: z.string().uuid(),
+  discussionId: z.string().uuid(),
+});
+
+export type DeleteLessonDiscussionInput = z.infer<
+  typeof deleteLessonDiscussionSchema
+>;
+
+export async function deleteLessonDiscussion(
+  input: DeleteLessonDiscussionInput,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = deleteLessonDiscussionSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues[0]?.message ?? "Datos inválidos.",
+    };
+  }
+
+  const { courseSlug, lessonId, discussionId } = parsed.data;
+  const user = await requireStudent();
+
+  const discussion = await prisma.courseDiscussion.findFirst({
+    where: {
+      id: discussionId,
+      lessonId,
+      lesson: {
+        id: lessonId,
+        module: { course: { slug: courseSlug, status: "PUBLISHED" } },
+      },
+    },
+    select: {
+      id: true,
+      userId: true,
+      lesson: {
+        select: { slug: true, module: { select: { courseId: true } } },
+      },
+    },
+  });
+
+  if (!discussion?.lesson) {
+    return { ok: false, error: "Comentario no encontrado." };
+  }
+
+  if (discussion.userId !== user.id) {
+    return { ok: false, error: "No puedes eliminar este comentario." };
+  }
+
+  const hasAccess = await userHasActiveEnrollment(
+    user.id,
+    discussion.lesson.module.courseId,
+  );
+
+  if (!hasAccess) {
+    return { ok: false, error: "No tienes acceso a este curso." };
+  }
+
+  await prisma.courseDiscussion.delete({
+    where: { id: discussionId },
+  });
+
+  revalidatePath(`/courses/${courseSlug}/lessons/${discussion.lesson.slug}`);
+
+  return { ok: true };
 }

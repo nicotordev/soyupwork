@@ -1,7 +1,7 @@
 import { getCoursePageForStudent } from "@/app/actions/course-page.actions";
 import { CourseLearnShell } from "@/components/course/course-learn-shell";
 import { buildSignInRedirectUrl } from "@/lib/auth/build-sign-in-redirect";
-import { StudentAuthError } from "@/lib/auth/student";
+import { requireStudent, StudentAuthError } from "@/lib/auth/student";
 import { findLessonInView } from "@/lib/course/course-page-view";
 import { fetchLessonDiscussions } from "@/lib/course/lesson-discussions";
 import { findFirstAccessibleLessonSlug } from "@/lib/course/sequential-lesson-access";
@@ -64,7 +64,10 @@ export default async function DashboardCourseLessonPage({ params }: PageProps) {
     notFound();
   }
 
-  const lessonComments = await fetchLessonDiscussions(lesson.id);
+  const [lessonComments, student] = await Promise.all([
+    fetchLessonDiscussions(lesson.id),
+    requireStudent(),
+  ]);
 
   return (
     <CourseLearnShell
@@ -73,6 +76,7 @@ export default async function DashboardCourseLessonPage({ params }: PageProps) {
       lessonBasePath={`/courses/${data.view.slug}/lessons`}
       courseLandingHref={`/courses/${data.view.slug}`}
       lessonComments={lessonComments}
+      currentUserId={student.id}
     />
   );
 }

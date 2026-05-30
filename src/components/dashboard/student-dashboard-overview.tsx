@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import {
   IconAward,
   IconBook,
+  IconBookmark,
   IconBooks,
   IconCertificate,
   IconChevronRight,
@@ -35,7 +36,14 @@ type StudentDashboardOverviewProps = {
 export function StudentDashboardOverview({
   data,
 }: StudentDashboardOverviewProps) {
-  const { user, stats, continueLearning, enrolledCourses, certificates } = data;
+  const {
+    user,
+    stats,
+    continueLearning,
+    enrolledCourses,
+    certificates,
+    bookmarkedLessons,
+  } = data;
 
   const userDisplayName =
     user.firstName || user.lastName
@@ -307,6 +315,47 @@ export function StudentDashboardOverview({
                 )}
               </div>
             </div>
+
+            {bookmarkedLessons.length > 0 ? (
+              <div className={adminPanelClass}>
+                <div className={adminPanelHeaderClass}>
+                  <h3 className="font-heading font-extrabold text-foreground flex items-center gap-2">
+                    <IconBookmark className="size-5" />
+                    Lecciones guardadas
+                  </h3>
+                  <span className="font-mono text-[10px] font-bold uppercase text-muted-foreground">
+                    {bookmarkedLessons.length}{" "}
+                    {bookmarkedLessons.length === 1 ? "marcador" : "marcadores"}
+                  </span>
+                </div>
+                <ul className="divide-y-2 divide-foreground/10 p-3.5 sm:p-6">
+                  {bookmarkedLessons.map((item) => (
+                    <li
+                      key={item.lessonId}
+                      className="py-3 first:pt-0 last:pb-0"
+                    >
+                      <Link
+                        href={`/courses/${item.courseSlug}/lessons/${item.lessonSlug}`}
+                        className="group flex items-start justify-between gap-3"
+                      >
+                        <div className="min-w-0 text-left">
+                          <p className="font-mono text-[9px] font-bold uppercase text-muted-foreground truncate">
+                            {item.courseTitle}
+                          </p>
+                          <p className="font-bold text-sm group-hover:text-primary group-hover:underline truncate">
+                            {item.lessonTitle}
+                          </p>
+                        </div>
+                        <IconChevronRight
+                          className="size-4 shrink-0 text-muted-foreground group-hover:text-primary"
+                          stroke={2.5}
+                        />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </motion.div>
 
           {/* Right Column: Continue Learning widget & Certificates */}

@@ -18,6 +18,7 @@ type CourseLessonVideoEngagementProps = {
   lesson: CoursePageLesson;
   mode: CoursePageMode;
   lessonComments?: CoursePageLessonComment[];
+  currentUserId?: string | null;
 };
 
 export function CourseLessonVideoEngagement({
@@ -25,6 +26,7 @@ export function CourseLessonVideoEngagement({
   lesson,
   mode,
   lessonComments,
+  currentUserId,
 }: CourseLessonVideoEngagementProps) {
   const comments = lessonComments ?? lesson.comments;
   const isDemo = isPublicDemoMode(mode);
@@ -40,6 +42,7 @@ export function CourseLessonVideoEngagement({
         comments={comments}
         canComment={canComment}
         isDemo={isDemo}
+        currentUserId={currentUserId}
       />
     </div>
   );

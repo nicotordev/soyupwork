@@ -43,7 +43,21 @@ export const COURSE_PAGE = {
   videoCommentsEmpty: "Sé el primero en comentar esta lección.",
   videoCommentsPlaceholder: "Escribe un comentario…",
   videoCommentsSubmitSoon: "Próximamente",
+  videoCommentDelete: "Eliminar",
+  videoCommentDeleteTitle: "¿Eliminar comentario?",
+  videoCommentDeleteDescription:
+    "Las respuestas también se borrarán. Esta acción no se puede deshacer.",
+  videoCommentDeleteCancel: "Cancelar",
+  videoCommentDeleteConfirm: "Eliminar",
+  videoCommentDeleted: "Comentario eliminado.",
+  lessonBookmarkSave: "Guardar lección",
+  lessonBookmarkSaved: "Lección guardada en tus marcadores.",
+  lessonBookmarkRemoved: "Lección quitada de tus marcadores.",
+  lessonBookmarkSavedLabel: "Guardada",
 } as const;
+
+/** Author id for comments created in public demo (local state only). */
+export const DEMO_LESSON_COMMENT_AUTHOR_ID = "demo-local-author";
 
 export const ADMIN_COURSE_PREVIEW_PAGE = {
   bannerTitle: "Vista previa de administrador",

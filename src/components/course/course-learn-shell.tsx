@@ -35,6 +35,7 @@ type CourseLearnShellProps = {
   showModeBanner?: boolean;
   onDemoLessonComplete?: (lessonId: string) => void;
   lessonComments?: CoursePageLessonComment[];
+  currentUserId?: string | null;
 };
 
 export function CourseLearnShell({
@@ -46,6 +47,7 @@ export function CourseLearnShell({
   showModeBanner = true,
   onDemoLessonComplete,
   lessonComments,
+  currentUserId,
 }: CourseLearnShellProps) {
   const { view, mode } = data;
   const lesson = findLessonInView(view, lessonSlug);
@@ -132,6 +134,7 @@ export function CourseLearnShell({
             lessonHrefMode={lessonHrefMode}
             onDemoLessonComplete={onDemoLessonComplete}
             lessonComments={lessonComments}
+            currentUserId={currentUserId}
           />
         </main>
         <div className="hidden lg:block lg:w-80 lg:max-w-[20rem] lg:shrink-0">

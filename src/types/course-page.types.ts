@@ -16,7 +16,9 @@ export type CoursePageQuizSummary = {
 
 export type CoursePageLessonComment = {
   id: string;
+  authorId: string;
   authorName: string;
+  authorImageUrl: string | null;
   body: string;
   createdAt: string;
   parentId: string | null;
@@ -46,6 +48,7 @@ export type CoursePageLesson = {
   quiz: CoursePageQuizSummary | null;
   isAccessible: boolean;
   isCompleted: boolean;
+  isBookmarked: boolean;
   videoAiInsight: CoursePageVideoAiInsight | null;
   comments: CoursePageLessonComment[];
 };

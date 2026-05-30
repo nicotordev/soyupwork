@@ -106,6 +106,7 @@ function mapLesson(
       : null,
     isAccessible: false,
     isCompleted: false,
+    isBookmarked: false,
     videoAiInsight: null,
     comments: [],
   };
@@ -116,6 +117,7 @@ function mapModules(
   options: {
     hasFullAccess: boolean;
     completedLessonIds: ReadonlySet<string>;
+    bookmarkedLessonIds: ReadonlySet<string>;
     mode: CoursePageMode;
   },
 ): CoursePageModule[] {
@@ -130,6 +132,7 @@ function mapModules(
   return applySequentialLessonAccess(mapped, {
     hasFullAccess: options.hasFullAccess,
     completedLessonIds: options.completedLessonIds,
+    bookmarkedLessonIds: options.bookmarkedLessonIds,
     enforceSequential: options.mode !== "adminPreview",
   });
 }
@@ -140,6 +143,7 @@ export async function mapDbCourseToCoursePageView(
     mode: CoursePageMode;
     hasFullAccess: boolean;
     completedLessonIds?: ReadonlySet<string>;
+    bookmarkedLessonIds?: ReadonlySet<string>;
     muxConfigured: boolean;
     muxStreamingEnabled: boolean;
   },
@@ -156,6 +160,7 @@ export async function mapDbCourseToCoursePageView(
   const modules = mapModules(dbCourse.modules, {
     hasFullAccess: options.hasFullAccess,
     completedLessonIds: options.completedLessonIds ?? new Set(),
+    bookmarkedLessonIds: options.bookmarkedLessonIds ?? new Set(),
     mode: options.mode,
   });
   const lessonCount = modules.reduce(
@@ -220,12 +225,28 @@ export async function fetchCompletedLessonIdsForCourse(
   return new Set(rows.map((row) => row.lessonId));
 }
 
+export async function fetchBookmarkedLessonIdsForCourse(
+  userId: string,
+  courseId: string,
+): Promise<Set<string>> {
+  const rows = await prisma.lessonBookmark.findMany({
+    where: {
+      userId,
+      lesson: { module: { courseId } },
+    },
+    select: { lessonId: true },
+  });
+
+  return new Set(rows.map((row) => row.lessonId));
+}
+
 export async function buildCoursePageData(
   dbCourse: DbCoursePage,
   options: {
     mode: CoursePageMode;
     hasFullAccess: boolean;
     completedLessonIds?: ReadonlySet<string>;
+    bookmarkedLessonIds?: ReadonlySet<string>;
   },
 ): Promise<CoursePageData> {
   const settings = await getPlatformSettings();
@@ -234,6 +255,7 @@ export async function buildCoursePageData(
     mode: options.mode,
     hasFullAccess: options.hasFullAccess,
     completedLessonIds: options.completedLessonIds,
+    bookmarkedLessonIds: options.bookmarkedLessonIds,
     muxConfigured: isMuxConfigured(),
     muxStreamingEnabled: settings.enableMuxStreaming,
   });

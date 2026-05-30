@@ -27,6 +27,20 @@ function buildCompletedLessonIdSet(
   return ids;
 }
 
+function buildBookmarkedLessonIdSet(modules: CoursePageModule[]): Set<string> {
+  const ids = new Set<string>();
+
+  for (const module of modules) {
+    for (const lesson of module.lessons) {
+      if (lesson.isBookmarked) {
+        ids.add(lesson.id);
+      }
+    }
+  }
+
+  return ids;
+}
+
 export function computeNextLessonHref(options: {
   view: CoursePageView;
   mode: CoursePageMode;
@@ -43,6 +57,7 @@ export function computeNextLessonHref(options: {
   const modules = applySequentialLessonAccess(options.view.modules, {
     hasFullAccess: options.view.hasFullAccess,
     completedLessonIds: completedIds,
+    bookmarkedLessonIds: buildBookmarkedLessonIdSet(options.view.modules),
     enforceSequential,
   });
   const nextLesson = findNextAccessibleLesson(

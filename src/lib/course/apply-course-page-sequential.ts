@@ -9,9 +9,18 @@ export function applyCoursePageSequentialAccess(
   completedLessonIds: ReadonlySet<string>,
 ): CoursePageData {
   const enforceSequential = data.mode !== "adminPreview";
+  const bookmarkedLessonIds = new Set(
+    data.view.modules.flatMap((module) =>
+      module.lessons
+        .filter((lesson) => lesson.isBookmarked)
+        .map((lesson) => lesson.id),
+    ),
+  );
+
   const modules = applySequentialLessonAccess(data.view.modules, {
     hasFullAccess: data.view.hasFullAccess,
     completedLessonIds,
+    bookmarkedLessonIds,
     enforceSequential,
   });
 

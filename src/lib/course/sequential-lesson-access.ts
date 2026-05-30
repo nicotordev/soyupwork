@@ -6,6 +6,7 @@ import type {
 export type SequentialAccessOptions = {
   hasFullAccess: boolean;
   completedLessonIds: ReadonlySet<string>;
+  bookmarkedLessonIds: ReadonlySet<string>;
   enforceSequential: boolean;
 };
 
@@ -55,6 +56,7 @@ export function applySequentialLessonAccess(
       ...lesson,
       isAccessible: accessibilityById.get(lesson.id) ?? false,
       isCompleted: options.completedLessonIds.has(lesson.id),
+      isBookmarked: options.bookmarkedLessonIds.has(lesson.id),
     })),
   }));
 }

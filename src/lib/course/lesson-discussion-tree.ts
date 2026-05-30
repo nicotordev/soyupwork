@@ -6,10 +6,12 @@ export type DiscussionRow = {
   parentId: string | null;
   body: string;
   createdAt: Date;
+  userId: string;
   user: {
     firstName: string | null;
     lastName: string | null;
     email: string | null;
+    imageUrl: string | null;
   };
 };
 
@@ -20,7 +22,9 @@ export function formatDiscussionAuthor(user: DiscussionRow["user"]): string {
 export function mapDiscussionRow(row: DiscussionRow): CoursePageLessonComment {
   return {
     id: row.id,
+    authorId: row.userId,
     authorName: formatDiscussionAuthor(row.user),
+    authorImageUrl: row.user.imageUrl,
     body: row.body,
     createdAt: row.createdAt.toISOString(),
     parentId: row.parentId,
@@ -85,4 +89,16 @@ export function appendCommentToTree(
     }
     return root;
   });
+}
+
+export function removeCommentFromTree(
+  comments: CoursePageLessonComment[],
+  commentId: string,
+): CoursePageLessonComment[] {
+  return comments
+    .filter((comment) => comment.id !== commentId)
+    .map((comment) => ({
+      ...comment,
+      replies: removeCommentFromTree(comment.replies, commentId),
+    }));
 }

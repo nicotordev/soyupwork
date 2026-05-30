@@ -1,16 +1,39 @@
 "use client";
 
-import { createLessonDiscussion } from "@/app/actions/lesson-discussion.actions";
+import {
+  createLessonDiscussion,
+  deleteLessonDiscussion,
+} from "@/app/actions/lesson-discussion.actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { COURSE_PAGE } from "@/constants/course-page.constants";
+import {
+  COURSE_PAGE,
+  DEMO_LESSON_COMMENT_AUTHOR_ID,
+} from "@/constants/course-page.constants";
 import { adminPanelClass } from "@/lib/admin/styles";
 import {
   appendCommentToTree,
   countLessonComments,
+  removeCommentFromTree,
 } from "@/lib/course/lesson-discussion-tree";
 import { cn } from "@/lib/utils";
 import type { CoursePageLessonComment } from "@/types/course-page.types";
-import { IconCornerDownRight, IconMessageCircle } from "@tabler/icons-react";
+import { useUser } from "@clerk/nextjs";
+import {
+  IconCornerDownRight,
+  IconMessageCircle,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast as sonnerToast } from "sonner";
@@ -22,18 +45,19 @@ type CourseLessonVideoCommentsProps = {
   comments: CoursePageLessonComment[];
   canComment: boolean;
   isDemo?: boolean;
+  currentUserId?: string | null;
 };
 
 function getAvatarColor(name: string): string {
   const colors = [
-    "bg-rose-200 text-rose-800 border-rose-300",
-    "bg-amber-200 text-amber-800 border-amber-300",
-    "bg-emerald-200 text-emerald-800 border-emerald-300",
-    "bg-cyan-200 text-cyan-800 border-cyan-300",
-    "bg-indigo-200 text-indigo-800 border-indigo-300",
-    "bg-fuchsia-200 text-fuchsia-800 border-fuchsia-300",
-    "bg-violet-200 text-violet-800 border-violet-300",
-    "bg-orange-200 text-orange-800 border-orange-300",
+    "bg-rose-200 text-rose-800",
+    "bg-amber-200 text-amber-800",
+    "bg-emerald-200 text-emerald-800",
+    "bg-cyan-200 text-cyan-800",
+    "bg-indigo-200 text-indigo-800",
+    "bg-fuchsia-200 text-fuchsia-800",
+    "bg-violet-200 text-violet-800",
+    "bg-orange-200 text-orange-800",
   ];
   const charCodeSum = name
     .split("")
@@ -50,12 +74,51 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
+type CommentAvatarProps = {
+  name: string;
+  imageUrl: string | null;
+  size?: "default" | "sm";
+};
+
+function CommentAvatar({
+  name,
+  imageUrl,
+  size = "default",
+}: CommentAvatarProps) {
+  const isSmall = size === "sm";
+
+  return (
+    <Avatar
+      size={isSmall ? "sm" : "default"}
+      className={cn(
+        "rounded-full border-2 border-foreground shadow-[1px_1px_0px_0px_var(--foreground)]",
+        isSmall ? "size-7" : "size-8",
+      )}
+    >
+      {imageUrl ? (
+        <AvatarImage src={imageUrl} alt={name} className="rounded-full" />
+      ) : null}
+      <AvatarFallback
+        className={cn(
+          "rounded-full border-0 font-black text-foreground",
+          getAvatarColor(name),
+          isSmall ? "text-[10px]" : "text-xs",
+        )}
+      >
+        {getInitials(name)}
+      </AvatarFallback>
+    </Avatar>
+  );
+}
+
 type CommentComposerProps = {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
   onCancel: () => void;
   isPending: boolean;
+  authorName: string;
+  authorImageUrl: string | null;
   placeholder?: string;
   submitLabel?: string;
   autoFocus?: boolean;
@@ -67,6 +130,8 @@ function CommentComposer({
   onSubmit,
   onCancel,
   isPending,
+  authorName,
+  authorImageUrl,
   placeholder = COURSE_PAGE.videoCommentsPlaceholder,
   submitLabel = "Comentar",
   autoFocus = false,
@@ -81,9 +146,7 @@ function CommentComposer({
 
   return (
     <form onSubmit={handleSubmit} className="flex gap-3 items-start">
-      <div className="size-8 rounded-full border-2 border-foreground bg-primary text-primary-foreground flex items-center justify-center font-black text-xs select-none shadow-[1px_1px_0px_0px_var(--foreground)] shrink-0">
-        T
-      </div>
+      <CommentAvatar name={authorName} imageUrl={authorImageUrl} />
       <div className="flex-1 space-y-2">
         <input
           type="text"
@@ -128,7 +191,8 @@ type CommentItemProps = {
   comment: CoursePageLessonComment;
   isReply?: boolean;
   canComment: boolean;
-  isDemo: boolean;
+  currentUserName: string;
+  currentUserImageUrl: string | null;
   replyingToId: string | null;
   onStartReply: (commentId: string) => void;
   onCancelReply: () => void;
@@ -136,13 +200,17 @@ type CommentItemProps = {
   onReplyDraftChange: (value: string) => void;
   onSubmitReply: (parentId: string) => void;
   isPending: boolean;
+  effectiveCurrentUserId: string | null;
+  onRequestDelete: (commentId: string) => void;
+  isDeletePending: boolean;
 };
 
 function CommentItem({
   comment,
   isReply = false,
   canComment,
-  isDemo,
+  currentUserName,
+  currentUserImageUrl,
   replyingToId,
   onStartReply,
   onCancelReply,
@@ -150,10 +218,14 @@ function CommentItem({
   onReplyDraftChange,
   onSubmitReply,
   isPending,
+  effectiveCurrentUserId,
+  onRequestDelete,
+  isDeletePending,
 }: CommentItemProps) {
-  const avatarColor = getAvatarColor(comment.authorName);
-  const initials = getInitials(comment.authorName);
   const isReplying = replyingToId === comment.id;
+  const canDelete =
+    effectiveCurrentUserId != null &&
+    comment.authorId === effectiveCurrentUserId;
 
   return (
     <li
@@ -163,15 +235,11 @@ function CommentItem({
           "border-b border-foreground/5 pb-4 last:border-b-0 last:pb-0",
       )}
     >
-      <div
-        className={cn(
-          "size-8 rounded-full border-2 border-foreground flex items-center justify-center font-black text-xs select-none shadow-[1px_1px_0px_0px_var(--foreground)] shrink-0",
-          avatarColor,
-          isReply && "size-7 text-[10px]",
-        )}
-      >
-        {initials}
-      </div>
+      <CommentAvatar
+        name={comment.authorName}
+        imageUrl={comment.authorImageUrl}
+        size={isReply ? "sm" : "default"}
+      />
       <div className="flex-1 space-y-1 min-w-0">
         <div className="flex flex-wrap items-baseline gap-x-2">
           <span className="text-xs font-black text-foreground">
@@ -184,16 +252,29 @@ function CommentItem({
         <p className="text-sm leading-relaxed text-foreground font-sans">
           {comment.body}
         </p>
-        {canComment && !isReply ? (
-          <div className="flex items-center pt-1.5">
-            <button
-              type="button"
-              onClick={() => onStartReply(comment.id)}
-              className="text-[10px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-            >
-              <IconCornerDownRight className="size-3" stroke={2.5} />
-              Responder
-            </button>
+        {(canComment && !isReply) || canDelete ? (
+          <div className="flex items-center gap-3 pt-1.5">
+            {canComment && !isReply ? (
+              <button
+                type="button"
+                onClick={() => onStartReply(comment.id)}
+                className="text-[10px] font-bold text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+              >
+                <IconCornerDownRight className="size-3" stroke={2.5} />
+                Responder
+              </button>
+            ) : null}
+            {canDelete ? (
+              <button
+                type="button"
+                onClick={() => onRequestDelete(comment.id)}
+                disabled={isDeletePending}
+                className="text-[10px] font-bold text-muted-foreground hover:text-destructive flex items-center gap-1 transition-colors disabled:opacity-50"
+              >
+                <IconTrash className="size-3" stroke={2.5} />
+                {COURSE_PAGE.videoCommentDelete}
+              </button>
+            ) : null}
           </div>
         ) : null}
         {isReplying ? (
@@ -207,6 +288,8 @@ function CommentItem({
                 onReplyDraftChange("");
               }}
               isPending={isPending}
+              authorName={currentUserName}
+              authorImageUrl={currentUserImageUrl}
               placeholder="Escribe una respuesta…"
               submitLabel="Responder"
               autoFocus
@@ -221,7 +304,8 @@ function CommentItem({
                 comment={reply}
                 isReply
                 canComment={canComment}
-                isDemo={isDemo}
+                currentUserName={currentUserName}
+                currentUserImageUrl={currentUserImageUrl}
                 replyingToId={replyingToId}
                 onStartReply={onStartReply}
                 onCancelReply={onCancelReply}
@@ -229,6 +313,9 @@ function CommentItem({
                 onReplyDraftChange={onReplyDraftChange}
                 onSubmitReply={onSubmitReply}
                 isPending={isPending}
+                effectiveCurrentUserId={effectiveCurrentUserId}
+                onRequestDelete={onRequestDelete}
+                isDeletePending={isDeletePending}
               />
             ))}
           </ul>
@@ -238,18 +325,33 @@ function CommentItem({
   );
 }
 
+const commentDialogButtonClass =
+  "font-black text-xs border-2 border-foreground rounded-full shadow-[2px_2px_0px_0px_var(--foreground)] hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0px_0px_var(--foreground)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all";
+
 export function CourseLessonVideoComments({
   courseSlug,
   lessonId,
   comments: initialComments,
   canComment,
   isDemo = false,
+  currentUserId,
 }: CourseLessonVideoCommentsProps) {
+  const { user } = useUser();
   const [comments, setComments] =
     useState<CoursePageLessonComment[]>(initialComments);
   const [newComment, setNewComment] = useState("");
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
   const [replyDraft, setReplyDraft] = useState("");
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+
+  const currentUserName =
+    user?.fullName?.trim() ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
+    "Tú";
+  const currentUserImageUrl = user?.imageUrl ?? null;
+  const effectiveCurrentUserId = isDemo
+    ? DEMO_LESSON_COMMENT_AUTHOR_ID
+    : (currentUserId ?? null);
 
   const createMutation = useMutation({
     mutationFn: async (input: { body: string; parentId?: string }) => {
@@ -258,7 +360,9 @@ export function CourseLessonVideoComments({
           ok: true as const,
           comment: {
             id: `local-${Date.now()}`,
-            authorName: "Tú",
+            authorId: DEMO_LESSON_COMMENT_AUTHOR_ID,
+            authorName: currentUserName,
+            authorImageUrl: currentUserImageUrl,
             body: input.body,
             createdAt: new Date().toISOString(),
             parentId: input.parentId ?? null,
@@ -298,6 +402,42 @@ export function CourseLessonVideoComments({
       sonnerToast.error("No se pudo publicar. Intenta de nuevo.");
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (discussionId: string) => {
+      if (isDemo) {
+        return { ok: true as const };
+      }
+
+      return deleteLessonDiscussion({
+        courseSlug,
+        lessonId,
+        discussionId,
+      });
+    },
+    onSuccess: (result, discussionId) => {
+      if (!result.ok) {
+        sonnerToast.error(result.error);
+        return;
+      }
+
+      setComments((prev) => removeCommentFromTree(prev, discussionId));
+      if (replyingToId === discussionId) {
+        setReplyingToId(null);
+        setReplyDraft("");
+      }
+      setDeleteTargetId(null);
+      sonnerToast.success(COURSE_PAGE.videoCommentDeleted);
+    },
+    onError: () => {
+      sonnerToast.error("No se pudo eliminar. Intenta de nuevo.");
+    },
+  });
+
+  const confirmDelete = () => {
+    if (!deleteTargetId || deleteMutation.isPending) return;
+    deleteMutation.mutate(deleteTargetId);
+  };
 
   const totalCount = countLessonComments(comments);
 
@@ -339,6 +479,8 @@ export function CourseLessonVideoComments({
             onSubmit={() => submitComment(newComment)}
             onCancel={() => setNewComment("")}
             isPending={createMutation.isPending}
+            authorName={currentUserName}
+            authorImageUrl={currentUserImageUrl}
           />
         ) : null}
 
@@ -349,7 +491,8 @@ export function CourseLessonVideoComments({
                 key={comment.id}
                 comment={comment}
                 canComment={canComment}
-                isDemo={isDemo}
+                currentUserName={currentUserName}
+                currentUserImageUrl={currentUserImageUrl}
                 replyingToId={replyingToId}
                 onStartReply={setReplyingToId}
                 onCancelReply={() => setReplyingToId(null)}
@@ -359,6 +502,9 @@ export function CourseLessonVideoComments({
                   submitComment(replyDraft, parentId)
                 }
                 isPending={createMutation.isPending}
+                effectiveCurrentUserId={effectiveCurrentUserId}
+                onRequestDelete={setDeleteTargetId}
+                isDeletePending={deleteMutation.isPending}
               />
             ))}
           </ul>
@@ -368,6 +514,43 @@ export function CourseLessonVideoComments({
           </p>
         )}
       </div>
+
+      <AlertDialog
+        open={deleteTargetId !== null}
+        onOpenChange={(open) => !open && setDeleteTargetId(null)}
+      >
+        <AlertDialogContent className="border-2 border-foreground shadow-[4px_4px_0px_0px_var(--foreground)] rounded-xl sm:max-w-md">
+          <AlertDialogHeader className="text-left">
+            <AlertDialogTitle className="font-extrabold text-foreground">
+              {COURSE_PAGE.videoCommentDeleteTitle}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {COURSE_PAGE.videoCommentDeleteDescription}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className={commentDialogButtonClass}
+              disabled={deleteMutation.isPending}
+            >
+              {COURSE_PAGE.videoCommentDeleteCancel}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              className={cn(commentDialogButtonClass)}
+              disabled={deleteMutation.isPending}
+              onClick={(event) => {
+                event.preventDefault();
+                confirmDelete();
+              }}
+            >
+              {deleteMutation.isPending
+                ? "Eliminando…"
+                : COURSE_PAGE.videoCommentDeleteConfirm}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }

@@ -59,14 +59,18 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
     comments: [
       {
         id: "demo-comment-welcome-1",
+        authorId: "demo-seed",
         authorName: "María G.",
+        authorImageUrl: null,
         body: "¿Conviene ver todo el curso antes de aplicar o ir módulo por módulo?",
         createdAt: "2026-05-27T14:20:00.000Z",
         parentId: null,
         replies: [
           {
             id: "demo-comment-welcome-1-reply",
+            authorId: "demo-seed",
             authorName: "Diego R.",
+            authorImageUrl: null,
             body: "Yo fui módulo por módulo y apliqué en paralelo.",
             createdAt: "2026-05-27T15:00:00.000Z",
             parentId: "demo-comment-welcome-1",
@@ -76,7 +80,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
       },
       {
         id: "demo-comment-welcome-2",
+        authorId: "demo-seed",
         authorName: "Diego R.",
+        authorImageUrl: null,
         body: "Me ayudó entender que no es solo perfil: también jobs y propuestas.",
         createdAt: "2026-05-26T09:10:00.000Z",
         parentId: null,
@@ -101,7 +107,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
     comments: [
       {
         id: "demo-comment-profile-1",
+        authorId: "demo-seed",
         authorName: "Ana L.",
+        authorImageUrl: null,
         body: "¿El título en inglés o español si busco clientes de EE.UU.?",
         createdAt: "2026-05-28T11:45:00.000Z",
         parentId: null,
@@ -109,7 +117,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
       },
       {
         id: "demo-comment-profile-2",
+        authorId: "demo-seed",
         authorName: "Carlos M.",
+        authorImageUrl: null,
         body: "Revisé mi overview con el checklist y ya se lee más claro.",
         createdAt: "2026-05-25T16:30:00.000Z",
         parentId: null,
@@ -134,7 +144,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
     comments: [
       {
         id: "demo-comment-jobs-1",
+        authorId: "demo-seed",
         authorName: "Lucía P.",
+        authorImageUrl: null,
         body: "La regla de los 5 minutos para la apertura me ahorró varias aplicaciones malas.",
         createdAt: "2026-05-27T08:00:00.000Z",
         parentId: null,
@@ -142,7 +154,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
       },
       {
         id: "demo-comment-jobs-2",
+        authorId: "demo-seed",
         authorName: "Tomás V.",
+        authorImageUrl: null,
         body: "¿La matriz sirve también para trabajos por hora de largo plazo?",
         createdAt: "2026-05-24T19:15:00.000Z",
         parentId: null,
@@ -167,7 +181,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
     comments: [
       {
         id: "demo-comment-proposal-1",
+        authorId: "demo-seed",
         authorName: "Sofía N.",
+        authorImageUrl: null,
         body: "¿El bloque de evidencia puede ser un enlace al portfolio aunque no sea el mismo nicho?",
         createdAt: "2026-05-28T13:20:00.000Z",
         parentId: null,
@@ -175,7 +191,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
       },
       {
         id: "demo-comment-proposal-2",
+        authorId: "demo-seed",
         authorName: "Javier H.",
+        authorImageUrl: null,
         body: "Probé la estructura de 5 bloques y tuve dos respuestas en la misma semana.",
         createdAt: "2026-05-23T10:05:00.000Z",
         parentId: null,
@@ -183,7 +201,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
       },
       {
         id: "demo-comment-proposal-3",
+        authorId: "demo-seed",
         authorName: "Paula S.",
+        authorImageUrl: null,
         body: "¿Conviene adjuntar un Loom en la primera propuesta o esperar a que respondan?",
         createdAt: "2026-05-22T17:40:00.000Z",
         parentId: null,
@@ -208,7 +228,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
     comments: [
       {
         id: "demo-comment-interview-1",
+        authorId: "demo-seed",
         authorName: "Renata C.",
+        authorImageUrl: null,
         body: "¿Grabar la llamada está bien o suena poco profesional?",
         createdAt: "2026-05-27T15:55:00.000Z",
         parentId: null,
@@ -216,7 +238,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
       },
       {
         id: "demo-comment-interview-2",
+        authorId: "demo-seed",
         authorName: "Mateo F.",
+        authorImageUrl: null,
         body: "El cierre por escrito después de la call me salvó un malentendido de alcance.",
         createdAt: "2026-05-26T12:00:00.000Z",
         parentId: null,
@@ -241,7 +265,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
     comments: [
       {
         id: "demo-comment-onboarding-1",
+        authorId: "demo-seed",
         authorName: "Valentina T.",
+        authorImageUrl: null,
         body: "¿El mismo mensaje sirve para fixed price y por hora?",
         createdAt: "2026-05-28T09:30:00.000Z",
         parentId: null,
@@ -249,7 +275,9 @@ const DEMO_VIDEO_ENGAGEMENT: Record<
       },
       {
         id: "demo-comment-onboarding-2",
+        authorId: "demo-seed",
         authorName: "Andrés K.",
+        authorImageUrl: null,
         body: "Implementé el check-in semanal y el cliente renovó el segundo mes.",
         createdAt: "2026-05-25T20:10:00.000Z",
         parentId: null,
@@ -288,6 +316,7 @@ function makeVideoLesson(input: {
     quiz: null,
     isAccessible: true,
     isCompleted: false,
+    isBookmarked: false,
     videoAiInsight: engagement.videoAiInsight,
     comments: engagement.comments,
     videoPublishedAt: "2026-05-20T12:00:00.000Z",
@@ -321,6 +350,7 @@ function makeTextLesson(input: {
     quiz: null,
     isAccessible: true,
     isCompleted: false,
+    isBookmarked: false,
     videoAiInsight: null,
     comments: [],
   };
@@ -351,6 +381,7 @@ function makeDownloadLesson(input: {
     quiz: null,
     isAccessible: true,
     isCompleted: false,
+    isBookmarked: false,
     videoAiInsight: null,
     comments: [],
   };
@@ -387,6 +418,7 @@ function makeQuizLesson(input: {
     quiz: input.quiz,
     isAccessible: true,
     isCompleted: false,
+    isBookmarked: false,
     videoAiInsight: null,
     comments: [],
   };
@@ -1051,6 +1083,7 @@ Escribe una propuesta de retainer para un cliente hipotético. Debe incluir entr
   const sequentialModules = applySequentialLessonAccess(modules, {
     hasFullAccess: true,
     completedLessonIds,
+    bookmarkedLessonIds: new Set(),
     enforceSequential: true,
   });
 

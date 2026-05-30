@@ -189,6 +189,7 @@ model User {
 
   enrollments       Enrollment[]
   lessonProgress    LessonProgress[]
+  lessonBookmarks   LessonBookmark[]
   orders            Order[]
   subscriptions     Subscription[]
   quizAttempts      QuizAttempt[]
@@ -375,6 +376,7 @@ model Lesson {
 
   module      CourseModule       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress    LessonProgress[]
+  bookmarks   LessonBookmark[]
   quiz        Quiz?
   assets      LessonAsset[]
   discussions CourseDiscussion[]
@@ -429,6 +431,21 @@ model LessonProgress {
   @@index([userId])
   @@index([lessonId])
   @@index([completed])
+}
+
+model LessonBookmark {
+  id       String @id @default(uuid()) @db.Uuid
+  userId   String @db.Uuid
+  lessonId String @db.Uuid
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
 }
 
 model Product {

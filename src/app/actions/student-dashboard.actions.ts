@@ -40,6 +40,13 @@ export type StudentDashboardData = {
     courseTitle: string;
     courseSlug: string;
   }>;
+  bookmarkedLessons: Array<{
+    lessonId: string;
+    lessonTitle: string;
+    lessonSlug: string;
+    courseTitle: string;
+    courseSlug: string;
+  }>;
 };
 
 export async function getStudentDashboardData(): Promise<StudentDashboardData> {
@@ -254,6 +261,44 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     }
   }
 
+  const bookmarkedLessonsRaw = await prisma.lessonBookmark.findMany({
+    where: {
+      userId: student.id,
+      lesson: {
+        module: {
+          course: {
+            status: CourseStatus.PUBLISHED,
+            enrollments: { some: activeEnrollmentFilter },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 8,
+    select: {
+      lesson: {
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          module: {
+            select: {
+              course: { select: { slug: true, title: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const bookmarkedLessons = bookmarkedLessonsRaw.map((bookmark) => ({
+    lessonId: bookmark.lesson.id,
+    lessonTitle: bookmark.lesson.title,
+    lessonSlug: bookmark.lesson.slug,
+    courseTitle: bookmark.lesson.module.course.title,
+    courseSlug: bookmark.lesson.module.course.slug,
+  }));
+
   return {
     user: userData,
     stats: {
@@ -264,5 +309,6 @@ export async function getStudentDashboardData(): Promise<StudentDashboardData> {
     continueLearning,
     enrolledCourses,
     certificates,
+    bookmarkedLessons,
   };
 }
