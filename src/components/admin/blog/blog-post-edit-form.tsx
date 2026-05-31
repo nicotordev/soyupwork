@@ -11,9 +11,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   ADMIN_BLOG_STATUS_FILTER_OPTIONS,
+  BLOG_CONTENT_FORMAT,
+  BLOG_POST_STATUS,
   BLOG_POST_STATUS_LABELS,
 } from "@/constants/blog.constants";
-import { BlogContentFormat, BlogPostStatus } from "@/generated/prisma/client";
+import type {
+  BlogContentFormatValue,
+  BlogPostStatusValue,
+} from "@/constants/blog.constants";
 import {
   adminInputClass,
   adminPanelClass,
@@ -53,11 +58,13 @@ export function BlogPostEditForm({
   const [subtitle, setSubtitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
-  const [contentFormat, setContentFormat] = useState<BlogContentFormat>(
-    BlogContentFormat.MARKDOWN,
+  const [contentFormat, setContentFormat] = useState<BlogContentFormatValue>(
+    BLOG_CONTENT_FORMAT.MARKDOWN,
   );
   const [coverImageUrl, setCoverImageUrl] = useState("");
-  const [status, setStatus] = useState<BlogPostStatus>(BlogPostStatus.DRAFT);
+  const [status, setStatus] = useState<BlogPostStatusValue>(
+    BLOG_POST_STATUS.DRAFT,
+  );
   const [isFeatured, setIsFeatured] = useState(false);
   const [categoryId, setCategoryId] = useState("");
   const [tagSlugs, setTagSlugs] = useState("");
@@ -95,7 +102,7 @@ export function BlogPostEditForm({
       setSeoTitle(post.seoTitle ?? "");
       setSeoDescription(post.seoDescription ?? "");
       setSeoKeywords(post.seoKeywords.join(", "));
-      if (post.status === BlogPostStatus.PUBLISHED) {
+      if (post.status === BLOG_POST_STATUS.PUBLISHED) {
         setPublishedSlug(post.slug);
       }
     });
@@ -149,7 +156,7 @@ export function BlogPostEditForm({
 
       toast.success("Artículo guardado");
       router.refresh();
-      if (status === BlogPostStatus.PUBLISHED) {
+      if (status === BLOG_POST_STATUS.PUBLISHED) {
         setPublishedSlug(slug);
       }
     });
@@ -211,12 +218,14 @@ export function BlogPostEditForm({
               <select
                 id="blog-status"
                 value={status}
-                onChange={(e) => setStatus(e.target.value as BlogPostStatus)}
+                onChange={(e) =>
+                  setStatus(e.target.value as BlogPostStatusValue)
+                }
                 className={cn(adminInputClass, "h-9 w-full")}
               >
                 {STATUS_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
-                    {BLOG_POST_STATUS_LABELS[opt.value as BlogPostStatus]}
+                    {BLOG_POST_STATUS_LABELS[opt.value as BlogPostStatusValue]}
                   </option>
                 ))}
               </select>

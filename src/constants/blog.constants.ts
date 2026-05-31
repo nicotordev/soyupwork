@@ -1,8 +1,24 @@
 import { BLOG_INDEX_PATH } from "@/lib/seo/blog-paths";
 import { buildLegalMetadata } from "@/lib/legal/build-legal-metadata";
-import type { BlogPostStatus } from "@/generated/prisma/client";
 
 export { BLOG_INDEX_PATH };
+
+export const BLOG_POST_STATUS = {
+  DRAFT: "DRAFT",
+  PUBLISHED: "PUBLISHED",
+  ARCHIVED: "ARCHIVED",
+} as const;
+
+export type BlogPostStatusValue =
+  (typeof BLOG_POST_STATUS)[keyof typeof BLOG_POST_STATUS];
+
+export const BLOG_CONTENT_FORMAT = {
+  MARKDOWN: "MARKDOWN",
+  HTML: "HTML",
+} as const;
+
+export type BlogContentFormatValue =
+  (typeof BLOG_CONTENT_FORMAT)[keyof typeof BLOG_CONTENT_FORMAT];
 
 export const BLOG_DEFAULT_PAGE = 1;
 export const BLOG_DEFAULT_PAGE_SIZE = 12;
@@ -14,7 +30,7 @@ export const ADMIN_BLOG_MAX_PAGE_SIZE = 50;
 export const ADMIN_BLOG_PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 export const ADMIN_BLOG_FILTER_ALL = "all" as const;
 
-export const BLOG_POST_STATUS_LABELS: Record<BlogPostStatus, string> = {
+export const BLOG_POST_STATUS_LABELS: Record<BlogPostStatusValue, string> = {
   DRAFT: "Borrador",
   PUBLISHED: "Publicado",
   ARCHIVED: "Archivado",
@@ -22,9 +38,12 @@ export const BLOG_POST_STATUS_LABELS: Record<BlogPostStatus, string> = {
 
 export const ADMIN_BLOG_STATUS_FILTER_OPTIONS = [
   { value: ADMIN_BLOG_FILTER_ALL, label: "Todos los estados" },
-  { value: "DRAFT", label: BLOG_POST_STATUS_LABELS.DRAFT },
-  { value: "PUBLISHED", label: BLOG_POST_STATUS_LABELS.PUBLISHED },
-  { value: "ARCHIVED", label: BLOG_POST_STATUS_LABELS.ARCHIVED },
+  { value: BLOG_POST_STATUS.DRAFT, label: BLOG_POST_STATUS_LABELS.DRAFT },
+  {
+    value: BLOG_POST_STATUS.PUBLISHED,
+    label: BLOG_POST_STATUS_LABELS.PUBLISHED,
+  },
+  { value: BLOG_POST_STATUS.ARCHIVED, label: BLOG_POST_STATUS_LABELS.ARCHIVED },
 ] as const;
 
 export const ADMIN_BLOG_PAGE = {

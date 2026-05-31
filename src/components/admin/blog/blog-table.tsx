@@ -4,10 +4,14 @@ import { deleteBlogPost } from "@/app/actions/blog.actions";
 import { AdminListingPanel } from "@/components/admin/listing/admin-listing-panel";
 import { AdminTableActions } from "@/components/admin/listing/admin-table-actions";
 import { Badge } from "@/components/ui/badge";
-import { BLOG_POST_STATUS_LABELS } from "@/constants/blog.constants";
+import {
+  ADMIN_BLOG_PAGE,
+  BLOG_POST_STATUS,
+  BLOG_POST_STATUS_LABELS,
+} from "@/constants/blog.constants";
+import type { BlogPostStatusValue } from "@/constants/blog.constants";
 import { blogPostPath } from "@/lib/seo/blog-paths";
 import type { AdminBlogPostRow } from "@/types/blog.types";
-import { BlogPostStatus } from "@/generated/prisma/client";
 import { ExternalLink, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,10 +35,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ADMIN_BLOG_PAGE } from "@/constants/blog.constants";
 
 const statusVariant: Record<
-  BlogPostStatus,
+  BlogPostStatusValue,
   "default" | "secondary" | "outline"
 > = {
   PUBLISHED: "default",
@@ -129,7 +132,7 @@ export function BlogTable({ posts }: BlogTableProps) {
                         icon: <Pencil className="size-4" />,
                         href: `/admin/blog/${post.id}`,
                       },
-                      ...(post.status === BlogPostStatus.PUBLISHED
+                      ...(post.status === BLOG_POST_STATUS.PUBLISHED
                         ? [
                             {
                               id: "view",

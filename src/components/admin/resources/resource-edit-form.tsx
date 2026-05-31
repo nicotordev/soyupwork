@@ -9,17 +9,29 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  ADMIN_RESOURCES_AVAILABILITY_OPTIONS,
   ADMIN_RESOURCES_PAGE,
   ADMIN_RESOURCES_STATUS_FILTER_OPTIONS,
+  RESOURCE_AVAILABILITY,
   RESOURCE_AVAILABILITY_LABELS,
+  RESOURCE_KIND,
+  RESOURCE_STATUS,
+  resourceKindValueToAdminParam,
 } from "@/constants/resources-admin.constants";
-import {
-  ResourceAvailability,
-  ResourceKind,
-  ResourceStatus,
-} from "@/generated/prisma/client";
+import type {
+  ResourceAvailabilityValue,
+  ResourceKindValue,
+  ResourceStatusValue,
+} from "@/constants/resources-admin.constants";
 import {
   adminInputClass,
   adminPanelClass,
@@ -30,7 +42,6 @@ import { guidePath, templatePath } from "@/lib/resources/paths";
 import { toSlug } from "@/lib/slug";
 import { cn } from "@/lib/utils";
 import type { AdminResourceCategoryOption } from "@/types/resources-admin.types";
-import { resourceKindToAdminKindParam } from "@/lib/admin/resources";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -41,11 +52,7 @@ const STATUS_OPTIONS = ADMIN_RESOURCES_STATUS_FILTER_OPTIONS.filter(
   (o) => o.value !== "all",
 );
 
-const AVAILABILITY_OPTIONS = [
-  ResourceAvailability.AVAILABLE,
-  ResourceAvailability.COMING_SOON,
-  ResourceAvailability.COURSE,
-] as const;
+const AVAILABILITY_OPTIONS = ADMIN_RESOURCES_AVAILABILITY_OPTIONS;
 
 type ResourceEditFormProps = {
   resourceId: string;
@@ -57,14 +64,16 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
   const [isLoading, setIsLoading] = useState(true);
   const slugManual = useRef(false);
 
-  const [kind, setKind] = useState<ResourceKind>(ResourceKind.GUIDE);
+  const [kind, setKind] = useState<ResourceKindValue>(RESOURCE_KIND.GUIDE);
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
-  const [status, setStatus] = useState<ResourceStatus>(ResourceStatus.DRAFT);
-  const [availability, setAvailability] = useState<ResourceAvailability>(
-    ResourceAvailability.AVAILABLE,
+  const [status, setStatus] = useState<ResourceStatusValue>(
+    RESOURCE_STATUS.DRAFT,
+  );
+  const [availability, setAvailability] = useState<ResourceAvailabilityValue>(
+    RESOURCE_AVAILABILITY.AVAILABLE,
   );
   const [isFeatured, setIsFeatured] = useState(false);
   const [categoryId, setCategoryId] = useState("");
@@ -77,8 +86,8 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
   const [templateSectionsJson, setTemplateSectionsJson] = useState("[]");
   const [templateIncludes, setTemplateIncludes] = useState("");
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
-  const [publishedKind, setPublishedKind] = useState<ResourceKind>(
-    ResourceKind.GUIDE,
+  const [publishedKind, setPublishedKind] = useState<ResourceKindValue>(
+    RESOURCE_KIND.GUIDE,
   );
   const [categories, setCategories] = useState<AdminResourceCategoryOption[]>(
     [],
@@ -118,13 +127,13 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
         JSON.stringify(resource.templateSections, null, 2),
       );
       setTemplateIncludes(resource.templateIncludes.join("\n"));
-      if (resource.status === ResourceStatus.PUBLISHED) {
+      if (resource.status === RESOURCE_STATUS.PUBLISHED) {
         setPublishedSlug(resource.slug);
         setPublishedKind(resource.kind);
       }
 
       void getAdminResourceCategories(
-        resourceKindToAdminKindParam(resource.kind),
+        resourceKindValueToAdminParam(resource.kind),
       ).then((nextCategories) => {
         if (!cancelled) setCategories(nextCategories);
       });
@@ -146,7 +155,7 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
     event.preventDefault();
 
     let templateSections: { title: string; body: string }[] = [];
-    if (kind === ResourceKind.TEMPLATE) {
+    if (kind === RESOURCE_KIND.TEMPLATE) {
       try {
         const parsed = JSON.parse(templateSectionsJson) as unknown;
         if (!Array.isArray(parsed)) {
@@ -178,7 +187,7 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
         categoryId: categoryId || null,
         relatedHref: relatedHref || null,
         relatedLabel: relatedLabel || null,
-        content: kind === ResourceKind.GUIDE ? content : null,
+        content: kind === RESOURCE_KIND.GUIDE ? content : null,
         templateSections,
         templateIncludes: templateIncludes
           .split("\n")
@@ -197,7 +206,7 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
 
       toast.success("Recurso guardado");
       router.refresh();
-      if (status === ResourceStatus.PUBLISHED) {
+      if (status === RESOURCE_STATUS.PUBLISHED) {
         setPublishedSlug(slug);
         setPublishedKind(kind);
       }
@@ -205,16 +214,19 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
   };
 
   const publicHref =
-    publishedSlug && status === ResourceStatus.PUBLISHED
-      ? publishedKind === ResourceKind.GUIDE
+    publishedSlug && status === RESOURCE_STATUS.PUBLISHED
+      ? publishedKind === RESOURCE_KIND.GUIDE
         ? guidePath(publishedSlug)
         : templatePath(publishedSlug)
       : null;
 
   const pageLabel =
-    kind === ResourceKind.GUIDE
+    kind === RESOURCE_KIND.GUIDE
       ? ADMIN_RESOURCES_PAGE.editGuideLabel
       : ADMIN_RESOURCES_PAGE.editTemplateLabel;
+
+  // For SelectItem value of "no-category", used to represent no category.
+  const NO_CATEGORY_VALUE = "__no_category__";
 
   if (isLoading) {
     return (
@@ -273,51 +285,72 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="resource-status">Estado</Label>
-              <select
-                id="resource-status"
+              <Select
                 value={status}
-                onChange={(e) => setStatus(e.target.value as ResourceStatus)}
-                className={cn(adminInputClass, "h-9 w-full")}
+                onValueChange={(value) =>
+                  setStatus(value as ResourceStatusValue)
+                }
               >
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger
+                  id="resource-status"
+                  className={cn(adminInputClass, "h-9 w-full")}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="resource-availability">Disponibilidad</Label>
-              <select
-                id="resource-availability"
+              <Select
                 value={availability}
-                onChange={(e) =>
-                  setAvailability(e.target.value as ResourceAvailability)
+                onValueChange={(value) =>
+                  setAvailability(value as ResourceAvailabilityValue)
                 }
-                className={cn(adminInputClass, "h-9 w-full")}
               >
-                {AVAILABILITY_OPTIONS.map((value) => (
-                  <option key={value} value={value}>
-                    {RESOURCE_AVAILABILITY_LABELS[value]}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger
+                  id="resource-availability"
+                  className={cn(adminInputClass, "h-9 w-full")}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {AVAILABILITY_OPTIONS.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {RESOURCE_AVAILABILITY_LABELS[value]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="resource-category">Categoría</Label>
-              <select
-                id="resource-category"
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className={cn(adminInputClass, "h-9 w-full")}
+              <Select
+                // Use placeholder clearing behavior by interpreting NO_CATEGORY_VALUE as ""
+                value={categoryId === "" ? NO_CATEGORY_VALUE : categoryId}
+                onValueChange={(v) => setCategoryId(v === NO_CATEGORY_VALUE ? "" : v)}
               >
-                <option value="">Sin categoría</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger
+                  id="resource-category"
+                  className={cn(adminInputClass, "h-9 w-full")}
+                >
+                  <SelectValue placeholder="Sin categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_CATEGORY_VALUE}>Sin categoría</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="resource-subtitle">Subtítulo</Label>
@@ -339,7 +372,7 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
                 required
               />
             </div>
-            {kind === ResourceKind.GUIDE ? (
+            {kind === RESOURCE_KIND.GUIDE ? (
               <div className="space-y-2">
                 <Label htmlFor="resource-reading-time">
                   Minutos de lectura
@@ -385,7 +418,7 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
               />
               <Label htmlFor="resource-featured">Destacado en índice</Label>
             </div>
-            {availability === ResourceAvailability.COURSE ? (
+            {availability === RESOURCE_AVAILABILITY.COURSE ? (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="resource-related-href">
@@ -419,13 +452,13 @@ export function ResourceEditForm({ resourceId }: ResourceEditFormProps) {
       <section className={adminPanelClass}>
         <div className={adminPanelHeaderClass}>
           <h2 className={adminPanelTitleClass}>
-            {kind === ResourceKind.GUIDE
+            {kind === RESOURCE_KIND.GUIDE
               ? "Contenido (Markdown)"
               : "Preview de plantilla"}
           </h2>
         </div>
         <div className="space-y-4 p-4">
-          {kind === ResourceKind.GUIDE ? (
+          {kind === RESOURCE_KIND.GUIDE ? (
             <Textarea
               id="resource-content"
               value={content}

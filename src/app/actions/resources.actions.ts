@@ -1,9 +1,6 @@
 "use server";
 
-import {
-  ADMIN_RESOURCES_FILTER_ALL,
-  ADMIN_RESOURCES_KIND_GUIDE,
-} from "@/constants/resources-admin.constants";
+import { ADMIN_RESOURCES_FILTER_ALL } from "@/constants/resources-admin.constants";
 import {
   ResourceKind,
   ResourceStatus,
@@ -459,5 +456,3 @@ export async function deleteResource(
     return { ok: false, error: "No se pudo eliminar el recurso." };
   }
 }
-
-export { ADMIN_RESOURCES_KIND_GUIDE };

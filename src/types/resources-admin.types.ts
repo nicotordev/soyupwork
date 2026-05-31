@@ -1,8 +1,8 @@
 import type {
-  ResourceAvailability,
-  ResourceKind,
-  ResourceStatus,
-} from "@/generated/prisma/client";
+  ResourceAvailabilityValue,
+  ResourceKindValue,
+  ResourceStatusValue,
+} from "@/constants/resources-admin.constants";
 import type { AdminResourcesKindParam } from "@/constants/resources-admin.constants";
 
 export type AdminResourceCategoryOption = {
@@ -17,9 +17,9 @@ export type AdminResourceRow = {
   title: string;
   subtitle: string | null;
   excerpt: string;
-  kind: ResourceKind;
-  availability: ResourceAvailability;
-  status: ResourceStatus;
+  kind: ResourceKindValue;
+  availability: ResourceAvailabilityValue;
+  status: ResourceStatusValue;
   readingTimeMinutes: number | null;
   fileLabel: string | null;
   featured: boolean;
@@ -38,7 +38,7 @@ export type AdminResourceStats = {
 export type ParsedAdminResourcesParams = {
   q: string;
   kind: AdminResourcesKindParam;
-  status: ResourceStatus | "all";
+  status: ResourceStatusValue | "all";
   categorySlug: string;
   page: number;
   pageSize: number;

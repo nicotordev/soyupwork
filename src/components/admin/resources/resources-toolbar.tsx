@@ -1,23 +1,31 @@
 "use client";
 
 import {
+  AdminFilterField,
+  adminFilterSelectTriggerClass,
+} from "@/components/admin/listing/admin-filter-field";
+import { AdminToolbar } from "@/components/admin/listing/admin-toolbar";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   ADMIN_RESOURCES_FILTER_ALL,
   ADMIN_RESOURCES_KIND_TABS,
   ADMIN_RESOURCES_STATUS_FILTER_OPTIONS,
 } from "@/constants/resources-admin.constants";
-import {
-  adminBrutalButtonClass,
-  adminInputClass,
-  adminPanelClass,
-} from "@/lib/admin/styles";
-import { cn } from "@/lib/utils";
+import { useAdminListingParams } from "@/hooks/use-admin-listing-params";
+import type { AdminActiveFilter } from "@/types/admin-listing.types";
 import type {
   AdminResourceCategoryOption,
   AdminResourcesPagination,
   ParsedAdminResourcesParams,
 } from "@/types/resources-admin.types";
-import { useAdminListingParams } from "@/hooks/use-admin-listing-params";
-import { Search } from "lucide-react";
+import { useMemo } from "react";
 
 type ResourcesToolbarProps = {
   filters: ParsedAdminResourcesParams;
@@ -30,26 +38,83 @@ export function ResourcesToolbar({
   pagination,
   categories,
 }: ResourcesToolbarProps) {
-  const { localQuery, setLocalQuery, setParam, clearParams, replaceParams } =
-    useAdminListingParams();
+  const {
+    localQuery,
+    setLocalQuery,
+    viewMode,
+    setViewMode,
+    setParam,
+    clearParams,
+    replaceParams,
+    isPending,
+  } = useAdminListingParams();
 
-  const hasFilters =
+  const hasActiveFilters =
     filters.q.length > 0 ||
     filters.status !== ADMIN_RESOURCES_FILTER_ALL ||
     filters.categorySlug !== ADMIN_RESOURCES_FILTER_ALL;
 
+  const activeFiltersCount = [
+    filters.status !== ADMIN_RESOURCES_FILTER_ALL,
+    filters.categorySlug !== ADMIN_RESOURCES_FILTER_ALL,
+  ].filter(Boolean).length;
+
+  const statusLabel =
+    ADMIN_RESOURCES_STATUS_FILTER_OPTIONS.find(
+      (o) => o.value === filters.status,
+    )?.label ?? filters.status;
+
+  const categoryLabel =
+    categories.find((o) => o.slug === filters.categorySlug)?.name ??
+    filters.categorySlug;
+
+  const activeFilterBadges = useMemo((): AdminActiveFilter[] => {
+    const badges: AdminActiveFilter[] = [];
+
+    if (filters.status !== ADMIN_RESOURCES_FILTER_ALL) {
+      badges.push({
+        key: "status",
+        label: "Estado",
+        value: statusLabel,
+        onRemove: () => setParam("status", null, ADMIN_RESOURCES_FILTER_ALL),
+      });
+    }
+
+    if (filters.categorySlug !== ADMIN_RESOURCES_FILTER_ALL) {
+      badges.push({
+        key: "categoria",
+        label: "Categoría",
+        value: categoryLabel,
+        onRemove: () => setParam("categoria", null, ADMIN_RESOURCES_FILTER_ALL),
+      });
+    }
+
+    return badges;
+  }, [
+    filters.status,
+    filters.categorySlug,
+    statusLabel,
+    categoryLabel,
+    setParam,
+  ]);
+
+  const resultSummary =
+    pagination.totalCount === 1
+      ? "1 recurso encontrado"
+      : `${pagination.totalCount} recursos encontrados` +
+        (pagination.totalPages > 1
+          ? ` · página ${pagination.page} de ${pagination.totalPages}`
+          : "");
+
   return (
-    <div
-      className={cn(
-        adminPanelClass,
-        "flex flex-col gap-4 border-x-0 border-t-0 rounded-none p-4 sm:px-6",
-      )}
-    >
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-4">
+      {/* High-level Kind Selection Tabs */}
+      <div className="flex flex-wrap gap-2 px-4 sm:px-0">
         {ADMIN_RESOURCES_KIND_TABS.map((tab) => (
-          <button
+          <Button
             key={tab.value}
             type="button"
+            variant={filters.kind === tab.value ? "default" : "outline"}
             onClick={() => {
               replaceParams((params) => {
                 params.set("tipo", tab.value);
@@ -57,82 +122,78 @@ export function ResourcesToolbar({
                 params.delete("page");
               });
             }}
-            className={cn(
-              adminBrutalButtonClass,
-              "h-9 px-4 text-[10px] font-black uppercase",
-              filters.kind === tab.value
-                ? "bg-primary text-primary-foreground"
-                : "bg-background",
-            )}
+            className="h-9 px-4 font-mono text-[10px] font-black uppercase"
           >
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="relative min-w-0 flex-1 sm:max-w-xs">
-            <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="search"
-              value={localQuery}
-              onChange={(e) => setLocalQuery(e.target.value)}
-              placeholder="Buscar por título o slug…"
-              className={cn(adminInputClass, "h-9 w-full pl-9")}
-              aria-label="Buscar recursos"
-            />
-          </div>
+      {/* Main Admin Toolbar with Search, Popover Filters, Badges and View toggle */}
+      <AdminToolbar
+        isPending={isPending}
+        search={{
+          value: localQuery,
+          onChange: setLocalQuery,
+          placeholder: "Buscar por título o slug…",
+          ariaLabel: "Buscar recursos",
+        }}
+        filters={{
+          activeCount: activeFiltersCount,
+          hasActiveFilters,
+          onClear: () => clearParams(["q", "status", "categoria", "page"]),
+          title: "Filtros",
+          children: (
+            <>
+              <AdminFilterField label="Estado">
+                <Select
+                  value={filters.status}
+                  onValueChange={(value) =>
+                    setParam("status", value, ADMIN_RESOURCES_FILTER_ALL)
+                  }
+                >
+                  <SelectTrigger className={adminFilterSelectTriggerClass}>
+                    <SelectValue placeholder="Estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ADMIN_RESOURCES_STATUS_FILTER_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </AdminFilterField>
 
-          <select
-            value={filters.status}
-            onChange={(e) =>
-              setParam("status", e.target.value, ADMIN_RESOURCES_FILTER_ALL)
-            }
-            className={cn(adminInputClass, "h-9 min-w-[140px]")}
-            aria-label="Filtrar por estado"
-          >
-            {ADMIN_RESOURCES_STATUS_FILTER_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={filters.categorySlug}
-            onChange={(e) =>
-              setParam("categoria", e.target.value, ADMIN_RESOURCES_FILTER_ALL)
-            }
-            className={cn(adminInputClass, "h-9 min-w-[140px]")}
-            aria-label="Filtrar por categoría"
-          >
-            <option value={ADMIN_RESOURCES_FILTER_ALL}>
-              Todas las categorías
-            </option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.slug}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-
-          {hasFilters ? (
-            <button
-              type="button"
-              onClick={() => clearParams(["q", "status", "categoria", "page"])}
-              className={cn(adminBrutalButtonClass, "h-9 px-3 text-[10px]")}
-            >
-              Limpiar
-            </button>
-          ) : null}
-        </div>
-
-        <p className="font-mono text-[10px] font-bold uppercase text-muted-foreground">
-          {pagination.totalCount} recurso
-          {pagination.totalCount === 1 ? "" : "s"}
-        </p>
-      </div>
+              <AdminFilterField label="Categoría">
+                <Select
+                  value={filters.categorySlug}
+                  onValueChange={(value) =>
+                    setParam("categoria", value, ADMIN_RESOURCES_FILTER_ALL)
+                  }
+                >
+                  <SelectTrigger className={adminFilterSelectTriggerClass}>
+                    <SelectValue placeholder="Categoría" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={ADMIN_RESOURCES_FILTER_ALL}>
+                      Todas las categorías
+                    </SelectItem>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.slug}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </AdminFilterField>
+            </>
+          ),
+        }}
+        view={{ mode: viewMode, onChange: setViewMode }}
+        activeFilterBadges={activeFilterBadges}
+        resultSummary={resultSummary}
+      />
     </div>
   );
 }

@@ -13,10 +13,10 @@ import {
   adminPanelClass,
 } from "@/lib/admin/styles";
 import { cn } from "@/lib/utils";
-import { IconFileText, IconLayout, IconSearch } from "@tabler/icons-react";
+import { FileText, Search, LayoutGrid } from "lucide-react";
 import { useState } from "react";
 
-const HINT_ICONS = [IconFileText, IconLayout, IconSearch] as const;
+const HINT_ICONS = [FileText, LayoutGrid, Search] as const;
 
 type ResourcesEmptyStateProps = {
   kind: AdminResourcesKindParam;
@@ -40,15 +40,15 @@ export function ResourcesEmptyState({
     <div
       className={cn(
         adminPanelClass,
-        "relative mx-4 mb-6 overflow-hidden sm:mx-6",
+        "relative mx-4 mb-6 overflow-hidden sm:mx-6 mt-4",
       )}
     >
       <div className={adminGridBackgroundClass} />
-      <div className="relative z-10 flex flex-col items-center gap-6 px-6 py-14 text-center sm:py-16">
+      <div className="relative z-10 flex flex-col items-center gap-6 px-6 py-16 text-center">
         <span className="group flex size-16 items-center justify-center rounded-lg border-2 border-foreground bg-secondary shadow-[4px_4px_0px_0px_var(--foreground)] transition-all duration-300 hover:-translate-y-1 hover:rotate-3 hover:shadow-[6px_6px_0px_0px_var(--foreground)]">
-          <IconFileText
+          <FileText
             className="size-8 text-primary transition-transform duration-300 group-hover:scale-110"
-            stroke={2}
+            aria-hidden
           />
         </span>
 
@@ -65,20 +65,19 @@ export function ResourcesEmptyState({
         </div>
 
         {!hasFilters ? (
-          <ul className="grid w-full max-w-md gap-2 text-left sm:grid-cols-3">
+          <ul className="grid w-full max-w-md gap-3 text-left sm:grid-cols-3">
             {copy.hints.map((hint, index) => {
-              const Icon = HINT_ICONS[index] ?? IconFileText;
+              const Icon = HINT_ICONS[index] ?? FileText;
               return (
                 <li
                   key={hint}
-                  className="flex items-start gap-2 rounded-lg border-2 border-foreground/15 bg-card/80 px-3 py-2.5 shadow-[2px_2px_0px_0px_var(--foreground)]"
+                  className="flex items-start gap-2.5 rounded-lg border-2 border-foreground/15 bg-card/90 px-3.5 py-3 shadow-[2px_2px_0px_0px_var(--foreground)] transition-all hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_0px_var(--foreground)]"
                 >
                   <Icon
-                    className="mt-0.5 size-3.5 shrink-0 text-primary"
-                    stroke={2.5}
+                    className="mt-0.5 size-4 shrink-0 text-primary"
                     aria-hidden
                   />
-                  <span className="text-[11px] font-semibold leading-snug text-foreground/90">
+                  <span className="text-[11px] font-bold leading-snug text-foreground/90">
                     {hint}
                   </span>
                 </li>
@@ -87,38 +86,40 @@ export function ResourcesEmptyState({
           </ul>
         ) : null}
 
-        {createOpen ? (
-          <ResourceCreateDialog
-            kind={kind}
-            isOpen={createOpen}
-            onOpenChange={setCreateOpen}
-            hideTrigger
-            className="max-w-md text-left"
-          />
-        ) : hasFilters && onClearFilters ? (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClearFilters}
-            className={cn(
-              adminBrutalButtonClass,
-              "px-5 py-5 font-mono text-xs font-bold uppercase",
-            )}
-          >
-            {copy.clearFilters}
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            onClick={() => setCreateOpen(true)}
-            className={cn(
-              adminBrutalButtonClass,
-              "px-5 py-5 font-mono text-xs font-bold uppercase",
-            )}
-          >
-            {createCta}
-          </Button>
-        )}
+        <div className="flex justify-center gap-2">
+          {hasFilters && onClearFilters ? (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClearFilters}
+              className={cn(
+                adminBrutalButtonClass,
+                "h-10 px-5 font-mono text-xs font-bold uppercase",
+              )}
+            >
+              {copy.clearFilters}
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                onClick={() => setCreateOpen(true)}
+                className={cn(
+                  adminBrutalButtonClass,
+                  "h-10 px-5 font-mono text-xs font-bold uppercase",
+                )}
+              >
+                {createCta}
+              </Button>
+              <ResourceCreateDialog
+                kind={kind}
+                isOpen={createOpen}
+                onOpenChange={setCreateOpen}
+                hideTrigger
+              />
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
