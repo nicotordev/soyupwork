@@ -2,6 +2,7 @@ import "server-only";
 
 import { CourseStatus, BlogPostStatus } from "@/generated/prisma/client";
 import prisma from "@/lib/db/prisma";
+import { blogPostPath } from "@/lib/seo/blog-paths";
 import { mapSeoRecordToMetadata } from "@/lib/seo/map-seo-to-metadata";
 import type { ResolvedSeoMetadata } from "@/types/seo.types";
 
@@ -83,7 +84,7 @@ export async function getPublishedBlogPostSeoMetadata(
   return mapSeoRecordToMetadata(post.seoMetadata, {
     title: post.title,
     description: post.excerpt,
-    canonicalPath: `/blog/${blogSlug}`,
+    canonicalPath: blogPostPath(blogSlug),
     imageUrl: post.coverImageUrl,
     openGraphType: "article",
   });
