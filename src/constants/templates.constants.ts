@@ -28,8 +28,7 @@ export const TEMPLATES_PAGE: ResourcePageConfig = {
   },
   empty: {
     filteredTitle: "Sin plantillas con estos filtros",
-    filteredDescription:
-      "Probá otra categoría o volvé al catálogo completo.",
+    filteredDescription: "Probá otra categoría o volvé al catálogo completo.",
     filteredCta: "Ver todas las plantillas",
     emptyTitle: "Plantillas en camino",
     emptyDescription:

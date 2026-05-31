@@ -67,8 +67,7 @@ export function getResourceCatalogPageData(
   return {
     kind,
     items: filtered,
-    featuredItems:
-      !filters.q && featuredItems.length > 0 ? featuredItems : [],
+    featuredItems: !filters.q && featuredItems.length > 0 ? featuredItems : [],
     categories: [...categories],
     tags: collectTags(items),
     filters,

@@ -69,7 +69,11 @@ const TEMPLATE_DETAILS: Record<string, Omit<TemplateDetail, "item">> = {
         body: "Leave the door open without pressure; mention capacity if useful.",
       },
     ],
-    includes: ["3 emails cortos", "Versión para chat de Upwork", "Checklist anti-spam"],
+    includes: [
+      "3 emails cortos",
+      "Versión para chat de Upwork",
+      "Checklist anti-spam",
+    ],
   },
   "checklist-entrega-cliente": {
     sections: [
@@ -86,7 +90,11 @@ const TEMPLATE_DETAILS: Record<string, Omit<TemplateDetail, "item">> = {
         body: "Testimonial request, upsell only if natural, archive for portafolio.",
       },
     ],
-    includes: ["PDF imprimible", "Versión Notion", "Script de pedido de review"],
+    includes: [
+      "PDF imprimible",
+      "Versión Notion",
+      "Script de pedido de review",
+    ],
   },
   "rate-card-servicios": {
     sections: [

@@ -31,8 +31,7 @@ export function ResourceIndexContent({
     data.filters.q || data.filters.category || data.filters.tag,
   );
   const listItems = data.items.filter(
-    (item) =>
-      !data.featuredItems.some((f) => f.id === item.id) || hasFilters,
+    (item) => !data.featuredItems.some((f) => f.id === item.id) || hasFilters,
   );
 
   return (
@@ -43,8 +42,7 @@ export function ResourceIndexContent({
       <div
         className={cn(
           "mx-auto grid w-full max-w-6xl gap-8 px-4 pb-16 sm:px-6 lg:px-8",
-          data.categories.length > 0 &&
-            "lg:grid-cols-[minmax(0,16rem)_1fr]",
+          data.categories.length > 0 && "lg:grid-cols-[minmax(0,16rem)_1fr]",
         )}
       >
         {data.categories.length > 0 ? (
@@ -69,7 +67,10 @@ export function ResourceIndexContent({
                 <ResourceItemCard
                   key={item.id}
                   item={item}
-                  categoryName={categoryName(data.categories, item.categorySlug)}
+                  categoryName={categoryName(
+                    data.categories,
+                    item.categorySlug,
+                  )}
                   featured
                 />
               ))}

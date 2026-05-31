@@ -121,7 +121,9 @@ export function ResourceItemCard({
             </span>
           ) : null}
           <span className="text-primary">
-            {item.availability === "available" ? "Ver recurso →" : "Ver detalle →"}
+            {item.availability === "available"
+              ? "Ver recurso →"
+              : "Ver detalle →"}
           </span>
         </div>
       </div>

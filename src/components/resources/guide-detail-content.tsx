@@ -36,9 +36,7 @@ export function GuideDetailContent({ detail }: GuideDetailContentProps) {
 
         <header className="mb-8 space-y-4 border-b-2 border-foreground pb-8">
           <div className="flex flex-wrap gap-2">
-            {category ? (
-              <Badge variant="outline">{category.name}</Badge>
-            ) : null}
+            {category ? <Badge variant="outline">{category.name}</Badge> : null}
             {item.tags.map((tag) => (
               <Badge key={tag} variant="secondary" className="text-[10px]">
                 #{tag}

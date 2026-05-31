@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LegalMarketingShell } from "@/components/legal/legal-marketing-shell";
 import { GuideDetailContent } from "@/components/resources/guide-detail-content";
-import {
-  getGuideSlugs,
-  GUIDE_ITEMS,
-} from "@/constants/guides.constants";
+import { getGuideSlugs, GUIDE_ITEMS } from "@/constants/guides.constants";
 import { findResourceBySlug } from "@/lib/resources/get-resource-catalog";
 import { getGuideDetail } from "@/lib/resources/guide-content";
 import { guidePath } from "@/lib/resources/paths";
@@ -25,7 +22,10 @@ export async function generateMetadata({
   const { slug } = await params;
   const item = findResourceBySlug(GUIDE_ITEMS, slug);
   if (!item) {
-    return { title: "Guía no encontrada", robots: { index: false, follow: false } };
+    return {
+      title: "Guía no encontrada",
+      robots: { index: false, follow: false },
+    };
   }
 
   return buildLegalMetadata({

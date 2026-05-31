@@ -8,7 +8,10 @@ type ResourceIndexEmptyProps = {
   hasFilters: boolean;
 };
 
-export function ResourceIndexEmpty({ page, hasFilters }: ResourceIndexEmptyProps) {
+export function ResourceIndexEmpty({
+  page,
+  hasFilters,
+}: ResourceIndexEmptyProps) {
   const Icon = hasFilters ? FilterX : FolderOpen;
   const copy = page.empty;
 

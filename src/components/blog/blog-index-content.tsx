@@ -39,13 +39,13 @@ export function BlogIndexContent({ data }: BlogIndexContentProps) {
       <BlogIndexHero />
       <ResourcesHubStrip current="blog" />
 
-      <div className={
-        cn(
+      <div
+        className={cn(
           "mx-auto grid w-full max-w-6xl gap-8 px-4 pb-16 sm:px-6 lg:px-8",
           data.categories.length > 0 && "lg:grid-cols-[minmax(0,16rem)_1fr]",
           data.categories.length === 0 && "lg:grid-cols-1",
-        )
-      }>
+        )}
+      >
         {data.categories.length > 0 && (
           <aside className="lg:sticky lg:top-24 lg:self-start">
             <BlogFilters

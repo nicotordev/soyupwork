@@ -5,7 +5,11 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: GUIDES_INDEX_PATH, label: "Guías", active: "guias" as const },
-  { href: TEMPLATES_INDEX_PATH, label: "Plantillas", active: "plantillas" as const },
+  {
+    href: TEMPLATES_INDEX_PATH,
+    label: "Plantillas",
+    active: "plantillas" as const,
+  },
   { href: BLOG_INDEX_PATH, label: "Blog", active: "blog" as const },
 ] as const;
 

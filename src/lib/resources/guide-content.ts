@@ -144,9 +144,7 @@ El perfil es landing page. Debe responder: qué problema resolvés, para quién 
 Claridad > perfección gramatical. El cliente compra seguridad de ejecución.`,
 };
 
-export function getGuideDetail(
-  item: ResourceCatalogItem,
-): GuideDetail | null {
+export function getGuideDetail(item: ResourceCatalogItem): GuideDetail | null {
   const content = GUIDE_CONTENT[item.slug];
   if (!content) return null;
   return { item, content };

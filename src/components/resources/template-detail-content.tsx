@@ -40,9 +40,7 @@ export function TemplateDetailContent({ detail }: TemplateDetailContentProps) {
 
         <header className="mb-8 space-y-4">
           <div className="flex flex-wrap gap-2">
-            {category ? (
-              <Badge variant="outline">{category.name}</Badge>
-            ) : null}
+            {category ? <Badge variant="outline">{category.name}</Badge> : null}
             {item.fileLabel ? (
               <Badge variant="secondary">{item.fileLabel}</Badge>
             ) : null}
