@@ -1,6 +1,7 @@
 import { BlogFilters } from "@/components/blog/blog-filters";
 import { BlogIndexEmpty } from "@/components/blog/blog-index-empty";
 import { BlogIndexHero } from "@/components/blog/blog-index-hero";
+import { ResourcesHubStrip } from "@/components/resources/resources-hub-strip";
 import { BlogPostCard } from "@/components/blog/blog-post-card";
 import { BLOG_INDEX_PATH } from "@/lib/seo/blog-paths";
 import type { BlogIndexPageData } from "@/types/blog.types";
@@ -36,6 +37,7 @@ export function BlogIndexContent({ data }: BlogIndexContentProps) {
   return (
     <div className="relative z-10">
       <BlogIndexHero />
+      <ResourcesHubStrip current="blog" />
 
       <div className={
         cn(

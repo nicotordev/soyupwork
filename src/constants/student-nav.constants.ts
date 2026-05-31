@@ -55,7 +55,7 @@ export const STUDENT_EXPLORE_NAV: StudentNavItem[] = [
   { label: "Catálogo", href: "/catalog", icon: IconCompass, match: "prefix" },
   {
     label: "Recursos",
-    href: "/recursos/guias",
+    href: "/resources/guias",
     icon: IconNotebook,
     match: "prefix",
   },

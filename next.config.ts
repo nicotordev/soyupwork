@@ -27,6 +27,40 @@ function buildImageRemotePatterns(): NonNullable<
 const nextConfig: NextConfig = {
   output: "standalone",
   reactCompiler: true,
+  async redirects() {
+    return [
+      {
+        source: "/recursos/guias",
+        destination: "/resources/guias",
+        permanent: true,
+      },
+      {
+        source: "/recursos/guias/:slug",
+        destination: "/resources/guias/:slug",
+        permanent: true,
+      },
+      {
+        source: "/recursos/plantillas",
+        destination: "/resources/plantillas",
+        permanent: true,
+      },
+      {
+        source: "/recursos/plantillas/:slug",
+        destination: "/resources/plantillas/:slug",
+        permanent: true,
+      },
+      {
+        source: "/recursos/blog",
+        destination: "/resources/blog",
+        permanent: true,
+      },
+      {
+        source: "/recursos/blog/:slug",
+        destination: "/resources/blog/:slug",
+        permanent: true,
+      },
+    ];
+  },
   serverExternalPackages: [
     "pino",
     "pino-pretty",
