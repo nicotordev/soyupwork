@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { unstable_cache } from "next/cache";
 import {
   BlogPostStatus,
   ResourceAvailability,
@@ -14,10 +15,11 @@ import {
 import { getAppOrigin } from "@/lib/seo/app-origin";
 import prisma from "@/lib/db/prisma";
 
-/** ISR cache for /sitemap.xml — refreshed on publish via revalidateSitemap(). */
+/** Data-cache TTL for sitemap DB queries — refreshed on publish via revalidateSitemap(). */
 export const SITEMAP_REVALIDATE_SECONDS = 3600;
+export const SITEMAP_CACHE_TAG = "sitemap";
 
-export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
+async function buildSitemapEntries(): Promise<MetadataRoute.Sitemap> {
   const origin = getAppOrigin();
 
   const [posts, guides, templates] = await Promise.all([
@@ -99,4 +101,17 @@ export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
     }));
 
   return [...staticRoutes, ...blogRoutes, ...guideRoutes, ...templateRoutes];
+}
+
+const getCachedSitemapEntries = unstable_cache(
+  buildSitemapEntries,
+  ["sitemap-entries"],
+  {
+    revalidate: SITEMAP_REVALIDATE_SECONDS,
+    tags: [SITEMAP_CACHE_TAG],
+  },
+);
+
+export async function getSitemapEntries(): Promise<MetadataRoute.Sitemap> {
+  return getCachedSitemapEntries();
 }
