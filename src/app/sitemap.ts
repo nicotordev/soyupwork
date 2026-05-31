@@ -1,8 +1,6 @@
-import {
-  getSitemapEntries,
-  SITEMAP_REVALIDATE_SECONDS,
-} from "@/lib/seo/get-sitemap-entries";
+import { getSitemapEntries } from "@/lib/seo/get-sitemap-entries";
 
-export const revalidate = SITEMAP_REVALIDATE_SECONDS;
+/** Must be a literal — Next.js analyzes segment config at build time. */
+export const revalidate = 3600;
 
 export default getSitemapEntries;
