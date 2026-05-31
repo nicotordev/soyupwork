@@ -198,30 +198,30 @@ model User {
   createdAt DateTime @default(now()) @db.Timestamp(6)
   updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  enrollments       Enrollment[]
-  lessonProgress    LessonProgress[]
-  lessonBookmarks   LessonBookmark[]
-  orders            Order[]
-  subscriptions     Subscription[]
-  quizAttempts      QuizAttempt[]
-  certificates      Certificate[]
-  instructedCourses Course[]           @relation("CourseInstructor")
-  courseReviews     CourseReview[]
-  blogPosts         BlogPost[]         @relation("BlogAuthor")
-  analyticsEvents   AnalyticsEvent[]
-  communityPosts    CommunityPost[]
-  communityComments CommunityComment[]
-  communityLikes    CommunityLike[]
-  userGamification  UserGamification?
-  userBadges        UserBadge[]
-  affiliate         Affiliate?
-  emailLogs         EmailLog[]
-  auditLogs         AuditLog[]         @relation("AuditActor")
-  waitlistInvitesSent     WaitlistInvite[] @relation("WaitlistInvitesSent")
-  waitlistInvitesAccepted WaitlistInvite[] @relation("WaitlistInvitesAccepted")
-  courseDiscussions CourseDiscussion[]
-  accounts          Account[]
-  sessions          Session[]
+  enrollments             Enrollment[]
+  lessonProgress          LessonProgress[]
+  lessonBookmarks         LessonBookmark[]
+  orders                  Order[]
+  subscriptions           Subscription[]
+  quizAttempts            QuizAttempt[]
+  certificates            Certificate[]
+  instructedCourses       Course[]           @relation("CourseInstructor")
+  courseReviews           CourseReview[]
+  blogPosts               BlogPost[]         @relation("BlogAuthor")
+  analyticsEvents         AnalyticsEvent[]
+  communityPosts          CommunityPost[]
+  communityComments       CommunityComment[]
+  communityLikes          CommunityLike[]
+  userGamification        UserGamification?
+  userBadges              UserBadge[]
+  affiliate               Affiliate?
+  emailLogs               EmailLog[]
+  auditLogs               AuditLog[]         @relation("AuditActor")
+  waitlistInvitesSent     WaitlistInvite[]   @relation("WaitlistInvitesSent")
+  waitlistInvitesAccepted WaitlistInvite[]   @relation("WaitlistInvitesAccepted")
+  courseDiscussions       CourseDiscussion[]
+  accounts                Account[]
+  sessions                Session[]
 
   @@index([deletedAt])
   @@index([role])
@@ -879,6 +879,103 @@ model SeoMetadata {
 
   @@index([courseId])
   @@index([blogPostId])
+}
+
+// --- Resources (guides & templates) ---
+
+enum ResourceKind {
+  GUIDE
+  TEMPLATE
+}
+
+enum ResourceAvailability {
+  AVAILABLE
+  COMING_SOON
+  COURSE
+}
+
+enum ResourceStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model ResourceCategory {
+  id          String       @id @default(uuid()) @db.Uuid
+  slug        String
+  name        String
+  description String?
+  kind        ResourceKind
+  position    Int          @default(0)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  resources Resource[]
+
+  @@unique([kind, slug])
+  @@index([kind, position])
+}
+
+model ResourceTag {
+  id   String @id @default(uuid()) @db.Uuid
+  slug String @unique
+  name String
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  resources ResourceTagJoin[]
+}
+
+model ResourceTagJoin {
+  resourceId String @db.Uuid
+  tagId      String @db.Uuid
+
+  resource Resource    @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  tag      ResourceTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([resourceId, tagId])
+  @@index([tagId])
+}
+
+model Resource {
+  id                 String               @id @default(uuid()) @db.Uuid
+  slug               String               @unique
+  title              String
+  subtitle           String?
+  excerpt            String
+  kind               ResourceKind
+  availability       ResourceAvailability @default(AVAILABLE)
+  status             ResourceStatus       @default(DRAFT)
+  readingTimeMinutes Int?
+  fileLabel          String?
+  featured           Boolean              @default(false)
+  relatedHref        String?
+  relatedLabel       String?
+  publishedAt        DateTime?            @db.Timestamp(6)
+
+  /// Markdown body for guides.
+  content       String?
+  contentFormat BlogContentFormat @default(MARKDOWN)
+
+  /// Preview sections for templates (`{ title, body }[]`).
+  templateSections Json?
+  templateIncludes String[] @default([])
+
+  categoryId String?           @db.Uuid
+  category   ResourceCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
+
+  tags ResourceTagJoin[]
+
+  @@index([kind, status, publishedAt])
+  @@index([kind, availability])
+  @@index([status])
+  @@index([categoryId])
+  @@index([featured])
 }
 
 model AnalyticsEvent {

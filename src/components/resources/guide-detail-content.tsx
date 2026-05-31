@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { MarkdownContent } from "@/components/common/markdown-content";
-import { ResourcesHubStrip } from "@/components/resources/resources-hub-strip";
 import { Badge } from "@/components/ui/badge";
 import { GUIDES_PAGE } from "@/constants/guides.constants";
-import { GUIDE_CATEGORIES } from "@/constants/guides.constants";
 import { guidePath, GUIDES_INDEX_PATH } from "@/lib/resources/paths";
 import type { GuideDetail } from "@/lib/resources/guide-content";
 import { ArrowLeft, Clock } from "lucide-react";
@@ -13,8 +11,7 @@ type GuideDetailContentProps = {
 };
 
 export function GuideDetailContent({ detail }: GuideDetailContentProps) {
-  const { item, content } = detail;
-  const category = GUIDE_CATEGORIES.find((c) => c.slug === item.categorySlug);
+  const { item, content, categoryName } = detail;
 
   return (
     <div className="relative z-10">
@@ -23,7 +20,6 @@ export function GuideDetailContent({ detail }: GuideDetailContentProps) {
           {GUIDES_PAGE.detailEyebrow}
         </p>
       </div>
-      <ResourcesHubStrip current="guias" />
 
       <article className="mx-auto w-full max-w-3xl px-4 pb-16 pt-8 sm:px-6 lg:px-8">
         <Link
@@ -36,7 +32,9 @@ export function GuideDetailContent({ detail }: GuideDetailContentProps) {
 
         <header className="mb-8 space-y-4 border-b-2 border-foreground pb-8">
           <div className="flex flex-wrap gap-2">
-            {category ? <Badge variant="outline">{category.name}</Badge> : null}
+            {categoryName ? (
+              <Badge variant="outline">{categoryName}</Badge>
+            ) : null}
             {item.tags.map((tag) => (
               <Badge key={tag} variant="secondary" className="text-[10px]">
                 #{tag}

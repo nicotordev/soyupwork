@@ -3,11 +3,9 @@ import { LegalMarketingShell } from "@/components/legal/legal-marketing-shell";
 import { ResourceIndexContent } from "@/components/resources/resource-index-content";
 import {
   buildTemplatesIndexMetadata,
-  TEMPLATE_CATEGORIES,
-  TEMPLATE_ITEMS,
   TEMPLATES_PAGE,
 } from "@/constants/templates.constants";
-import { getResourceCatalogPageData } from "@/lib/resources/get-resource-catalog";
+import { getPublishedResourcesPageData } from "@/lib/resources/get-public-resources";
 
 export const metadata: Metadata = buildTemplatesIndexMetadata();
 
@@ -17,13 +15,7 @@ type PageProps = {
 
 export default async function PlantillasPage({ searchParams }: PageProps) {
   const resolved = await searchParams;
-  const data = getResourceCatalogPageData(
-    TEMPLATES_PAGE,
-    "template",
-    TEMPLATE_ITEMS,
-    TEMPLATE_CATEGORIES,
-    resolved,
-  );
+  const data = await getPublishedResourcesPageData("template", resolved);
 
   return (
     <LegalMarketingShell seed={520} shapeCount={4}>

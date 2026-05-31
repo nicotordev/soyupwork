@@ -9,6 +9,7 @@ import {
   IconUsersGroup,
   IconMail,
   IconNews,
+  IconFileStack,
 } from "@tabler/icons-react";
 
 import type { AdminNavItem } from "@/types/dashboard.types";
@@ -45,6 +46,12 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = [
     href: "/admin/blog",
     icon: IconNews,
     description: "Artículos y SEO",
+  },
+  {
+    label: "Recursos",
+    href: "/admin/resources",
+    icon: IconFileStack,
+    description: "Guías y plantillas",
   },
   {
     label: "Usuarios",

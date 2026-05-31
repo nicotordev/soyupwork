@@ -3,11 +3,10 @@ import { notFound } from "next/navigation";
 import { LegalMarketingShell } from "@/components/legal/legal-marketing-shell";
 import { TemplateDetailContent } from "@/components/resources/template-detail-content";
 import {
-  getTemplateSlugs,
-  TEMPLATE_ITEMS,
-} from "@/constants/templates.constants";
-import { findResourceBySlug } from "@/lib/resources/get-resource-catalog";
-import { getTemplateDetail } from "@/lib/resources/template-content";
+  getPublishedResourceCatalogItem,
+  getPublishedResourceSlugs,
+  getPublishedTemplateBySlug,
+} from "@/lib/resources/get-public-resources";
 import { templatePath } from "@/lib/resources/paths";
 import { buildLegalMetadata } from "@/lib/legal/build-legal-metadata";
 
@@ -15,15 +14,16 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return getTemplateSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await getPublishedResourceSlugs("template");
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = findResourceBySlug(TEMPLATE_ITEMS, slug);
+  const item = await getPublishedResourceCatalogItem("template", slug);
   if (!item) {
     return {
       title: "Plantilla no encontrada",
@@ -41,13 +41,8 @@ export async function generateMetadata({
 
 export default async function PlantillaDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const item = findResourceBySlug(TEMPLATE_ITEMS, slug);
+  const detail = await getPublishedTemplateBySlug(slug);
 
-  if (!item || item.availability === "coming_soon") {
-    notFound();
-  }
-
-  const detail = getTemplateDetail(item);
   if (!detail) {
     notFound();
   }

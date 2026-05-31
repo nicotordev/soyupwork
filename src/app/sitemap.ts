@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
-import { BlogPostStatus } from "@/generated/prisma/client";
-import { GUIDE_ITEMS } from "@/constants/guides.constants";
-import { TEMPLATE_ITEMS } from "@/constants/templates.constants";
+import {
+  BlogPostStatus,
+  ResourceAvailability,
+  ResourceStatus,
+} from "@/generated/prisma/client";
 import { BLOG_INDEX_PATH, blogPostPath } from "@/lib/seo/blog-paths";
 import {
   guidePath,
@@ -15,14 +17,35 @@ import prisma from "@/lib/db/prisma";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = getAppOrigin();
 
-  const posts = await prisma.blogPost.findMany({
-    where: {
-      status: BlogPostStatus.PUBLISHED,
-      publishedAt: { not: null },
-    },
-    select: { slug: true, updatedAt: true },
-    orderBy: { publishedAt: "desc" },
-  });
+  const [posts, guides, templates] = await Promise.all([
+    prisma.blogPost.findMany({
+      where: {
+        status: BlogPostStatus.PUBLISHED,
+        publishedAt: { not: null },
+      },
+      select: { slug: true, updatedAt: true },
+      orderBy: { publishedAt: "desc" },
+    }),
+    prisma.resource.findMany({
+      where: {
+        status: ResourceStatus.PUBLISHED,
+        availability: { not: ResourceAvailability.COMING_SOON },
+        kind: "GUIDE",
+        content: { not: null },
+      },
+      select: { slug: true, updatedAt: true },
+      orderBy: { publishedAt: "desc" },
+    }),
+    prisma.resource.findMany({
+      where: {
+        status: ResourceStatus.PUBLISHED,
+        availability: { not: ResourceAvailability.COMING_SOON },
+        kind: "TEMPLATE",
+      },
+      select: { slug: true, updatedAt: true, templateSections: true },
+      orderBy: { publishedAt: "desc" },
+    }),
+  ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: origin, changeFrequency: "weekly", priority: 1 },
@@ -52,21 +75,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const guideRoutes: MetadataRoute.Sitemap = GUIDE_ITEMS.filter(
-    (item) => item.availability !== "coming_soon",
-  ).map((item) => ({
+  const guideRoutes: MetadataRoute.Sitemap = guides.map((item) => ({
     url: `${origin}${guidePath(item.slug)}`,
+    lastModified: item.updatedAt,
     changeFrequency: "monthly",
     priority: 0.75,
   }));
 
-  const templateRoutes: MetadataRoute.Sitemap = TEMPLATE_ITEMS.filter(
-    (item) => item.availability !== "coming_soon",
-  ).map((item) => ({
-    url: `${origin}${templatePath(item.slug)}`,
-    changeFrequency: "monthly",
-    priority: 0.75,
-  }));
+  const templateRoutes: MetadataRoute.Sitemap = templates
+    .filter(
+      (item) =>
+        Array.isArray(item.templateSections) &&
+        item.templateSections.length > 0,
+    )
+    .map((item) => ({
+      url: `${origin}${templatePath(item.slug)}`,
+      lastModified: item.updatedAt,
+      changeFrequency: "monthly",
+      priority: 0.75,
+    }));
 
   return [...staticRoutes, ...blogRoutes, ...guideRoutes, ...templateRoutes];
 }

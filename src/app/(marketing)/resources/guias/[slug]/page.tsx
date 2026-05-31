@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LegalMarketingShell } from "@/components/legal/legal-marketing-shell";
 import { GuideDetailContent } from "@/components/resources/guide-detail-content";
-import { getGuideSlugs, GUIDE_ITEMS } from "@/constants/guides.constants";
-import { findResourceBySlug } from "@/lib/resources/get-resource-catalog";
-import { getGuideDetail } from "@/lib/resources/guide-content";
+import {
+  getPublishedGuideBySlug,
+  getPublishedResourceCatalogItem,
+  getPublishedResourceSlugs,
+} from "@/lib/resources/get-public-resources";
 import { guidePath } from "@/lib/resources/paths";
 import { buildLegalMetadata } from "@/lib/legal/build-legal-metadata";
 
@@ -12,15 +14,16 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export function generateStaticParams() {
-  return getGuideSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  const slugs = await getPublishedResourceSlugs("guide");
+  return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = findResourceBySlug(GUIDE_ITEMS, slug);
+  const item = await getPublishedResourceCatalogItem("guide", slug);
   if (!item) {
     return {
       title: "Guía no encontrada",
@@ -38,13 +41,8 @@ export async function generateMetadata({
 
 export default async function GuiaDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const item = findResourceBySlug(GUIDE_ITEMS, slug);
+  const detail = await getPublishedGuideBySlug(slug);
 
-  if (!item || item.availability === "coming_soon") {
-    notFound();
-  }
-
-  const detail = getGuideDetail(item);
   if (!detail) {
     notFound();
   }

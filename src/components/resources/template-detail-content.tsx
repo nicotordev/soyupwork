@@ -3,7 +3,6 @@ import { ResourcesHubStrip } from "@/components/resources/resources-hub-strip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TEMPLATES_PAGE } from "@/constants/templates.constants";
-import { TEMPLATE_CATEGORIES } from "@/constants/templates.constants";
 import { TEMPLATES_INDEX_PATH } from "@/lib/resources/paths";
 import type { TemplateDetail } from "@/lib/resources/template-content";
 import { ArrowLeft, Download, Lock } from "lucide-react";
@@ -13,10 +12,7 @@ type TemplateDetailContentProps = {
 };
 
 export function TemplateDetailContent({ detail }: TemplateDetailContentProps) {
-  const { item, sections, includes } = detail;
-  const category = TEMPLATE_CATEGORIES.find(
-    (c) => c.slug === item.categorySlug,
-  );
+  const { item, sections, includes, categoryName } = detail;
 
   const canDownload = item.availability === "available";
 
@@ -40,7 +36,9 @@ export function TemplateDetailContent({ detail }: TemplateDetailContentProps) {
 
         <header className="mb-8 space-y-4">
           <div className="flex flex-wrap gap-2">
-            {category ? <Badge variant="outline">{category.name}</Badge> : null}
+            {categoryName ? (
+              <Badge variant="outline">{categoryName}</Badge>
+            ) : null}
             {item.fileLabel ? (
               <Badge variant="secondary">{item.fileLabel}</Badge>
             ) : null}
