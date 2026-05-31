@@ -36,6 +36,7 @@ import type {
   GetAdminBlogPostForEditResult,
   UpdateBlogPostResult,
 } from "@/types/blog.types";
+import { revalidateSitemap } from "@/lib/seo/revalidate-sitemap";
 import { revalidatePath } from "next/cache";
 
 const log = getServerLogger("blog.actions");
@@ -326,6 +327,7 @@ async function applyBlogPostUpdate(
   if (existing.slug !== slug) {
     revalidatePath(blogPostPath(existing.slug));
   }
+  revalidateSitemap();
 
   return { ok: true };
 }
@@ -379,6 +381,7 @@ export async function deleteBlogPost(
     revalidatePath("/admin/blog");
     revalidatePath(BLOG_INDEX_PATH);
     revalidatePath(blogPostPath(existing.slug));
+    revalidateSitemap();
 
     return { ok: true };
   } catch (error) {

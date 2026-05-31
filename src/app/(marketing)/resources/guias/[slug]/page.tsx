@@ -5,7 +5,6 @@ import { GuideDetailContent } from "@/components/resources/guide-detail-content"
 import {
   getPublishedGuideBySlug,
   getPublishedResourceCatalogItem,
-  getPublishedResourceSlugs,
 } from "@/lib/resources/get-public-resources";
 import { guidePath } from "@/lib/resources/paths";
 import { buildLegalMetadata } from "@/lib/legal/build-legal-metadata";
@@ -13,11 +12,6 @@ import { buildLegalMetadata } from "@/lib/legal/build-legal-metadata";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
-
-export async function generateStaticParams() {
-  const slugs = await getPublishedResourceSlugs("guide");
-  return slugs.map((slug) => ({ slug }));
-}
 
 export async function generateMetadata({
   params,

@@ -46,6 +46,7 @@ import type {
   GetAdminResourceForEditResult,
   UpdateResourceResult,
 } from "@/types/resources-admin.types";
+import { revalidateSitemap } from "@/lib/seo/revalidate-sitemap";
 import { revalidatePath } from "next/cache";
 
 const log = getServerLogger("resources.actions");
@@ -172,6 +173,8 @@ function revalidateResourcePaths(
   if (previousSlug && previousSlug !== slug) {
     revalidatePath(templatePath(previousSlug));
   }
+
+  revalidateSitemap();
 }
 
 export async function getAdminResourceStats(

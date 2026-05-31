@@ -4,7 +4,6 @@ import { LegalMarketingShell } from "@/components/legal/legal-marketing-shell";
 import { TemplateDetailContent } from "@/components/resources/template-detail-content";
 import {
   getPublishedResourceCatalogItem,
-  getPublishedResourceSlugs,
   getPublishedTemplateBySlug,
 } from "@/lib/resources/get-public-resources";
 import { templatePath } from "@/lib/resources/paths";
@@ -13,11 +12,6 @@ import { buildLegalMetadata } from "@/lib/legal/build-legal-metadata";
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
-
-export async function generateStaticParams() {
-  const slugs = await getPublishedResourceSlugs("template");
-  return slugs.map((slug) => ({ slug }));
-}
 
 export async function generateMetadata({
   params,
